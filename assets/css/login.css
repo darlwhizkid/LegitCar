@@ -1,0 +1,689 @@
+/* Login Page Styles */
+:root {
+  --primary-color: #0066cc;
+  --secondary-color: #f8f9fa;
+  --text-color: #333;
+  --light-gray: #e9ecef;
+  --medium-gray: #adb5bd;
+  --dark-gray: #495057;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --info-color: #17a2b8;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  background-color: #f5f7fa;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.login-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* Left Side - Branding */
+.login-left {
+  flex: 1;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-left::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('../images/pattern.svg') repeat;
+  opacity: 0.1;
+}
+
+.login-content {
+  position: relative;
+  z-index: 1;
+  max-width: 500px;
+}
+
+.login-logo {
+  display: inline-block;
+  margin-bottom: 30px;
+}
+
+.login-logo img {
+  height: 50px;
+}
+
+.login-left h1 {
+  font-size: 36px;
+  margin-bottom: 20px;
+}
+
+.login-left p {
+  font-size: 18px;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+.login-features {
+  margin-bottom: 40px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.feature-item i {
+  margin-right: 15px;
+  font-size: 20px;
+  color: var(--success-color);
+}
+
+.login-help {
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+.login-help a {
+  color: white;
+  text-decoration: underline;
+}
+
+/* Right Side - Auth Forms */
+.login-right {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background-color: white;
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.auth-tabs {
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.auth-tab {
+  flex: 1;
+  background: none;
+  border: none;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--dark-gray);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
+}
+
+.auth-tab.active {
+  color: var(--primary-color);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.auth-tab:hover {
+  color: var(--primary-color);
+}
+
+.auth-form {
+  display: none;
+}
+
+.auth-form.active {
+  display: block;
+}
+
+.auth-form h3 {
+  font-size: 18px;
+  color: var(--text-color);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 2px;
+  font-weight: 500;
+  color: var(--text-color);
+  font-size: 12px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--light-gray);
+  border-radius: 6px;
+  font-size: 13px;
+  height: 32px;
+  transition: border 0.3s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
+}
+
+.password-input-group {
+  position: relative;
+  height: 32px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  color: var(--medium-gray);
+  cursor: pointer;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.password-toggle:hover {
+  color: var(--dark-gray);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 11px;
+}
+
+.form-options a {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.form-options a:hover {
+  text-decoration: underline;
+}
+
+.auth-submit-btn {
+  width: 100%;
+  padding: 8px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 8px;
+  height: 34px;
+}
+
+.auth-submit-btn:hover {
+  background-color: #0052a3;
+}
+
+.auth-submit-btn:disabled {
+  background-color: var(--medium-gray);
+  cursor: not-allowed;
+}
+
+.social-login {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.social-login p {
+  color: var(--medium-gray);
+  margin-bottom: 6px;
+  position: relative;
+  font-size: 11px;
+}
+
+.social-login p::before,
+.social-login p::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 30%;
+  height: 1px;
+  background-color: var(--light-gray);
+}
+
+.social-login p::before {
+  left: 0;
+}
+
+.social-login p::after {
+  right: 0;
+}
+
+.social-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.social-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid var(--light-gray);
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 12px;
+  height: 30px;
+}
+
+.social-button.google:hover {
+  background-color: #f2f2f2;
+}
+
+.social-button.facebook {
+  background-color: #3b5998;
+  color: white;
+  border-color: #3b5998;
+}
+
+.social-button.facebook:hover {
+  background-color: #344e86;
+}
+
+.error-message {
+  color: var(--danger-color);
+  font-size: 10px;
+  margin-top: 2px;
+  display: none;
+  line-height: 1.2;
+}
+
+.form-group.error input,
+.form-group.error select {
+  border-color: var(--danger-color);
+}
+
+.form-group.error .error-message {
+  display: block;
+}
+
+/* Fix for checkbox alignment based on actual HTML structure */
+
+/* For the terms checkbox in the registration form */
+.terms-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* For the remember me checkbox in the login form */
+.remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.remember-me input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* Fix specifically for the Remember me checkbox in the login form */
+.form-options .remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.form-options .remember-me input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* If the checkbox is inside a label, target it this way */
+.form-options label.remember-me {
+  display: flex;
+  align-items: center;
+}
+
+.form-options label.remember-me input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* Fix for the Remember me checkbox using the same approach that worked for terms */
+.form-options label {
+  display: flex;
+  align-items: center;
+}
+
+.form-options label input[type="checkbox"] {
+  margin-right: 8px;
+  width: auto;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.terms-checkbox a {
+  color: var(--primary-color);
+}
+
+.back-link {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: var(--primary-color);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .login-container {
+    flex-direction: column;
+    overflow-y: auto;
+    height: auto;
+  }
+  
+  .login-left,
+  .login-right {
+    flex: none;
+    width: 100%;
+    padding: 30px 20px;
+  }
+  
+  .login-left {
+    min-height: 300px;
+  }
+  
+  .login-content {
+    text-align: center;
+  }
+  
+  .feature-item {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .login-left {
+    padding: 20px;
+    min-height: 250px;
+  }
+  
+  .login-left h1 {
+    font-size: 28px;
+  }
+  
+  .login-left p {
+    font-size: 16px;
+  }
+  
+  .login-right {
+    padding: 20px;
+  }
+  
+  .auth-tab {
+    font-size: 14px;
+    padding: 10px;
+  }
+  
+  .form-options {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .social-buttons {
+    flex-direction: column;
+  }
+}
+
+/* Phone input group */
+.phone-input-group {
+  display: flex;
+  gap: 5px;
+}
+
+.phone-input-group select {
+  width: 40%;
+  padding: 12px 15px;
+  border: 1px solid var(--light-gray);
+  border-radius: 6px;
+  font-size: 15px;
+  background-color: white;
+}
+
+.phone-input-group input {
+  width: 60%;
+}
+
+/* Password requirements */
+.password-requirements {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--dark-gray);
+  background-color: var(--secondary-color);
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.password-requirements p {
+  margin: 0 0 5px 0;
+  font-weight: 500;
+}
+
+.password-requirements ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.password-requirements li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.password-requirements li i {
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.password-requirements li i.fa-times-circle {
+  color: var(--danger-color);
+}
+
+.password-requirements li i.fa-check-circle {
+  color: var(--success-color);
+}
+
+/* Form validation visual feedback */
+.form-group.valid input,
+.form-group.valid select {
+  border-color: var(--success-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2328a745' class='bi bi-check-circle-fill' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+  padding-right: 35px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .phone-input-group {
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .phone-input-group select,
+  .phone-input-group input {
+    width: 100%;
+  }
+}
+
+/* Two-column layout */
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 0;
+}
+
+.form-group.half {
+  flex: 1;
+  min-width: 0; /* Prevents overflow */
+}
+
+/* Make the password requirements more compact */
+.password-requirements.compact {
+  margin: 5px 0;
+  padding: 8px;
+  font-size: 12px;
+}
+
+.password-requirements.compact ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.password-requirements.compact li {
+  flex: 1 0 40%;
+  margin-bottom: 2px;
+  font-size: 11px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .password-requirements.compact ul {
+    flex-direction: column;
+    gap: 3px;
+  }
+}
+
+/* Updated CSS for better form visibility */
+
+/* Make the auth modal scrollable if needed */
+#authModal {
+  overflow-y: auto;
+  max-height: 90vh; /* 90% of viewport height */
+}
+
+/* Ensure the auth form fits within the viewport */
+.auth-form {
+  max-width: 90%; /* Limit width to 90% of container */
+  width: 400px; /* Target width, but will shrink if needed */
+  margin: 0 auto;
+  padding: 25px;
+  overflow: visible; /* Allow content to be fully visible */
+}
+
+/* Ensure form inputs don't overflow */
+.auth-form input,
+.auth-form select,
+.auth-form .password-input-group {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure password toggle button doesn't cause overflow */
+.password-input-group {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Make sure error messages don't cause horizontal overflow */
+.error-message {
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+  .auth-form {
+    width: 85%;
+    padding: 20px 15px;
+  }
+  
+  /* Smaller text on mobile */
+  .auth-form label,
+  .auth-form input,
+  .auth-form select {
+    font-size: 14px;
+  }
+  
+  /* Compact password requirements on mobile */
+  .password-requirements {
+    font-size: 12px;
+  }
+  
+  .password-requirements ul {
+    padding-left: 15px;
+  }
+}
