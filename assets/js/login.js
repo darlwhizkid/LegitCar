@@ -112,43 +112,83 @@ document.addEventListener('DOMContentLoaded', function() {
     const re = /^(\+234|0)[0-9]{10}$/;
     return re.test(phone);
   }
+  document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.getElementById('loginForm');
   
-  // Login form submission
-  loginSubmitBtn.addEventListener('click', function() {
-    const emailInput = document.getElementById('loginEmail');
-    const passwordInput = document.getElementById('loginPassword');
-    let isValid = true;
-    
-    clearErrors(loginForm);
-    
-    if (!emailInput.value.trim()) {
-      showError(emailInput, 'Email is required');
-      isValid = false;
-    } else if (!validateEmail(emailInput.value)) {
-      showError(emailInput, 'Please enter a valid email');
-      isValid = false;
-    }
-    
-    if (!passwordInput.value.trim()) {
-      showError(passwordInput, 'Password is required');
-      isValid = false;
-    }
-    
-    if (isValid) {
-      // For demo purposes, we'll use a mock login
-      // In a real app, you would call your API here
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('currentUser', JSON.stringify({
-        name: emailInput.value.split('@')[0],
-        email: emailInput.value,
-        isNewUser: false
-      }));
+    if (loginForm) {
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
       
-      // Redirect to dashboard
-      window.location.href = 'dashboard.html';
+        // Get form data
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+      
+        // Perform login validation (this is a simplified example)
+        // In a real application, you would validate against a server
+      
+        // Check if this user exists in localStorage
+        const existingUserData = getUserByEmail(email);
+      
+        if (existingUserData) {
+          // In a real app, you would verify the password here
+          // For this example, we'll just assume it's correct
+        
+          // Set authentication state
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('currentUser', JSON.stringify(existingUserData));
+        
+          // Redirect to dashboard
+          window.location.href = 'dashboard.html';
+        } else {
+          // Create a new user if not found
+          const newUser = {
+            email: email,
+            name: email.split('@')[0], // Use part of email as name initially
+            isNewUser: true
+          };
+        
+          // Save new user
+          saveUser(newUser);
+        
+          // Set authentication state
+          localStorage.setItem('isAuthenticated', 'true');
+          localStorage.setItem('currentUser', JSON.stringify(newUser));
+        
+          // Redirect to dashboard
+          window.location.href = 'dashboard.html';
+        }
+      });
     }
   });
+
+  // Function to get user by email from localStorage
+  function getUserByEmail(email) {
+    // Get all users from localStorage
+    const users = JSON.parse(localStorage.getItem('users')) || [];
   
+    // Find user with matching email
+    return users.find(user => user.email === email);
+  }
+
+  // Function to save user to localStorage
+  function saveUser(userData) {
+    // Get existing users
+    const users = JSON.parse(localStorage.getItem('users')) || [];
+  
+    // Check if user already exists
+    const existingUserIndex = users.findIndex(user => user.email === userData.email);
+  
+    if (existingUserIndex >= 0) {
+      // Update existing user
+      users[existingUserIndex] = userData;
+    } else {
+      // Add new user
+      users.push(userData);
+    }
+  
+    // Save updated users array
+    localStorage.setItem('users', JSON.stringify(users));
+  }
   // Register form submission
   registerSubmitBtn.addEventListener('click', function() {
     const nameInput = document.getElementById('registerName');

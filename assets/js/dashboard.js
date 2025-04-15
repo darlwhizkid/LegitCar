@@ -12,11 +12,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get user data
   const userData = JSON.parse(localStorage.getItem('currentUser'));
   
-  // Update user greeting
-  const userGreeting = document.getElementById('userGreeting');
-  if (userGreeting && userData) {
-    userGreeting.textContent = `Welcome, ${userData.name}`;
-  }
+  // Update user greeting and profile picture
+  updateUserInterface(userData);
   
   // User menu toggle
   const userMenuToggle = document.getElementById('userMenuToggle');
@@ -34,31 +31,37 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
-  // Logout functionality
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function(e) {
-      e.preventDefault();
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(e) {
+        e.preventDefault();
       
-      // Clear authentication data
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('currentUser');
+        // Clear authentication data
+        localStorage.removeItem('isAuthenticated');
       
-      // Redirect to home page
-      window.location.href = 'index.html';
-    });
-  }
-  
-  // Show/hide new user message
+        // Redirect to home page
+        window.location.href = 'index.html';
+      });
+    }
+  // Show/hide new user message based on profile completion
   const newUserMessage = document.getElementById('newUserMessage');
   const activityList = document.getElementById('activityList');
   
   if (newUserMessage && activityList && userData) {
-    if (userData.isNewUser) {
+    // Check if profile is complete
+    const isProfileComplete = checkProfileCompletion(userData);
+    
+    if (!isProfileComplete) {
       newUserMessage.style.display = 'flex';
+      if (activityList) {
+        activityList.style.display = 'none';
+      }
     } else {
       newUserMessage.style.display = 'none';
+      if (activityList) {
+        activityList.style.display = 'block';
+      }
     }
   }
   
@@ -107,3 +110,51 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Function to update user interface with user data
+function updateUserInterface(userData) {
+  if (!userData) return;
+  
+  // Update user greeting
+  const userGreeting = document.getElementById('userGreeting');
+  if (userGreeting) {
+    userGreeting.textContent = `Welcome, ${userData.name || 'User'}`;
+  }
+  
+  // Update profile picture if available
+  if (userData.profilePicture) {
+    // Find all user avatar elements and update them
+    const userAvatars = document.querySelectorAll('.user-avatar, .user-menu-toggle i.fa-user-circle');
+    userAvatars.forEach(avatar => {
+      if (avatar.tagName.toLowerCase() === 'img') {
+        avatar.src = userData.profilePicture;
+      } else {
+        // For icon elements, replace with an image
+        const img = document.createElement('img');
+        img.src = userData.profilePicture;
+        img.alt = 'User Avatar';
+        img.className = 'user-avatar';
+        img.style.width = '30px';
+        img.style.height = '30px';
+        img.style.borderRadius = '50%';
+        img.style.objectFit = 'cover';
+        
+        // Replace the icon with the image
+        avatar.parentNode.replaceChild(img, avatar);
+      }
+    });
+  }
+}
+
+// Function to check if profile is complete
+function checkProfileCompletion(userData) {
+  // Define required fields for a complete profile
+  const requiredFields = ['name', 'email', 'phone', 'address', 'nokName', 'nokRelationship', 'nokPhone', 'nokAddress'];
+  
+  // Check if all required fields exist and are not empty
+  return requiredFields.every(field => 
+    userData.hasOwnProperty(field) && 
+    userData[field] && 
+    userData[field].toString().trim() !== ''
+  );
+}
