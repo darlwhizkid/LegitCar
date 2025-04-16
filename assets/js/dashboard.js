@@ -12,8 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get user data
   const userData = JSON.parse(localStorage.getItem('currentUser'));
   
-  // Update user greeting and profile picture
-  updateUserInterface(userData);
+  // Update user greeting
+  const userGreeting = document.getElementById('userGreeting');
+  if (userGreeting && userData) {
+    userGreeting.textContent = `Welcome, ${userData.name}`;
+  }
   
   // User menu toggle
   const userMenuToggle = document.getElementById('userMenuToggle');
@@ -31,58 +34,32 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-    // Logout functionality
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+  
+  // Logout functionality
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
       
-        // Clear authentication data
-        localStorage.removeItem('isAuthenticated');
+      // Clear authentication data
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('currentUser');
       
-        // Redirect to home page
-        window.location.href = 'index.html';
-      });
-    }
-  // Show/hide new user message based on profile completion
+      // Redirect to home page
+      window.location.href = 'index.html';
+    });
+  }
+  
+  // Show/hide new user message
   const newUserMessage = document.getElementById('newUserMessage');
   const activityList = document.getElementById('activityList');
   
   if (newUserMessage && activityList && userData) {
-    // Check if profile is complete
-    const isProfileComplete = checkProfileCompletion(userData);
-    
-    if (!isProfileComplete) {
+    if (userData.isNewUser) {
       newUserMessage.style.display = 'flex';
-      if (activityList) {
-        activityList.style.display = 'none';
-      }
     } else {
       newUserMessage.style.display = 'none';
-      if (activityList) {
-        activityList.style.display = 'block';
-      }
     }
-  }
-  
-  // Mobile sidebar toggle functionality
-  const sidebarToggle = document.querySelector('.sidebar-toggle');
-  const sidebar = document.querySelector('.dashboard-sidebar');
-  
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', function() {
-      sidebar.classList.toggle('active');
-      console.log('Sidebar toggle clicked'); // For debugging
-    });
-    
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', function(event) {
-      if (window.innerWidth <= 992) {
-        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-          sidebar.classList.remove('active');
-        }
-      }
-    });
   }
   
   // Set current year in footer
@@ -91,70 +68,107 @@ document.addEventListener('DOMContentLoaded', function() {
     currentYearElement.textContent = new Date().getFullYear();
   }
   
-  // Navigation active state
-  const navLinks = document.querySelectorAll('.sidebar-nav a');
-  navLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      // Only prevent default for hash links
-      if (this.getAttribute('href').startsWith('#')) {
-        e.preventDefault();
+  // IMPROVED SIDEBAR TOGGLE FUNCTIONALITY
+  // This approach uses event delegation to ensure the toggle works
+  // even when the DOM changes or content is loaded dynamically
+  
+  // First, make sure we have a sidebar toggle button
+  let sidebarToggle = document.querySelector('.sidebar-toggle');
+  const sidebar = document.querySelector('.dashboard-sidebar');
+  
+  // If no toggle exists but we have a sidebar, create a toggle button
+  if (!sidebarToggle && sidebar) {
+    sidebarToggle = document.createElement('button');
+    sidebarToggle.className = 'sidebar-toggle';
+    sidebarToggle.innerHTML = '<span></span><span></span><span></span>';
+    document.querySelector('.dashboard-header .container').appendChild(sidebarToggle);
+  }
+  
+  // Use event delegation on the document body for the sidebar toggle
+  document.body.addEventListener('click', function(event) {
+    // Check if the clicked element is the sidebar toggle or inside it
+    if (event.target.closest('.sidebar-toggle')) {
+      event.preventDefault();
+      if (sidebar) {
+        sidebar.classList.toggle('active');
+        console.log('Sidebar toggle clicked via delegation');
+      }
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    if (window.innerWidth <= 992) {
+      const clickedInsideSidebar = event.target.closest('.dashboard-sidebar');
+      const clickedOnToggle = event.target.closest('.sidebar-toggle');
+      
+      if (!clickedInsideSidebar && !clickedOnToggle && sidebar && sidebar.classList.contains('active')) {
+        sidebar.classList.remove('active');
+      }
+    }
+  });
+  
+  // Navigation active state with improved event delegation
+  document.body.addEventListener('click', function(event) {
+    const navLink = event.target.closest('.sidebar-nav a');
+    
+    if (navLink) {
+      // Only handle hash links
+      if (navLink.getAttribute('href').startsWith('#')) {
+        event.preventDefault();
         
         // Remove active class from all links
-        navLinks.forEach(navLink => {
-          navLink.parentElement.classList.remove('active');
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+          link.parentElement.classList.remove('active');
         });
         
         // Add active class to clicked link
-        this.parentElement.classList.add('active');
+        navLink.parentElement.classList.add('active');
+        
+        // Get the target section ID
+        const targetId = navLink.getAttribute('href').substring(1);
+        
+        // Hide all sections
+        document.querySelectorAll('.dashboard-main > div[id]').forEach(section => {
+          section.style.display = 'none';
+        });
+        
+        // Show the target section
+        const targetSection = document.getElementById(targetId);
+        if (targetSection) {
+          targetSection.style.display = 'block';
+        }
       }
+    }
+  });
+  
+  // Make sure the sidebar toggle is visible on mobile
+  function updateToggleVisibility() {
+    if (sidebarToggle) {
+      if (window.innerWidth <= 992) {
+        sidebarToggle.style.display = 'block';
+      } else {
+        sidebarToggle.style.display = 'none';
+        // On desktop, always show sidebar
+        if (sidebar) {
+          sidebar.classList.add('active');
+        }
+      }
+    }
+  }
+  
+  // Update toggle visibility on resize
+  window.addEventListener('resize', updateToggleVisibility);
+  
+  // Initialize on page load
+  updateToggleVisibility();
+  
+  // Handle profile link specifically
+  const profileLinks = document.querySelectorAll('a[href="#profile"]');
+  profileLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Make sure the sidebar toggle still works after loading profile
+      setTimeout(function() {
+        updateToggleVisibility();
+      }, 100);
     });
   });
 });
-
-// Function to update user interface with user data
-function updateUserInterface(userData) {
-  if (!userData) return;
-  
-  // Update user greeting
-  const userGreeting = document.getElementById('userGreeting');
-  if (userGreeting) {
-    userGreeting.textContent = `Welcome, ${userData.name || 'User'}`;
-  }
-  
-  // Update profile picture if available
-  if (userData.profilePicture) {
-    // Find all user avatar elements and update them
-    const userAvatars = document.querySelectorAll('.user-avatar, .user-menu-toggle i.fa-user-circle');
-    userAvatars.forEach(avatar => {
-      if (avatar.tagName.toLowerCase() === 'img') {
-        avatar.src = userData.profilePicture;
-      } else {
-        // For icon elements, replace with an image
-        const img = document.createElement('img');
-        img.src = userData.profilePicture;
-        img.alt = 'User Avatar';
-        img.className = 'user-avatar';
-        img.style.width = '30px';
-        img.style.height = '30px';
-        img.style.borderRadius = '50%';
-        img.style.objectFit = 'cover';
-        
-        // Replace the icon with the image
-        avatar.parentNode.replaceChild(img, avatar);
-      }
-    });
-  }
-}
-
-// Function to check if profile is complete
-function checkProfileCompletion(userData) {
-  // Define required fields for a complete profile
-  const requiredFields = ['name', 'email', 'phone', 'address', 'nokName', 'nokRelationship', 'nokPhone', 'nokAddress'];
-  
-  // Check if all required fields exist and are not empty
-  return requiredFields.every(field => 
-    userData.hasOwnProperty(field) && 
-    userData[field] && 
-    userData[field].toString().trim() !== ''
-  );
-}

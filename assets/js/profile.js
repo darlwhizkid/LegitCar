@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = 'index.html';
     return;
   }
-  
+
   // Get user data
   const userData = JSON.parse(localStorage.getItem('currentUser')) || {};
   
@@ -53,6 +53,55 @@ document.addEventListener('DOMContentLoaded', function() {
       window.location.href = 'index.html';
     });
   }
+  
+  // SIDEBAR TOGGLE FUNCTIONALITY
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.querySelector('.dashboard-sidebar');
+  
+  if (sidebarToggle && sidebar) {
+    // Add click event listener for sidebar toggle
+    sidebarToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      sidebar.classList.toggle('active');
+      console.log('Profile page: Sidebar toggle clicked');
+    });
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', function(event) {
+      if (window.innerWidth <= 992) {
+        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
+          sidebar.classList.remove('active');
+        }
+      }
+    });
+  }
+  
+  // Handle window resize for responsive behavior
+  function updateSidebarVisibility() {
+    if (window.innerWidth > 992) {
+      // On desktop, always show sidebar
+      if (sidebar) {
+        sidebar.classList.add('active');
+      }
+      // Hide toggle button on desktop
+      if (sidebarToggle) {
+        sidebarToggle.style.display = 'none';
+      }
+    } else {
+      // On mobile, hide sidebar by default
+      if (sidebar) {
+        sidebar.classList.remove('active');
+      }
+      // Show toggle button on mobile
+      if (sidebarToggle) {
+        sidebarToggle.style.display = 'block';
+      }
+    }
+  }
+  
+  // Run on page load and window resize
+  updateSidebarVisibility();
+  window.addEventListener('resize', updateSidebarVisibility);
   
   // Handle profile picture preview
   const profilePictureInput = document.getElementById('profilePicture');
@@ -122,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Save updated user data to currentUser
       localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
       
-      // IMPORTANT: Add this code to also save to the users array
+      // Save to the users array
       saveUserToUsersArray(updatedUserData);
       
       // Show success message
@@ -131,25 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Redirect back to dashboard
       window.location.href = 'dashboard.html';
     });
-
-function saveUserToUsersArray(userData) {
-  // Get existing users
-  const users = JSON.parse(localStorage.getItem('users')) || [];
-  
-  // Find the index of the current user
-  const userIndex = users.findIndex(user => user.email === userData.email);
-  
-  if (userIndex >= 0) {
-    // Update existing user
-    users[userIndex] = userData;
-  } else {
-    // Add as new user
-    users.push(userData);
   }
-  
-  // Save updated users array
-  localStorage.setItem('users', JSON.stringify(users));
-}  }
 });
 
 function populateProfileForm(userData) {
@@ -172,4 +203,23 @@ function populateProfileForm(userData) {
   if (userData.nokPhone) document.getElementById('nokPhone').value = userData.nokPhone;
   if (userData.nokEmail) document.getElementById('nokEmail').value = userData.nokEmail;
   if (userData.nokAddress) document.getElementById('nokAddress').value = userData.nokAddress;
+}
+
+function saveUserToUsersArray(userData) {
+  // Get existing users
+  const users = JSON.parse(localStorage.getItem('users')) || [];
+  
+  // Find the index of the current user
+  const userIndex = users.findIndex(user => user.email === userData.email);
+  
+  if (userIndex >= 0) {
+    // Update existing user
+    users[userIndex] = userData;
+  } else {
+    // Add as new user
+    users.push(userData);
+  }
+  
+  // Save updated users array
+  localStorage.setItem('users', JSON.stringify(users));
 }
