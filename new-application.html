@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Application | LegitCar</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/new-application.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="container">
+      <div class="logo">
+        <a href="index.html">
+          <img src="assets/images/logo.png" alt="Logo">
+        </a>
+      </div>
+      
+      <div class="user-menu">
+        <div class="user-info">
+          <span id="userGreeting">Welcome, User</span>
+          <button id="userMenuToggle" class="user-menu-toggle">
+            <i class="fas fa-user-circle"></i>
+            <i class="fas fa-caret-down"></i>
+          </button>
+          <div id="userDropdownMenu" class="user-dropdown-menu">
+            <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
+            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Toggle Button -->
+  <button class="sidebar-toggle" id="sidebarToggle">
+    <i class="fas fa-bars"></i>
+  </button>
+  
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+      <nav class="sidebar-nav">
+        <ul>
+          <li>
+            <a href="dashboard.html">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="applications.html">
+              <i class="fas fa-file-alt"></i>
+              <span>My Applications</span>
+            </a>
+          </li>
+          <li class="active">
+            <a href="new-application.html">
+              <i class="fas fa-plus-circle"></i>
+              <span>New Application</span>
+            </a>
+          </li>
+          <li>
+            <a href="#documents">
+              <i class="fas fa-folder"></i>
+              <span>Documents</span>
+            </a>
+          </li>
+          <li>
+            <a href="#messages">
+              <i class="fas fa-envelope"></i>
+              <span>Messages</span>
+              <span class="badge">3</span>
+            </a>
+          </li>
+          <li>
+            <a href="profile.html">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </a>
+          </li>
+          <li>
+            <a href="#settings">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+    
+    <main class="dashboard-main">
+      <div class="new-application-section">
+        <h1>New Application</h1>
+        <div class="back-button-container">
+          <a href="dashboard.html" class="back-button">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+          </a>
+        </div>
+
+        <div class="application-types">
+          <h2>Select Application Type</h2>
+          <div class="application-type-grid">
+            <div class="application-type-card" data-type="vehicle-registration">
+              <div class="type-icon">
+                <i class="fas fa-car"></i>
+              </div>
+              <h3>Vehicle Registration</h3>
+              <p>Register a new vehicle or renew existing registration</p>
+            </div>
+            
+            <div class="application-type-card" data-type="ownership-transfer">
+              <div class="type-icon">
+                <i class="fas fa-exchange-alt"></i>
+              </div>
+              <h3>Change of Ownership</h3>
+              <p>Transfer vehicle ownership to a new owner</p>
+            </div>
+            
+            <div class="application-type-card" data-type="license-renewal">
+              <div class="type-icon">
+                <i class="fas fa-id-card"></i>
+              </div>
+              <h3>License Renewal</h3>
+              <p>Renew your vehicle license</p>
+            </div>
+            
+            <div class="application-type-card" data-type="documentation">
+              <div class="type-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h3>Documentation Services</h3>
+              <p>Get vehicle documentation and certificates</p>
+            </div>
+            
+            <div class="application-type-card" data-type="drivers-license">
+              <div class="type-icon">
+                <i class="fas fa-id-badge"></i>
+              </div>
+              <h3>Driver's License</h3>
+              <p>Apply for or renew your driver's license</p>
+            </div>
+            
+            <div class="application-type-card" data-type="accessories">
+              <div class="type-icon">
+                <i class="fas fa-tags"></i>
+              </div>
+              <h3>Vehicle Accessories</h3>
+              <p>Order license plates, stickers, and other accessories</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Application Form (initially hidden) -->
+        <div id="applicationForm" class="application-form-container" style="display: none;">
+          <h2 id="formTitle">Application Form</h2>
+          
+          <!-- Vehicle Registration Form -->
+          <form id="vehicleRegistrationForm" class="application-form" style="display: none;">
+            <!-- Vehicle Information Section -->
+            <div class="form-section">
+              <h3>Vehicle Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vehicleMake" class="required-field">Make</label>
+                  <input type="text" id="vehicleMake" name="vehicleMake" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vehicleModel" class="required-field">Model</label>
+                  <input type="text" id="vehicleModel" name="vehicleModel" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vehicleYear" class="required-field">Year</label>
+                  <input type="number" id="vehicleYear" name="vehicleYear" min="1900" max="2099" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vehicleColor" class="required-field">Color</label>
+                  <input type="text" id="vehicleColor" name="vehicleColor" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="vehicleVIN" class="required-field">VIN (Vehicle Identification Number)</label>
+                <input type="text" id="vehicleVIN" name="vehicleVIN" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="vehiclePlateNumber">Current Plate Number (if any)</label>
+                <input type="text" id="vehiclePlateNumber" name="vehiclePlateNumber">
+              </div>
+              
+              <div class="form-group">
+                <label for="registrationType" class="required-field">Registration Type</label>
+                <select id="registrationType" name="registrationType" required>
+                  <option value="">Select Registration Type</option>
+                  <option value="new">New Registration</option>
+                  <option value="renewal">Renewal</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Owner Information Section -->
+            <div class="form-section">
+              <h3>Owner Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ownerName" class="required-field">Full Name</label>
+                  <input type="text" id="ownerName" name="ownerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="ownerEmail" class="required-field">Email</label>
+                  <input type="email" id="ownerEmail" name="ownerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ownerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="ownerPhone" name="ownerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="ownerAddress" class="required-field">Address</label>
+                  <input type="text" id="ownerAddress" name="ownerAddress" required>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="proofOfOwnership" class="required-field">Proof of Ownership</label>
+                  <input type="file" id="proofOfOwnership" name="proofOfOwnership" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="idCard" class="required-field">ID Card</label>
+                  <input type="file" id="idCard" name="idCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="insuranceCertificate" class="required-field">Insurance Certificate</label>
+                  <input type="file" id="insuranceCertificate" name="insuranceCertificate" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value" id="applicationFee">₦5,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value" id="processingFee">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value" id="totalFee">₦6,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsVehicleReg" name="agreeTerms" required>
+                <label for="agreeTermsVehicleReg">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- Ownership Transfer Form -->
+          <form id="ownershipTransferForm" class="application-form" style="display: none;">
+            <!-- Vehicle Information Section -->
+            <div class="form-section">
+              <h3>Vehicle Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vehicleMakeTransfer" class="required-field">Make</label>
+                  <input type="text" id="vehicleMakeTransfer" name="vehicleMake" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vehicleModelTransfer" class="required-field">Model</label>
+                  <input type="text" id="vehicleModelTransfer" name="vehicleModel" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vehicleYearTransfer" class="required-field">Year</label>
+                  <input type="number" id="vehicleYearTransfer" name="vehicleYear" min="1900" max="2099" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vehicleVINTransfer" class="required-field">VIN (Vehicle Identification Number)</label>
+                  <input type="text" id="vehicleVINTransfer" name="vehicleVIN" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="vehiclePlateNumberTransfer" class="required-field">Current Plate Number</label>
+                <input type="text" id="vehiclePlateNumberTransfer" name="vehiclePlateNumber" required>
+              </div>
+            </div>
+            
+            <!-- Current Owner Information Section -->
+            <div class="form-section">
+              <h3>Current Owner Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="currentOwnerName" class="required-field">Full Name</label>
+                  <input type="text" id="currentOwnerName" name="currentOwnerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="currentOwnerEmail" class="required-field">Email</label>
+                  <input type="email" id="currentOwnerEmail" name="currentOwnerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="currentOwnerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="currentOwnerPhone" name="currentOwnerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="currentOwnerAddress" class="required-field">Address</label>
+                  <input type="text" id="currentOwnerAddress" name="currentOwnerAddress" required>
+                </div>
+              </div>
+            </div>
+            
+            <!-- New Owner Information Section -->
+            <div class="form-section">
+              <h3>New Owner Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newOwnerName" class="required-field">Full Name</label>
+                  <input type="text" id="newOwnerName" name="newOwnerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="newOwnerEmail" class="required-field">Email</label>
+                  <input type="email" id="newOwnerEmail" name="newOwnerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newOwnerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="newOwnerPhone" name="newOwnerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="newOwnerAddress" class="required-field">Address</label>
+                  <input type="text" id="newOwnerAddress" name="newOwnerAddress" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="transferReason" class="required-field">Reason for Transfer</label>
+                <select id="transferReason" name="transferReason" required>
+                  <option value="">Select Reason</option>
+                  <option value="sale">Sale</option>
+                  <option value="gift">Gift</option>
+                  <option value="inheritance">Inheritance</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="otherReasonGroup" style="display: none;">
+                <label for="otherReason" class="required-field">Specify Other Reason</label>
+                <input type="text" id="otherReason" name="otherReason">
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="currentRegistration" class="required-field">Current Vehicle Registration</label>
+                  <input type="file" id="currentRegistration" name="currentRegistration" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="salesAgreement" class="required-field">Sales Agreement/Transfer Document</label>
+                  <input type="file" id="salesAgreement" name="salesAgreement" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="idCardTransfer" class="required-field">ID Cards (Both Owners)</label>
+                  <input type="file" id="idCardTransfer" name="idCardTransfer" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦7,500.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦8,500.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsTransfer" name="agreeTerms" required>
+                <label for="agreeTermsTransfer">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- License Renewal Form -->
+          <form id="licenseRenewalForm" class="application-form" style="display: none;">
+            <!-- License Information Section -->
+            <div class="form-section">
+              <h3>License Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="licenseNumber" class="required-field">License Number</label>
+                  <input type="text" id="licenseNumber" name="licenseNumber" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="expiryDate" class="required-field">Expiry Date</label>
+                  <input type="date" id="expiryDate" name="expiryDate" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="vehicleDetailsLicense" class="required-field">Vehicle Details</label>
+                <input type="text" id="vehicleDetailsLicense" name="vehicleDetails" placeholder="Make, Model, Year, Plate Number" required>
+              </div>
+            </div>
+            
+            <!-- Applicant Information Section -->
+            <div class="form-section">
+              <h3>Applicant Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="applicantName" class="required-field">Full Name</label>
+                  <input type="text" id="applicantName" name="applicantName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="applicantEmail" class="required-field">Email</label>
+                  <input type="email" id="applicantEmail" name="applicantEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="applicantPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="applicantPhone" name="applicantPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="applicantAddress" class="required-field">Address</label>
+                  <input type="text" id="applicantAddress" name="applicantAddress" required>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="expiredLicense" class="required-field">Expired License</label>
+                  <input type="file" id="expiredLicense" name="expiredLicense" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="passportPhoto" class="required-field">Passport Photograph</label>
+                  <input type="file" id="passportPhoto" name="passportPhoto" accept=".jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="proofOfAddress" class="required-field">Proof of Address</label>
+                  <input type="file" id="proofOfAddress" name="proofOfAddress" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦3,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦4,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsLicense" name="agreeTerms" required>
+                <label for="agreeTermsLicense">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- Documentation Services Form -->
+          <form id="documentationForm" class="application-form" style="display: none;">
+            <!-- Document Request Information -->
+            <div class="form-section">
+              <h3>Document Request Information</h3>
+              
+              <div class="form-group">
+                <label for="documentType" class="required-field">Document Type</label>
+                <select id="documentType" name="documentType" required>
+                  <option value="">Select Document Type</option>
+                  <option value="certificate-of-roadworthiness">Certificate of Roadworthiness</option>
+                  <option value="vehicle-history">Vehicle History Report</option>
+                  <option value="ownership-certificate">Certificate of Ownership</option>
+                  <option value="custom-papers">Custom Papers</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="otherDocumentGroup" style="display: none;">
+                <label for="otherDocumentType" class="required-field">Specify Other Document Type</label>
+                <input type="text" id="otherDocumentType" name="otherDocumentType">
+              </div>
+              
+              <div class="form-group">
+                <label for="vehicleDetails" class="required-field">Vehicle Details</label>
+                <input type="text" id="vehicleDetails" name="vehicleDetails" placeholder="Make, Model, Year, VIN/Chassis Number" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="requestPurpose" class="required-field">Purpose of Request</label>
+                <textarea id="requestPurpose" name="requestPurpose" rows="3" required></textarea>
+              </div>
+            </div>
+            
+            <!-- Requestor Information Section -->
+            <div class="form-section">
+              <h3>Requestor Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="requestorName" class="required-field">Full Name</label>
+                  <input type="text" id="requestorName" name="requestorName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="requestorEmail" class="required-field">Email</label>
+                  <input type="email" id="requestorEmail" name="requestorEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="requestorPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="requestorPhone" name="requestorPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="requestorAddress" class="required-field">Address</label>
+                  <input type="text" id="requestorAddress" name="requestorAddress" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="relationshipToVehicle" class="required-field">Relationship to Vehicle</label>
+                <select id="relationshipToVehicle" name="relationshipToVehicle" required>
+                  <option value="">Select Relationship</option>
+                  <option value="owner">Owner</option>
+                  <option value="authorized-representative">Authorized Representative</option>
+                  <option value="potential-buyer">Potential Buyer</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Supporting Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="idCardDoc" class="required-field">ID Card</label>
+                  <input type="file" id="idCardDoc" name="idCardDoc" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="supportingDocument" class="required-field">Supporting Document</label>
+                  <input type="file" id="supportingDocument" name="supportingDocument" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦4,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦5,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsDoc" name="agreeTerms" required>
+                <label for="agreeTermsDoc">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- Driver's License Form -->
+          <form id="driversLicenseForm" class="application-form" style="display: none;">
+            <!-- License Information Section -->
+            <div class="form-section">
+              <h3>License Information</h3>
+              
+              <div class="form-group">
+                <label for="licenseType" class="required-field">License Type</label>
+                <select id="licenseType" name="licenseType" required>
+                  <option value="">Select License Type</option>
+                  <option value="new">New License</option>
+                  <option value="renewal">Renewal</option>
+                  <option value="replacement">Replacement (Lost/Damaged)</option>
+                  <option value="upgrade">Upgrade</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="existingLicenseGroup" style="display: none;">
+                <label for="existingLicenseNumber" class="required-field">Existing License Number</label>
+                <input type="text" id="existingLicenseNumber" name="existingLicenseNumber">
+              </div>
+              
+              <div class="form-group">
+                <label for="licenseClass" class="required-field">License Class</label>
+                <select id="licenseClass" name="licenseClass" required>
+                  <option value="">Select License Class</option>
+                  <option value="A">Class A (Motorcycle)</option>
+                  <option value="B">Class B (Car/Light Vehicle)</option>
+                  <option value="C">Class C (Commercial Vehicle)</option>
+                  <option value="D">Class D (Heavy Goods Vehicle)</option>
+                  <option value="E">Class E (Articulated Vehicle)</option>
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="licenseValidity" class="required-field">Validity Period</label>
+                <select id="licenseValidity" name="licenseValidity" required>
+                  <option value="">Select Validity Period</option>
+                  <option value="3">3 Years</option>
+                  <option value="5">5 Years</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Applicant Information Section -->
+            <div class="form-section">
+              <h3>Applicant Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dlApplicantName" class="required-field">Full Name</label>
+                  <input type="text" id="dlApplicantName" name="applicantName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="dlApplicantEmail" class="required-field">Email</label>
+                  <input type="email" id="dlApplicantEmail" name="applicantEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dlApplicantPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="dlApplicantPhone" name="applicantPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="dlApplicantDob" class="required-field">Date of Birth</label>
+                  <input type="date" id="dlApplicantDob" name="applicantDob" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="dlApplicantGender" class="required-field">Gender</label>
+                  <select id="dlApplicantGender" name="applicantGender" required>
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                
+                <div class="form-group">
+                  <label for="dlApplicantBloodGroup" class="required-field">Blood Group</label>
+                  <select id="dlApplicantBloodGroup" name="applicantBloodGroup" required>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="dlApplicantAddress" class="required-field">Residential Address</label>
+                <textarea id="dlApplicantAddress" name="applicantAddress" rows="2" required></textarea>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="passportPhotoDL" class="required-field">Passport Photograph</label>
+                  <input type="file" id="passportPhotoDL" name="passportPhoto" accept=".jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="idCardDL" class="required-field">ID Card</label>
+                  <input type="file" id="idCardDL" name="idCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="proofOfAddressDL" class="required-field">Proof of Address</label>
+                  <input type="file" id="proofOfAddressDL" name="proofOfAddress" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="medicalCertificate" class="required-field">Medical Certificate</label>
+                  <input type="file" id="medicalCertificate" name="medicalCertificate" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦6,500.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦7,500.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsDL" name="agreeTerms" required>
+                <label for="agreeTermsDL">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- Vehicle Accessories Form -->
+          <form id="accessoriesForm" class="application-form" style="display: none;">
+            <!-- Accessory Information Section -->
+            <div class="form-section">
+              <h3>Accessory Information</h3>
+              
+              <div class="form-group">
+                <label for="accessoryType" class="required-field">Accessory Type</label>
+                <select id="accessoryType" name="accessoryType" required>
+                  <option value="">Select Accessory Type</option>
+                  <option value="license-plate">License Plate</option>
+                  <option value="vehicle-sticker">Vehicle Sticker</option>
+                  <option value="rfid-tag">RFID Tag</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="otherAccessoryGroup" style="display: none;">
+                <label for="otherAccessoryType" class="required-field">Specify Other Accessory</label>
+                <input type="text" id="otherAccessoryType" name="otherAccessoryType">
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="quantity" class="required-field">Quantity</label>
+                  <input type="number" id="quantity" name="quantity" min="1" value="1" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vehicleDetailsAccessory" class="required-field">Vehicle Details</label>
+                  <input type="text" id="vehicleDetailsAccessory" name="vehicleDetails" placeholder="Make, Model, Year, Plate Number" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="specialRequirements">Special Requirements</label>
+                <textarea id="specialRequirements" name="specialRequirements" rows="3"></textarea>
+              </div>
+            </div>
+            
+            <!-- Customer Information Section -->
+            <div class="form-section">
+              <h3>Customer Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="customerName" class="required-field">Full Name</label>
+                  <input type="text" id="customerName" name="customerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="customerEmail" class="required-field">Email</label>
+                  <input type="email" id="customerEmail" name="customerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="customerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="customerPhone" name="customerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="customerAddress" class="required-field">Delivery Address</label>
+                  <input type="text" id="customerAddress" name="customerAddress" required>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="idCardAccessory" class="required-field">ID Card</label>
+                  <input type="file" id="idCardAccessory" name="idCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="vehicleRegistration" class="required-field">Vehicle Registration</label>
+                  <input type="file" id="vehicleRegistration" name="vehicleRegistration" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦2,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦1,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦3,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsAccessory" name="agreeTerms" required>
+                <label for="agreeTermsAccessory">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Success Modal -->
+  <div id="successModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Application Submitted Successfully</h2>
+        <button class="close-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <p>Your application has been submitted successfully. Your application ID is:</p>
+        <div class="application-id" id="successAppId">APP-12345</div>
+        <p>You can track the status of your application using this ID. We will also send you email updates as your application progresses.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="viewApplicationsBtn">View My Applications</button>
+        <button class="btn-primary" id="newApplicationBtn">Submit Another Application</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    <div class="container">
+      <p>© <span id="currentYear">2023</span> LegitCar. All rights reserved.</p>
+    </div>
+  </footer>
+  
+  <script src="assets/js/new-application.js"></script>
+</body>
+</html>

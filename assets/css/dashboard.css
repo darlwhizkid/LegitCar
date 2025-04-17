@@ -445,14 +445,107 @@
     border-top: 1px solid var(--light-gray);
     padding-top: 15px;
   }
+      .no-activity {
+        color: var(--medium-gray);
+        text-align: center;
+        font-style: italic;
+        padding: 20px 0;
+      }
   
-  .no-activity {
-    color: var(--medium-gray);
-    text-align: center;
-    font-style: italic;
-    padding: 20px 0;
-  }
-  
+    .activity-item {
+      display: flex;
+      padding: 15px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background-color 0.3s;
+    }
+
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+
+    .activity-item:hover {
+      background-color: #f9f9f9;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.status-approved {
+      background-color: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+    }
+
+    .activity-icon.status-pending {
+      background-color: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .activity-icon.status-in-progress {
+      background-color: rgba(23, 162, 184, 0.1);
+      color: #17a2b8;
+    }
+
+    .activity-icon.status-rejected {
+      background-color: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+
+    .activity-content {
+      flex: 1;
+    }
+
+    .activity-title {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .activity-date {
+      font-size: 12px;
+      color: #666;
+      font-weight: normal;
+    }
+
+    .activity-status {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .activity-status span {
+      font-weight: 500;
+    }
+
+    .activity-status .status-approved {
+      color: #28a745;
+    }
+
+    .activity-status .status-pending {
+      color: #ffc107;
+    }
+
+    .activity-status .status-in-progress {
+      color: #17a2b8;
+    }
+
+    .activity-status .status-rejected {
+      color: #dc3545;
+    }
+
+    .no-activity {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
   /* Footer */
   .dashboard-footer {
     background-color: white;

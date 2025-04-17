@@ -172,3 +172,120 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 });
+
+// Add this to dashboard.js after getting user data
+
+// Load user applications
+function loadUserApplications() {
+  const userEmail = userData.email;
+  if (!userEmail) return [];
+  
+  const storedApplications = localStorage.getItem(`applications_${userEmail}`);
+  if (storedApplications) {
+    try {
+      return JSON.parse(storedApplications);
+    } catch (e) {
+      console.error('Error parsing stored applications:', e);
+      return [];
+    }
+  }
+  return [];
+}
+
+// Update dashboard statistics
+function updateDashboardStats() {
+  const applications = loadUserApplications();
+  
+  // Update total applications count
+  const totalAppsElement = document.querySelector('.dashboard-card:nth-child(1) .card-value');
+  if (totalAppsElement) {
+    totalAppsElement.textContent = applications.length;
+  }
+  
+  // Update approved applications count
+  const approvedAppsElement = document.querySelector('.dashboard-card:nth-child(2) .card-value');
+  if (approvedAppsElement) {
+    const approvedCount = applications.filter(app => app.status === 'approved').length;
+    approvedAppsElement.textContent = approvedCount;
+  }
+  
+  // Update pending applications count
+  const pendingAppsElement = document.querySelector('.dashboard-card:nth-child(3) .card-value');
+  if (pendingAppsElement) {
+    const pendingCount = applications.filter(app => 
+      app.status === 'pending' || app.status === 'in-progress'
+    ).length;
+    pendingAppsElement.textContent = pendingCount;
+  }
+  
+  // Update activity list
+  updateActivityList(applications);
+}
+
+// Update activity list
+function updateActivityList(applications) {
+  const activityList = document.getElementById('activityList');
+  const noActivity = document.querySelector('.no-activity');
+  
+  if (!activityList) return;
+  
+  if (applications.length === 0) {
+    if (noActivity) {
+      noActivity.style.display = 'block';
+    }
+    return;
+  }
+  
+  // Hide no activity message
+  if (noActivity) {
+    noActivity.style.display = 'none';
+  }
+  
+  // Sort applications by date (newest first)
+  const sortedApps = [...applications].sort((a, b) => 
+    new Date(b.date) - new Date(a.date)
+  );
+  
+  // Take only the 5 most recent applications
+  const recentApps = sortedApps.slice(0, 5);
+  
+  // Clear existing activity items
+  activityList.innerHTML = '';
+  
+  // Create activity items
+  recentApps.forEach(app => {
+    const activityItem = document.createElement('div');
+    activityItem.className = 'activity-item';
+    
+    const statusClass = `status-${app.status}`;
+    const formattedDate = new Date(app.date).toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+    
+    activityItem.innerHTML = `
+      <div class="activity-icon ${statusClass}">
+        <i class="fas fa-file-alt"></i>
+      </div>
+      <div class="activity-content">
+        <div class="activity-title">
+          ${app.type} - ${app.id}
+          <span class="activity-date">${formattedDate}</span>
+        </div>
+        <div class="activity-status">
+          Status: <span class="${statusClass}">${capitalizeFirstLetter(app.status)}</span>
+        </div>
+      </div>
+    `;
+    
+    activityList.appendChild(activityItem);
+  });
+}
+
+// Helper function to capitalize first letter
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Call the update function
+updateDashboardStats();
+updateDashboardStats();
