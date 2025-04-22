@@ -122,6 +122,7 @@
   /* Sidebar */
   .dashboard-sidebar {
     width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background-color: white;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     position: fixed;
@@ -140,8 +141,7 @@
   
   .sidebar-nav li {
     margin: 0;
-  }
-  
+  }  
   .sidebar-nav li a {
     display: flex;
     align-items: center;
@@ -631,3 +631,51 @@
     }
   }
   
+
+  /* Add or update these rules in dashboard.css */
+  :root {
+    --sidebar-width: 250px;
+    --header-height: 70px;
+  }
+
+  .dashboard-container {
+    display: flex;
+    margin-top: var(--header-height);
+    min-height: calc(100vh - var(--header-height));
+  }
+
+  .dashboard-sidebar {
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 99;
+    transition: left 0.3s ease;
+  }
+
+  .dashboard-main {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    transition: margin-left 0.3s ease, width 0.3s ease;
+  }
+
+  @media (max-width: 992px) {
+    .dashboard-sidebar {
+      left: -250px;
+    }
+  
+    .dashboard-sidebar.active {
+      left: 0;
+    }
+  
+    .dashboard-main {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
