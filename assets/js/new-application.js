@@ -87,6 +87,8 @@ document.addEventListener('DOMContentLoaded', function() {
   const documentationForm = document.getElementById('documentationForm');
   const driversLicenseForm = document.getElementById('driversLicenseForm');
   const accessoriesForm = document.getElementById('accessoriesForm');
+  const maritimeRegistrationForm = document.getElementById('maritimeRegistrationForm');
+  const aviationDocumentationForm = document.getElementById('aviationDocumentationForm');
   
   // Function to hide all forms
   function hideAllForms() {
@@ -96,7 +98,9 @@ document.addEventListener('DOMContentLoaded', function() {
       licenseRenewalForm,
       documentationForm,
       driversLicenseForm,
-      accessoriesForm
+      accessoriesForm,
+      maritimeRegistrationForm,
+      aviationDocumentationForm
     ];
     
     allForms.forEach(form => {
@@ -146,6 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
             break;
           case 'accessories':
             if (accessoriesForm) accessoriesForm.style.display = 'block';
+            break;
+          case 'maritime-registration':
+            if (maritimeRegistrationForm) maritimeRegistrationForm.style.display = 'block';
+            break;
+          case 'aviation-documentation':
+            if (aviationDocumentationForm) aviationDocumentationForm.style.display = 'block';
             break;
         }
         

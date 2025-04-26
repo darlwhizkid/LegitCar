@@ -152,6 +152,24 @@
               <h3>Vehicle Accessories</h3>
               <p>Order license plates, stickers, and other accessories</p>
             </div>
+            
+            <!-- New Maritime Registration Card -->
+            <div class="application-type-card" data-type="maritime-registration">
+              <div class="type-icon">
+                <i class="fas fa-ship"></i>
+              </div>
+              <h3>Maritime Registration</h3>
+              <p>Register vessels, boats, and maritime equipment</p>
+            </div>
+            
+            <!-- New Aviation Documentation Card -->
+            <div class="application-type-card" data-type="aviation-documentation">
+              <div class="type-icon">
+                <i class="fas fa-plane"></i>
+              </div>
+              <h3>Aviation Documentation</h3>
+              <p>Process aircraft registration and aviation permits</p>
+            </div>
           </div>
         </div>
         
@@ -1159,6 +1177,410 @@
               <button type="submit" class="btn-primary">Submit Application</button>
             </div>
           </form>
+          
+          <!-- Maritime Registration Form -->
+          <form id="maritimeRegistrationForm" class="application-form" style="display: none;">
+            <!-- Vessel Information Section -->
+            <div class="form-section">
+              <h3>Vessel Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vesselName" class="required-field">Vessel Name</label>
+                  <input type="text" id="vesselName" name="vesselName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vesselType" class="required-field">Vessel Type</label>
+                  <select id="vesselType" name="vesselType" required>
+                    <option value="">Select Vessel Type</option>
+                    <option value="pleasure-craft">Pleasure Craft</option>
+                    <option value="fishing-vessel">Fishing Vessel</option>
+                    <option value="passenger-vessel">Passenger Vessel</option>
+                    <option value="cargo-vessel">Cargo Vessel</option>
+                    <option value="tanker">Tanker</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group" id="otherVesselTypeGroup" style="display: none;">
+                <label for="otherVesselType" class="required-field">Specify Other Vessel Type</label>
+                <input type="text" id="otherVesselType" name="otherVesselType">
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vesselLength" class="required-field">Length (meters)</label>
+                  <input type="number" id="vesselLength" name="vesselLength" step="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="vesselTonnage" class="required-field">Gross Tonnage</label>
+                  <input type="number" id="vesselTonnage" name="vesselTonnage" step="0.01" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="vesselYear" class="required-field">Year Built</label>
+                  <input type="number" id="vesselYear" name="vesselYear" min="1900" max="2099" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="hullNumber" class="required-field">Hull Identification Number</label>
+                  <input type="text" id="hullNumber" name="hullNumber" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="portOfRegistry" class="required-field">Port of Registry</label>
+                <input type="text" id="portOfRegistry" name="portOfRegistry" required>
+              </div>
+              
+              <div class="form-group">
+                <label for="maritimeRegistrationType" class="required-field">Registration Type</label>
+                <select id="maritimeRegistrationType" name="registrationType" required>
+                  <option value="">Select Registration Type</option>
+                  <option value="new">New Registration</option>
+                  <option value="renewal">Renewal</option>
+                  <option value="transfer">Transfer of Ownership</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Owner Information Section -->
+            <div class="form-section">
+              <h3>Owner Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="maritimeOwnerName" class="required-field">Full Name</label>
+                  <input type="text" id="maritimeOwnerName" name="ownerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="maritimeOwnerEmail" class="required-field">Email</label>
+                  <input type="email" id="maritimeOwnerEmail" name="ownerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="maritimeOwnerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="maritimeOwnerPhone" name="ownerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="maritimeOwnerAddress" class="required-field">Address</label>
+                  <input type="text" id="maritimeOwnerAddress" name="ownerAddress" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="ownerType" class="required-field">Owner Type</label>
+                <select id="ownerType" name="ownerType" required>
+                  <option value="">Select Owner Type</option>
+                  <option value="individual">Individual</option>
+                  <option value="company">Company/Organization</option>
+                  <option value="government">Government Agency</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="proofOfVesselOwnership" class="required-field">Proof of Vessel Ownership</label>
+                  <input type="file" id="proofOfVesselOwnership" name="proofOfOwnership" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="maritimeIdCard" class="required-field">ID Card/Company Registration</label>
+                  <input type="file" id="maritimeIdCard" name="idCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="vesselSurveyReport" class="required-field">Vessel Survey Report</label>
+                  <input type="file" id="vesselSurveyReport" name="surveyReport" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="vesselInsurance" class="required-field">Vessel Insurance Certificate</label>
+                  <input type="file" id="vesselInsurance" name="insuranceCertificate" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦10,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦2,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦12,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsMaritime" name="agreeTerms" required>
+                <label for="agreeTermsMaritime">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
+          
+          <!-- Aviation Documentation Form -->
+          <form id="aviationDocumentationForm" class="application-form" style="display: none;">
+            <!-- Aircraft Information Section -->
+            <div class="form-section">
+              <h3>Aircraft Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="aircraftMake" class="required-field">Manufacturer</label>
+                  <input type="text" id="aircraftMake" name="aircraftMake" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="aircraftModel" class="required-field">Model</label>
+                  <input type="text" id="aircraftModel" name="aircraftModel" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="aircraftYear" class="required-field">Year of Manufacture</label>
+                  <input type="number" id="aircraftYear" name="aircraftYear" min="1900" max="2099" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="serialNumber" class="required-field">Serial Number</label>
+                  <input type="text" id="serialNumber" name="serialNumber" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="registrationMark" class="required-field">Registration Mark (if any)</label>
+                  <input type="text" id="registrationMark" name="registrationMark">
+                </div>
+                
+                <div class="form-group">
+                  <label for="aircraftCategory" class="required-field">Aircraft Category</label>
+                  <select id="aircraftCategory" name="aircraftCategory" required>
+                    <option value="">Select Category</option>
+                    <option value="airplane">Airplane</option>
+                    <option value="helicopter">Helicopter</option>
+                    <option value="glider">Glider</option>
+                    <option value="drone">Drone/UAV</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group" id="otherAircraftCategoryGroup" style="display: none;">
+                <label for="otherAircraftCategory" class="required-field">Specify Other Category</label>
+                <input type="text" id="otherAircraftCategory" name="otherAircraftCategory">
+              </div>
+              
+              <div class="form-group">
+                <label for="documentationType" class="required-field">Documentation Type</label>
+                <select id="documentationType" name="documentationType" required>
+                  <option value="">Select Documentation Type</option>
+                  <option value="registration">Aircraft Registration</option>
+                  <option value="airworthiness">Certificate of Airworthiness</option>
+                  <option value="import-permit">Import Permit</option>
+                  <option value="export-permit">Export Permit</option>
+                  <option value="operator-certificate">Air Operator Certificate</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              
+              <div class="form-group" id="otherDocumentationTypeGroup" style="display: none;">
+                <label for="otherDocumentationType" class="required-field">Specify Other Documentation Type</label>
+                <input type="text" id="otherDocumentationType" name="otherDocumentationType">
+              </div>
+            </div>
+            
+            <!-- Owner/Operator Information Section -->
+            <div class="form-section">
+              <h3>Owner/Operator Information</h3>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="aviationOwnerName" class="required-field">Full Name/Company Name</label>
+                  <input type="text" id="aviationOwnerName" name="ownerName" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="aviationOwnerEmail" class="required-field">Email</label>
+                  <input type="email" id="aviationOwnerEmail" name="ownerEmail" required>
+                </div>
+              </div>
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="aviationOwnerPhone" class="required-field">Phone Number</label>
+                  <input type="tel" id="aviationOwnerPhone" name="ownerPhone" required>
+                </div>
+                
+                <div class="form-group">
+                  <label for="aviationOwnerAddress" class="required-field">Address</label>
+                  <input type="text" id="aviationOwnerAddress" name="ownerAddress" required>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="aviationOwnerType" class="required-field">Owner Type</label>
+                <select id="aviationOwnerType" name="ownerType" required>
+                  <option value="">Select Owner Type</option>
+                  <option value="individual">Individual</option>
+                  <option value="company">Company/Organization</option>
+                  <option value="government">Government Agency</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Document Upload Section -->
+            <div class="form-section">
+              <h3>Required Documents</h3>
+              <p class="form-note">Please upload the following documents in PDF or image format (JPG, PNG).</p>
+              
+              <div class="document-upload-list">
+                <div class="document-upload-item">
+                  <label for="proofOfAircraftOwnership" class="required-field">Proof of Aircraft Ownership</label>
+                  <input type="file" id="proofOfAircraftOwnership" name="proofOfOwnership" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="aviationIdCard" class="required-field">ID Card/Company Registration</label>
+                  <input type="file" id="aviationIdCard" name="idCard" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="technicalDocumentation" class="required-field">Technical Documentation</label>
+                  <input type="file" id="technicalDocumentation" name="technicalDocumentation" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+                
+                <div class="document-upload-item">
+                  <label for="insurancePolicy" class="required-field">Insurance Policy</label>
+                  <input type="file" id="insurancePolicy" name="insurancePolicy" accept=".pdf,.jpg,.jpeg,.png" required>
+                </div>
+              </div>
+              
+              <button type="button" class="btn-secondary add-document-btn">
+                <i class="fas fa-plus"></i> Add Another Document
+              </button>
+            </div>
+            
+            <!-- Payment Information Section -->
+            <div class="form-section">
+              <h3>Payment Information</h3>
+              <p class="form-note">Please note that a processing fee will be charged for this application.</p>
+              
+              <div class="fee-display">
+                <div class="fee-item">
+                  <span class="fee-label">Application Fee:</span>
+                  <span class="fee-value">₦15,000.00</span>
+                </div>
+                <div class="fee-item">
+                  <span class="fee-label">Processing Fee:</span>
+                  <span class="fee-value">₦3,000.00</span>
+                </div>
+                <div class="fee-item total">
+                  <span class="fee-label">Total:</span>
+                  <span class="fee-value">₦18,000.00</span>
+                </div>
+              </div>
+              
+              <div class="payment-methods">
+                <h4>Select Payment Method</h4>
+                <div class="payment-options">
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="card" checked>
+                    <span class="payment-icon"><i class="fas fa-credit-card"></i></span>
+                    <span class="payment-label">Credit/Debit Card</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="bank">
+                    <span class="payment-icon"><i class="fas fa-university"></i></span>
+                    <span class="payment-label">Bank Transfer</span>
+                  </label>
+                  
+                  <label class="payment-option">
+                    <input type="radio" name="paymentMethod" value="ussd">
+                    <span class="payment-icon"><i class="fas fa-mobile-alt"></i></span>
+                    <span class="payment-label">USSD</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Terms and Conditions -->
+            <div class="form-section">
+              <div class="terms-checkbox">
+                <input type="checkbox" id="agreeTermsAviation" name="agreeTerms" required>
+                <label for="agreeTermsAviation">I agree to the <a href="#" target="_blank">Terms and Conditions</a> and confirm that all information provided is accurate.</label>
+              </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="form-actions">
+              <button type="button" class="btn-secondary cancel-application-btn">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Application</button>
+            </div>
+          </form>
         </div>
       </div>
     </main>
@@ -1196,3 +1618,7 @@
   <script src="assets/js/new-application.js"></script>
 </body>
 </html>
+
+
+
+

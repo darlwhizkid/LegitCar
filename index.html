@@ -47,12 +47,14 @@
                 Our Services <i class="fas fa-caret-down"></i>
               </a>
               <div class="dropdown-menu">
-                <a href="#import" class="dropdown-item">Import Services</a>
-                <a href="#export" class="dropdown-item">Export Services</a>
-                <a href="#clearing" class="dropdown-item"
-                  >Clearing & Forwarding</a
-                >
-                <a href="#logistics" class="dropdown-item">Logistics</a>
+                <a href="#registration" class="dropdown-item">Vehicle Registration</a>
+                <a href="#renewal" class="dropdown-item">Document Renewal</a>
+                <a href="#transfer" class="dropdown-item">Ownership Transfer</a>
+                <a href="#documentation" class="dropdown-item">Documentation Services</a>
+                <a href="#license" class="dropdown-item">Driver's License</a>
+                <a href="#accessories" class="dropdown-item">Vehicle Accessories</a>
+                <a href="#maritime" class="dropdown-item">Maritime Registration</a>
+                <a href="#aviation" class="dropdown-item">Aviation Documentation</a>
               </div>
             </div>
             <a href="#track" class="nav-link">Track Application</a>
@@ -99,16 +101,14 @@
                 Our Services <i class="fas fa-caret-down"></i>
               </div>
               <div class="mobile-dropdown-menu" id="mobileDropdownMenu">
-                <a href="#import" class="mobile-dropdown-item"
-                  >Import Services</a
-                >
-                <a href="#export" class="mobile-dropdown-item"
-                  >Export Services</a
-                >
-                <a href="#clearing" class="mobile-dropdown-item"
-                  >Clearing & Forwarding</a
-                >
-                <a href="#logistics" class="mobile-dropdown-item">Logistics</a>
+                <a href="#registration" class="mobile-dropdown-item">Vehicle Registration</a>
+                <a href="#renewal" class="mobile-dropdown-item">Document Renewal</a>
+                <a href="#transfer" class="mobile-dropdown-item">Ownership Transfer</a>
+                <a href="#documentation" class="mobile-dropdown-item">Documentation Services</a>
+                <a href="#license" class="mobile-dropdown-item">Driver's License</a>
+                <a href="#accessories" class="mobile-dropdown-item">Vehicle Accessories</a>
+                <a href="#maritime" class="mobile-dropdown-item">Maritime Registration</a>
+                <a href="#aviation" class="mobile-dropdown-item">Aviation Documentation</a>
               </div>
             </div>
             <a href="#track" class="mobile-nav-link">Track Application</a>
@@ -147,11 +147,10 @@
     <section class="hero-section" id="about">
       <div class="hero-container">
         <div class="content-section">
-          <h1 class="hero-title">Simplify Your Car Documentation Journey</h1>
+          <h1 class="hero-title">Simplify Your Transportation Documentation Journey</h1>
           <p class="hero-text">
-            Your one-stop platform for managing vehicle papers, registrations,
-            and renewals. Experience hassle-free car documentation like never
-            before.
+            Your one-stop platform for managing vehicle, maritime, and aviation documentation, registrations, 
+            and renewals. Experience hassle-free documentation like never before.
           </p>
           <button class="call-to-action">Get Started</button>
         </div>
@@ -234,6 +233,28 @@
             <h3 class="feature-title">Vehicle Accessories</h3>
             <p class="feature-description">
               Quality accessories and parts for your vehicle needs
+            </p>
+          </div>
+
+          <!-- Maritime Feature -->
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-ship"></i>
+            </div>
+            <h3 class="feature-title">Maritime Registration</h3>
+            <p class="feature-description">
+              Complete documentation and registration services for boats, ships, and maritime vessels
+            </p>
+          </div>
+
+          <!-- Aviation Feature -->
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-plane"></i>
+            </div>
+            <h3 class="feature-title">Aviation Documentation</h3>
+            <p class="feature-description">
+              Professional assistance with aircraft registration, permits, and aviation compliance
             </p>
           </div>
         </div>
@@ -532,6 +553,21 @@
               </p>
             </div>
           </div>
+
+          <!-- Add this to the faq-grid div -->
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">Do you handle maritime and aviation registrations?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                Yes, we provide comprehensive registration and documentation services for maritime vessels and aircraft. 
+                Our team is experienced with the specific requirements for both industries and can guide you through 
+                the entire process.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -570,6 +606,8 @@
             >
             <a href="#license" class="footer-link">Driver's License</a>
             <a href="#accessories" class="footer-link">Vehicle Accessories</a>
+            <a href="#maritime" class="footer-link">Maritime Registration</a>
+            <a href="#aviation" class="footer-link">Aviation Documentation</a>
           </div>
         </div>
 
@@ -615,7 +653,7 @@
     <!-- Add this right before the closing </body> tag -->
 <div id="authModal" class="auth-modal">
   <div class="auth-modal-content">
-    <span id="closeModal" class="close-modal">&times;</span>
+    <span id="closeModal" class="close-modal">×</span>
     
     <div class="auth-tabs">
       <button id="loginTabBtn" class="auth-tab active">Login</button>
