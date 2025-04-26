@@ -1,6 +1,10 @@
 // Dashboard JavaScript
 
+console.log('Dashboard.js loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM fully loaded');
+  
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   if (!isAuthenticated) {
@@ -171,12 +175,221 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 100);
     });
   });
+  
+  // Track Application and Support Modal Functionality
+  const trackAppBtn = document.getElementById('trackAppBtn');
+  const trackApplicationModal = document.getElementById('trackApplicationModal');
+  const closeTrackModal = document.getElementById('closeTrackModal');
+  const trackApplicationBtn = document.getElementById('trackApplicationBtn');
+  const applicationIdInput = document.getElementById('applicationIdInput');
+  const trackingResult = document.getElementById('trackingResult');
+  const trackingError = document.getElementById('trackingError');
+  
+  // Support Modal
+  const contactSupportBtn = document.getElementById('contactSupportBtn');
+  const supportModal = document.getElementById('supportModal');
+  const closeSupportModal = document.getElementById('closeSupportModal');
+  const supportForm = document.getElementById('supportForm');
+  const startChatBtn = document.getElementById('startChatBtn');
+  
+  console.log('Track button:', trackAppBtn);
+  console.log('Track modal:', trackApplicationModal);
+  console.log('Support button:', contactSupportBtn);
+  console.log('Support modal:', supportModal);
+  
+  // Open Track Application Modal
+  if (trackAppBtn) {
+    trackAppBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      console.log('Track button clicked');
+      if (trackApplicationModal) {
+        trackApplicationModal.style.display = 'block';
+        // Reset the form
+        if (applicationIdInput) applicationIdInput.value = '';
+        if (trackingResult) trackingResult.style.display = 'none';
+        if (trackingError) trackingError.style.display = 'none';
+      }
+    });
+  }
+  
+  // Close Track Application Modal
+  if (closeTrackModal) {
+    closeTrackModal.addEventListener('click', function() {
+      if (trackApplicationModal) {
+        trackApplicationModal.style.display = 'none';
+      }
+    });
+  }
+  
+  // Track Application Button Click
+  if (trackApplicationBtn) {
+    trackApplicationBtn.addEventListener('click', function() {
+      const appId = applicationIdInput.value.trim();
+      
+      if (!appId) {
+        alert('Please enter an application ID');
+        return;
+      }
+      
+      // Get user data
+      const userData = JSON.parse(localStorage.getItem('currentUser')) || {};
+      const userEmail = userData.email;
+      
+      // Get applications from localStorage
+      let applications = [];
+      if (userEmail) {
+        const storedApplications = localStorage.getItem(`applications_${userEmail}`);
+        if (storedApplications) {
+          try {
+            applications = JSON.parse(storedApplications);
+          } catch (e) {
+            console.error('Error parsing stored applications:', e);
+          }
+        }
+      }
+      
+      // Find the application with the given ID
+      const application = applications.find(app => app.id === appId);
+      
+      if (application) {
+        // Show the result
+        if (trackingResult) {
+          trackingResult.style.display = 'block';
+        }
+        if (trackingError) {
+          trackingError.style.display = 'none';
+        }
+        
+        // Update the result with application details
+        document.getElementById('resultAppId').textContent = application.id;
+        document.getElementById('resultAppType').textContent = application.type;
+        document.getElementById('resultAppDate').textContent = application.date;
+        
+        // Set status with appropriate styling
+        const statusElement = document.getElementById('resultAppStatus');
+        statusElement.textContent = application.status.charAt(0).toUpperCase() + application.status.slice(1);
+        
+        // Add status class for styling
+        statusElement.className = ''; // Clear previous classes
+        statusElement.classList.add('status', `status-${application.status}`);
+        
+        // Generate timeline
+        const timelineContainer = document.getElementById('appTimeline');
+        timelineContainer.innerHTML = ''; // Clear previous timeline
+        
+        if (application.timeline && application.timeline.length > 0) {
+          application.timeline.forEach((item, index) => {
+            const timelineItem = document.createElement('div');
+            timelineItem.className = 'timeline-item';
+            
+            const timelineIcon = document.createElement('div');
+            timelineIcon.className = 'timeline-icon';
+            timelineIcon.innerHTML = '<i class="fas fa-circle"></i>';
+            
+            const timelineContent = document.createElement('div');
+            timelineContent.className = 'timeline-content';
+            
+            const timelineDate = document.createElement('div');
+            timelineDate.className = 'timeline-date';
+            timelineDate.textContent = item.date;
+            
+            const timelineTitle = document.createElement('h4');
+            timelineTitle.textContent = item.title;
+            
+            const timelineDesc = document.createElement('p');
+            timelineDesc.textContent = item.description;
+            
+            timelineContent.appendChild(timelineDate);
+            timelineContent.appendChild(timelineTitle);
+            timelineContent.appendChild(timelineDesc);
+            
+            timelineItem.appendChild(timelineIcon);
+            timelineItem.appendChild(timelineContent);
+            
+            timelineContainer.appendChild(timelineItem);
+          });
+        } else {
+          timelineContainer.innerHTML = '<p>No timeline information available.</p>';
+        }
+      } else {
+        // Show error message
+        if (trackingResult) {
+          trackingResult.style.display = 'none';
+        }
+        if (trackingError) {
+          trackingError.style.display = 'block';
+        }
+      }
+    });
+  }
+  
+  // Open Support Modal
+  if (contactSupportBtn) {
+    contactSupportBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (supportModal) {
+        supportModal.style.display = 'block';
+      }
+    });
+  }
+  
+  // Close Support Modal
+  if (closeSupportModal) {
+    closeSupportModal.addEventListener('click', function() {
+      if (supportModal) {
+        supportModal.style.display = 'none';
+      }
+    });
+  }
+  
+  // Support Form Submission
+  if (supportForm) {
+    supportForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const subject = document.getElementById('supportSubject').value;
+      const message = document.getElementById('supportMessage').value;
+      
+      if (!subject || !message) {
+        alert('Please fill in all fields');
+        return;
+      }
+      
+      // Here you would typically send the support request to a server
+      // For now, we'll just show a success message
+      alert('Your support request has been submitted. We will get back to you shortly.');
+      
+      // Reset the form
+      supportForm.reset();
+      
+      // Close the modal
+      if (supportModal) {
+        supportModal.style.display = 'none';
+      }
+    });
+  }
+  
+  // Start Chat Button
+  if (startChatBtn) {
+    startChatBtn.addEventListener('click', function() {
+      alert('Live chat feature coming soon!');
+    });
+  }
+  
+  // Close modals when clicking outside
+  window.addEventListener('click', function(event) {
+    if (event.target === trackApplicationModal) {
+      trackApplicationModal.style.display = 'none';
+    }
+    if (event.target === supportModal) {
+      supportModal.style.display = 'none';
+    }
+  });
 });
-
-// Add this to dashboard.js after getting user data
 
 // Load user applications
 function loadUserApplications() {
+  const userData = JSON.parse(localStorage.getItem('currentUser')) || {};
   const userEmail = userData.email;
   if (!userEmail) return [];
   
@@ -286,6 +499,7 @@ function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-// Call the update function
-updateDashboardStats();
-updateDashboardStats();
+// Call the update function when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+  updateDashboardStats();
+});

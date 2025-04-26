@@ -1,201 +1,355 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard | Your Service</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-  <!-- Add this right after the opening of the dashboard-container div in both files -->
-<button class="sidebar-toggle">
-  <i class="fas fa-bars"></i>
-</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | Your Service</title>
+    <link rel="stylesheet" href="assets/css/styles.css" />
+    <link rel="stylesheet" href="assets/css/dashboard.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <!-- Add this right after the opening of the dashboard-container div in both files -->
+    <button class="sidebar-toggle">
+      <i class="fas fa-bars"></i>
+    </button>
 
-  <!-- Header (similar to main page) -->
-  <header class="dashboard-header">
-    <div class="container">
-      <div class="logo">
-        <a href="index.html">
-          <img src="assets/images/logo.png" alt="Logo">
-        </a>
-      </div>
-      
-      <div class="user-menu">
-        <div class="user-info">
-          <span id="userGreeting">Welcome, User</span>
-          <button id="userMenuToggle" class="user-menu-toggle">
-            <img src="assets/images/default-avatar.png" alt="User Avatar" class="user-avatar" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
-            <i class="fas fa-caret-down"></i>
-          </button>
-          <div id="userDropdownMenu" class="user-dropdown-menu">
-            <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
-            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+    <!-- Header (similar to main page) -->
+    <header class="dashboard-header">
+      <div class="container">
+        <div class="logo">
+          <a href="index.html">
+            <img src="assets/images/logo.png" alt="Logo" />
+          </a>
+        </div>
+
+        <div class="user-menu">
+          <div class="user-info">
+            <span id="userGreeting">Welcome, User</span>
+            <button id="userMenuToggle" class="user-menu-toggle">
+              <img
+                src="assets/images/default-avatar.png"
+                alt="User Avatar"
+                class="user-avatar"
+                style="
+                  width: 30px;
+                  height: 30px;
+                  border-radius: 50%;
+                  object-fit: cover;
+                "
+              />
+              <i class="fas fa-caret-down"></i>
+            </button>
+            <div id="userDropdownMenu" class="user-dropdown-menu">
+              <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+              <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
+              <a href="#" id="logoutBtn"
+                ><i class="fas fa-sign-out-alt"></i> Logout</a
+              >
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </header>
-  
-  <!-- Dashboard Content -->
-  <div class="dashboard-container">
-    <!-- Sidebar -->
-    <aside class="dashboard-sidebar">
-      <nav class="sidebar-nav">
-        <ul>
-          <li class="active">
-            <a href="#dashboard">
-              <i class="fas fa-tachometer-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="applications.html">
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <aside class="dashboard-sidebar">
+        <nav class="sidebar-nav">
+          <ul>
+            <li class="active">
+              <a href="#dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+              </a>
+            </li>
+            <li>
+              <a href="applications.html">
+                <i class="fas fa-file-alt"></i>
+                <span>My Applications</span>
+              </a>
+            </li>
+            <li>
+              <a href="new-application.html">
+                <i class="fas fa-plus-circle"></i>
+                <span>New Application</span>
+              </a>
+            </li>
+            <li>
+              <a href="documents.html">
+                <i class="fas fa-folder"></i>
+                <span>Documents</span>
+              </a>
+            </li>
+            <li>
+              <a href="messages.html">
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+                <span class="badge">3</span>
+              </a>
+            </li>
+            <li>
+              <a href="profile.html">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+              </a>
+            </li>
+            <li>
+              <a href="settings.html">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="dashboard-main">
+        <!-- Welcome Section -->
+        <div id="welcomeSection" class="welcome-section">
+          <h1>Welcome to Your Dashboard</h1>
+          <p>
+            We're glad to have you here. Get started by exploring the features
+            below.
+          </p>
+        </div>
+
+        <!-- Dashboard Overview -->
+        <div class="dashboard-overview">
+          <div class="dashboard-card">
+            <div class="card-icon">
               <i class="fas fa-file-alt"></i>
-              <span>My Applications</span>
-            </a>
-          </li>
-          <li>
-            <a href="new-application.html">
+            </div>
+            <div class="card-content">
+              <h3>Applications</h3>
+              <p class="card-value">0</p>
+              <p class="card-description">Total applications submitted</p>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="card-content">
+              <h3>Approved</h3>
+              <p class="card-value">0</p>
+              <p class="card-description">Applications approved</p>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="card-content">
+              <h3>Pending</h3>
+              <p class="card-value">0</p>
+              <p class="card-description">Applications in progress</p>
+            </div>
+          </div>
+
+          <div class="dashboard-card">
+            <div class="card-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div class="card-content">
+              <h3>Messages</h3>
+              <p class="card-value">3</p>
+              <p class="card-description">Unread messages</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <h2>Quick Actions</h2>
+          <div class="action-buttons">
+            <a href="new-application.html" class="action-button">
               <i class="fas fa-plus-circle"></i>
               <span>New Application</span>
             </a>
-          </li>
-          <li>
-            <a href="documents.html">
-              <i class="fas fa-folder"></i>
-              <span>Documents</span>
+            <button type="button" class="action-button" id="trackAppBtn">
+              <i class="fas fa-search"></i>
+              <span>Track Application</span>
+            </button>
+            <a href="documents.html" class="action-button">
+              <i class="fas fa-upload"></i>
+              <span>Upload Documents</span>
             </a>
-          </li>
-          <li>
-            <a href="messages.html">
-              <i class="fas fa-envelope"></i>
-              <span>Messages</span>
-              <span class="badge">3</span>
-            </a>
-          </li>
-          <li>
-            <a href="profile.html">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a href="settings.html">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="dashboard-main">
-      <!-- Welcome Section -->
-      <div id="welcomeSection" class="welcome-section">
-        <h1>Welcome to Your Dashboard</h1>
-        <p>We're glad to have you here. Get started by exploring the features below.</p>
-      </div>
-      
-      <!-- Dashboard Overview -->
-      <div class="dashboard-overview">
-        <div class="dashboard-card">
-          <div class="card-icon">
-            <i class="fas fa-file-alt"></i>
-          </div>
-          <div class="card-content">
-            <h3>Applications</h3>
-            <p class="card-value">0</p>
-            <p class="card-description">Total applications submitted</p>
+            <button type="button" class="action-button" id="contactSupportBtn">
+              <i class="fas fa-headset"></i>
+              <span>Contact Support</span>
+            </button>
           </div>
         </div>
-        
-        <div class="dashboard-card">
-          <div class="card-icon">
-            <i class="fas fa-check-circle"></i>
+
+        <!-- Recent Activity -->
+        <div class="recent-activity">
+          <h2>Recent Activity</h2>
+          <div id="newUserMessage" class="welcome-message">
+            <i class="fas fa-star"></i>
+            <div class="message-content">
+              <h3>Welcome to your new account!</h3>
+              <p>
+                Thank you for registering. Complete your profile to get started.
+              </p>
+              <a href="profile.html" class="btn-primary">Complete Profile</a>
+            </div>
           </div>
-          <div class="card-content">
-            <h3>Approved</h3>
-            <p class="card-value">0</p>
-            <p class="card-description">Applications approved</p>
-          </div>
-        </div>
-        
-        <div class="dashboard-card">
-          <div class="card-icon">
-            <i class="fas fa-clock"></i>
-          </div>
-          <div class="card-content">
-            <h3>Pending</h3>
-            <p class="card-value">0</p>
-            <p class="card-description">Applications in progress</p>
+          <div id="activityList" class="activity-list">
+            <p class="no-activity">No recent activity to display.</p>
           </div>
         </div>
-        
-        <div class="dashboard-card">
-          <div class="card-icon">
-            <i class="fas fa-envelope"></i>
-          </div>
-          <div class="card-content">
-            <h3>Messages</h3>
-            <p class="card-value">3</p>
-            <p class="card-description">Unread messages</p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Quick Actions -->
-      <div class="quick-actions">
-        <h2>Quick Actions</h2>
-        <div class="action-buttons">
-          <a href="new-application.html" class="action-button">
-            <i class="fas fa-plus-circle"></i>
-            <span>New Application</span>
-          </a>
-          <a href="#track" class="action-button">
-            <i class="fas fa-search"></i>
-            <span>Track Application</span>
-          </a>
-          <a href="documents.html" class="action-button">
-            <i class="fas fa-upload"></i>
-            <span>Upload Documents</span>
-          </a>
-          <a href="support.html" class="action-button">
-            <i class="fas fa-headset"></i>
-            <span>Contact Support</span>
-          </a>
-        </div>
-      </div>
-      
-      <!-- Recent Activity -->
-      <div class="recent-activity">
-        <h2>Recent Activity</h2>
-        <div id="newUserMessage" class="welcome-message">
-          <i class="fas fa-star"></i>
-          <div class="message-content">
-            <h3>Welcome to your new account!</h3>
-            <p>Thank you for registering. Complete your profile to get started.</p>
-            <a href="profile.html" class="btn-primary">Complete Profile</a>
-          </div>
-        </div>
-        <div id="activityList" class="activity-list">
-          <p class="no-activity">No recent activity to display.</p>
-        </div>
-      </div>
-    </main>
-  </div>
-  
-  <!-- Footer -->
-  <footer class="dashboard-footer">
-    <div class="container">
-      <p>&copy; <span id="currentYear">2023</span> Your Service. All rights reserved.</p>
+      </main>
     </div>
-  </footer>
-  
-  <script src="assets/js/dashboard.js"></script>
-</body>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <div class="container">
+        <p>
+          © <span id="currentYear">2023</span> Your Service. All rights
+          reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="assets/js/dashboard.js"></script>
+    <!-- Track Application Modal -->
+    <div id="trackApplicationModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Track Your Application</h2>
+          <button class="close-modal" id="closeTrackModal">×</button>
+        </div>
+        <div class="modal-body">
+          <p>Enter your application ID to check its status:</p>
+          <div class="track-form">
+            <div class="form-group">
+              <input
+                type="text"
+                id="applicationIdInput"
+                placeholder="e.g., APP-123456-789"
+                required
+              />
+            </div>
+            <button id="trackApplicationBtn" class="btn-primary">
+              Track Application
+            </button>
+          </div>
+          <div
+            id="trackingResult"
+            class="tracking-result"
+            style="display: none"
+          >
+            <div class="result-header">
+              <h3>Application Status</h3>
+            </div>
+            <div class="result-content">
+              <div class="application-info">
+                <p>
+                  <strong>Application ID:</strong>
+                  <span id="resultAppId"></span>
+                </p>
+                <p><strong>Type:</strong> <span id="resultAppType"></span></p>
+                <p>
+                  <strong>Date Submitted:</strong>
+                  <span id="resultAppDate"></span>
+                </p>
+                <p>
+                  <strong>Status:</strong> <span id="resultAppStatus"></span>
+                </p>
+              </div>
+              <div class="status-timeline">
+                <h4>Application Timeline</h4>
+                <div id="appTimeline" class="timeline-container">
+                  <!-- Timeline items will be added here dynamically -->
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="trackingError" class="tracking-error" style="display: none">
+            <i class="fas fa-exclamation-circle"></i>
+            <p>
+              No application found with this ID. Please check the ID and try
+              again.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="supportModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Contact Support</h2>
+          <button class="close-modal" id="closeSupportModal">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="support-options">
+            <div class="support-option">
+              <div class="support-icon">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <h3>Email Support</h3>
+              <p>Send us an email and we'll respond within 24 hours.</p>
+              <a href="mailto:support@legitcar.com" class="btn-secondary"
+                >Email Us</a
+              >
+            </div>
+            <div class="support-option">
+              <div class="support-icon">
+                <i class="fas fa-phone"></i>
+              </div>
+              <h3>Phone Support</h3>
+              <p>Call our customer service line for immediate assistance.</p>
+              <a href="tel:+2341234567890" class="btn-secondary"
+                >+234 123 456 7890</a
+              >
+            </div>
+            <div class="support-option">
+              <div class="support-icon">
+                <i class="fas fa-comment-dots"></i>
+              </div>
+              <h3>Live Chat</h3>
+              <p>Chat with our support team in real-time.</p>
+              <button id="startChatBtn" class="btn-secondary">
+                Start Chat
+              </button>
+            </div>
+          </div>
+          <div class="support-form">
+            <h3>Send a Message</h3>
+            <form id="supportForm">
+              <div class="form-group">
+                <label for="supportSubject">Subject</label>
+                <input
+                  type="text"
+                  id="supportSubject"
+                  placeholder="What is your inquiry about?"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="supportMessage">Message</label>
+                <textarea
+                  id="supportMessage"
+                  rows="5"
+                  placeholder="Please describe your issue or question in detail"
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
 </html>
