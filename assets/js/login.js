@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log("Login script loaded");
   
   // Check if user is already authenticated
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  if (isAuthenticated) {
+  const token = localStorage.getItem('token');
+  if (token) {
     // Redirect to dashboard if already logged in
     window.location.href = 'dashboard.html';
     return;
@@ -129,37 +129,27 @@ document.addEventListener('DOMContentLoaded', function() {
     return re.test(phone);
   }
   
-  // Get all registered users or initialize empty array
-  function getRegisteredUsers() {
-    const users = localStorage.getItem('registeredUsers');
-    return users ? JSON.parse(users) : [];
-  }
-  
-  // Save a new user to localStorage
-  function saveUser(userData) {
-    const users = getRegisteredUsers();
-    users.push(userData);
-    localStorage.setItem('registeredUsers', JSON.stringify(users));
-  }
-  
-  // Check if a user exists by email
-  function userExists(email) {
-    const users = getRegisteredUsers();
-    return users.some(user => user.email.toLowerCase() === email.toLowerCase());
-  }
-  
-  // Get user by email and password
-  function getUserByCredentials(email, password) {
-    const users = getRegisteredUsers();
-    return users.find(user => 
-      user.email.toLowerCase() === email.toLowerCase() && 
-      user.password === password
-    );
+  // API call helper function
+  async function callAPI(data) {
+    try {
+      const response = await fetch('/api/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      return { success: false, message: 'Network error. Please try again.' };
+    }
   }
   
   // Handle login form submission
   if (loginSubmitBtn) {
-    loginSubmitBtn.addEventListener('click', function() {
+    loginSubmitBtn.addEventListener('click', async function() {
       if (!loginEmail || !loginPassword) {
         console.error("Login form elements not found");
         return;
@@ -187,26 +177,38 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Check if user exists and password matches
-      const user = getUserByCredentials(email, password);
+      // Show loading state
+      loginSubmitBtn.textContent = 'Logging in...';
+      loginSubmitBtn.disabled = true;
       
-      if (!user) {
-        showError(loginEmail, 'Invalid email or password');
-        return;
+      // Call API for login
+      const result = await callAPI({
+        action: 'login',
+        email: email,
+        password: password
+      });
+      
+      // Reset button state
+      loginSubmitBtn.textContent = 'Login';
+      loginSubmitBtn.disabled = false;
+      
+      if (result.success) {
+        // Store token and user data
+        localStorage.setItem('token', result.token);
+        localStorage.setItem('currentUser', JSON.stringify(result.user));
+        
+        // Redirect to dashboard
+        window.location.href = 'dashboard.html';
+      } else {
+        // Show error message
+        showError(loginEmail, result.message || 'Invalid email or password');
       }
-      
-      // Set authentication state
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('currentUser', JSON.stringify(user));
-      
-      // Redirect to dashboard
-      window.location.href = 'dashboard.html';
     });
   }
   
   // Register form submission
   if (registerSubmitBtn) {
-    registerSubmitBtn.addEventListener('click', function() {
+    registerSubmitBtn.addEventListener('click', async function() {
       const nameInput = document.getElementById('registerName');
       const emailInput = document.getElementById('registerEmail');
       const passwordInput = document.getElementById('registerPassword');
@@ -226,9 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
         isValid = false;
       } else if (!validateEmail(emailInput.value)) {
         showError(emailInput, 'Please enter a valid email');
-        isValid = false;
-      } else if (userExists(emailInput.value)) {
-        showError(emailInput, 'This email is already registered');
         isValid = false;
       }
       
@@ -258,40 +257,47 @@ document.addEventListener('DOMContentLoaded', function() {
         isValid = false;
       }
       
-      console.log("Form validation result:", isValid);
-      
       if (isValid) {
-        // Create new user object
-        const userData = {
+        // Show loading state
+        registerSubmitBtn.textContent = 'Registering...';
+        registerSubmitBtn.disabled = true;
+        
+        // Call API for registration
+        const result = await callAPI({
+          action: 'register',
           name: nameInput.value.trim(),
           email: emailInput.value.trim(),
-          password: passwordInput.value, // In a real app, this should be hashed
-          phone: phoneInput.value.trim(),
-          isNewUser: true,
-          createdAt: new Date().toISOString()
-        };
+          password: passwordInput.value,
+          phone: phoneInput.value.trim()
+        });
         
-        // Save user to localStorage
-        saveUser(userData);
+        // Reset button state
+        registerSubmitBtn.textContent = 'Register';
+        registerSubmitBtn.disabled = !agreeTerms.checked;
         
-        // Store the registered email
-        const registeredEmail = emailInput.value.trim();
-        
-        // Reset form
-        registerForm.reset();
-        
-        // Show success message - this should block execution until dismissed
-        alert('Registration successful! You can now log in with your credentials.');
-        
-        // After alert is dismissed, this code will run
-        console.log("Alert dismissed, switching tabs now");
-        
-        // Switch to login tab
-        if (loginTabBtn && registerTabBtn && loginForm && registerForm) {
+        if (result.success) {
+          // Store the registered email
+          const registeredEmail = emailInput.value.trim();
+          
+          // Clear all input fields manually
+          const inputs = registerForm.querySelectorAll('input');
+          inputs.forEach(input => {
+            if (input.type === 'checkbox') {
+              input.checked = false;
+            } else {
+              input.value = '';
+            }
+          });
+          
+          // Show success message
+          alert('Registration successful! You can now log in with your credentials.');
+          
+          // Switch to login tab
           loginTabBtn.classList.add('active');
           registerTabBtn.classList.remove('active');
           loginForm.classList.add('active');
           registerForm.classList.remove('active');
+          forgotPasswordForm.classList.remove('active');
           
           // Pre-fill the login form with the registered email
           if (loginEmail) {
@@ -303,7 +309,8 @@ document.addEventListener('DOMContentLoaded', function() {
             loginPassword.focus();
           }
         } else {
-          console.error("One or more tab elements not found");
+          // Show error message
+          showError(emailInput, result.message || 'Registration failed. Please try again.');
         }
       }
     });
@@ -311,7 +318,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Reset password form submission
   if (resetSubmitBtn) {
-    resetSubmitBtn.addEventListener('click', function() {
+    resetSubmitBtn.addEventListener('click', async function() {
       const emailInput = document.getElementById('resetEmail');
       let isValid = true;
       
@@ -323,21 +330,37 @@ document.addEventListener('DOMContentLoaded', function() {
       } else if (!validateEmail(emailInput.value)) {
         showError(emailInput, 'Please enter a valid email');
         isValid = false;
-      } else if (!userExists(emailInput.value)) {
-        showError(emailInput, 'No account found with this email');
-        isValid = false;
       }
       
       if (isValid) {
-        // In a real app, you would call your API to send a reset link
-        alert(`Password reset link sent to ${emailInput.value}. Please check your email.`);
+        // Show loading state
+        resetSubmitBtn.textContent = 'Sending...';
+        resetSubmitBtn.disabled = true;
         
-        // Reset form
-        forgotPasswordForm.reset();
+        // Call API for password reset
+        const result = await callAPI({
+          action: 'resetPassword',
+          email: emailInput.value.trim()
+        });
         
-        // Return to login form
-        forgotPasswordForm.classList.remove('active');
-        loginForm.classList.add('active');
+        // Reset button state
+        resetSubmitBtn.textContent = 'Send Reset Link';
+        resetSubmitBtn.disabled = false;
+        
+        if (result.success) {
+          // Show success message
+          alert(`Password reset link sent to ${emailInput.value}. Please check your email.`);
+          
+          // Reset form
+          forgotPasswordForm.reset();
+          
+          // Return to login form
+          forgotPasswordForm.classList.remove('active');
+          loginForm.classList.add('active');
+        } else {
+          // Show error message
+          showError(emailInput, result.message || 'No account found with this email');
+        }
       }
     });
   }
