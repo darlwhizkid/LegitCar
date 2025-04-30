@@ -258,6 +258,8 @@ document.addEventListener('DOMContentLoaded', function() {
         isValid = false;
       }
       
+      console.log("Form validation result:", isValid);
+      
       if (isValid) {
         // Create new user object
         const userData = {
@@ -272,14 +274,37 @@ document.addEventListener('DOMContentLoaded', function() {
         // Save user to localStorage
         saveUser(userData);
         
-        // Show success message
-        alert('Registration successful! You can now log in with your credentials.');
+        // Store the registered email
+        const registeredEmail = emailInput.value.trim();
         
         // Reset form
         registerForm.reset();
         
+        // Show success message - this should block execution until dismissed
+        alert('Registration successful! You can now log in with your credentials.');
+        
+        // After alert is dismissed, this code will run
+        console.log("Alert dismissed, switching tabs now");
+        
         // Switch to login tab
-        loginTabBtn.click();
+        if (loginTabBtn && registerTabBtn && loginForm && registerForm) {
+          loginTabBtn.classList.add('active');
+          registerTabBtn.classList.remove('active');
+          loginForm.classList.add('active');
+          registerForm.classList.remove('active');
+          
+          // Pre-fill the login form with the registered email
+          if (loginEmail) {
+            loginEmail.value = registeredEmail;
+          }
+          
+          // Focus on the password field
+          if (loginPassword) {
+            loginPassword.focus();
+          }
+        } else {
+          console.error("One or more tab elements not found");
+        }
       }
     });
   }
