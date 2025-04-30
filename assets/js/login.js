@@ -11,12 +11,6 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
-  // Get modal elements
-  const authModal = document.getElementById('authModal');
-  const closeModal = document.getElementById('closeModal');
-  const loginButton = document.getElementById('loginButton');
-  const mobileLoginButton = document.getElementById('mobileLoginButton');
-  
   // DOM Elements
   const loginTabBtn = document.getElementById('loginTabBtn');
   const registerTabBtn = document.getElementById('registerTabBtn');
@@ -34,34 +28,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Login form elements
   const loginEmail = document.getElementById('loginEmail');
   const loginPassword = document.getElementById('loginPassword');
-  
-  // Show modal when login button is clicked
-  if (loginButton) {
-    loginButton.addEventListener('click', function() {
-      authModal.style.display = 'flex';
-    });
-  }
-  
-  // Show modal when mobile login button is clicked
-  if (mobileLoginButton) {
-    mobileLoginButton.addEventListener('click', function() {
-      authModal.style.display = 'flex';
-    });
-  }
-  
-  // Close modal when close button is clicked
-  if (closeModal) {
-    closeModal.addEventListener('click', function() {
-      authModal.style.display = 'none';
-    });
-  }
-  
-  // Close modal when clicking outside the modal content
-  window.addEventListener('click', function(event) {
-    if (event.target === authModal) {
-      authModal.style.display = 'none';
-    }
-  });
   
   // Tab switching
   if (loginTabBtn && registerTabBtn) {
@@ -134,13 +100,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (errorMessage) {
       errorMessage.textContent = message;
       errorMessage.style.display = 'block';
-      
-      // Clear error after 3 seconds
-      setTimeout(() => {
-        errorMessage.textContent = '';
-        errorMessage.style.display = 'none';
-        formGroup.classList.remove('error');
-      }, 3000);
     }
   }
   
@@ -170,6 +129,34 @@ document.addEventListener('DOMContentLoaded', function() {
     return re.test(phone);
   }
   
+  // Get all registered users or initialize empty array
+  function getRegisteredUsers() {
+    const users = localStorage.getItem('registeredUsers');
+    return users ? JSON.parse(users) : [];
+  }
+  
+  // Save a new user to localStorage
+  function saveUser(userData) {
+    const users = getRegisteredUsers();
+    users.push(userData);
+    localStorage.setItem('registeredUsers', JSON.stringify(users));
+  }
+  
+  // Check if a user exists by email
+  function userExists(email) {
+    const users = getRegisteredUsers();
+    return users.some(user => user.email.toLowerCase() === email.toLowerCase());
+  }
+  
+  // Get user by email and password
+  function getUserByCredentials(email, password) {
+    const users = getRegisteredUsers();
+    return users.find(user => 
+      user.email.toLowerCase() === email.toLowerCase() && 
+      user.password === password
+    );
+  }
+  
   // Handle login form submission
   if (loginSubmitBtn) {
     loginSubmitBtn.addEventListener('click', function() {
@@ -181,9 +168,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const email = loginEmail.value.trim();
       const password = loginPassword.value;
       
+      // Clear previous errors
+      clearErrors(loginForm);
+      
       // Basic validation
       if (!email) {
         showError(loginEmail, 'Please enter your email');
+        return;
+      }
+      
+      if (!validateEmail(email)) {
+        showError(loginEmail, 'Please enter a valid email address');
         return;
       }
       
@@ -192,35 +187,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      console.log("Logging in with:", email);
+      // Check if user exists and password matches
+      const user = getUserByCredentials(email, password);
       
-      // Check if this user exists in localStorage
-      let existingUserData = getUserByEmail(email);
-      
-      if (existingUserData) {
-        // In a real app, you would verify the password here
-        console.log("User found, logging in with existing data");
-      } else {
-        // Create a new user if not found
-        console.log("Creating new user");
-        existingUserData = {
-          email: email,
-          name: email.split('@')[0], // Use part of email as name initially
-          isNewUser: true
-        };
-        
-        // Save new user
-        saveUser(existingUserData);
+      if (!user) {
+        showError(loginEmail, 'Invalid email or password');
+        return;
       }
       
       // Set authentication state
       localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('currentUser', JSON.stringify(existingUserData));
-      
-      // Close modal
-      if (authModal) {
-        authModal.style.display = 'none';
-      }
+      localStorage.setItem('currentUser', JSON.stringify(user));
       
       // Redirect to dashboard
       window.location.href = 'dashboard.html';
@@ -249,6 +226,9 @@ document.addEventListener('DOMContentLoaded', function() {
         isValid = false;
       } else if (!validateEmail(emailInput.value)) {
         showError(emailInput, 'Please enter a valid email');
+        isValid = false;
+      } else if (userExists(emailInput.value)) {
+        showError(emailInput, 'This email is already registered');
         isValid = false;
       }
       
@@ -279,28 +259,27 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       if (isValid) {
-        // For demo purposes, we'll create a new user
-        // In a real app, you would call your API here
+        // Create new user object
         const userData = {
-          name: nameInput.value,
-          email: emailInput.value,
-          phone: phoneInput.value,
-          isNewUser: true
+          name: nameInput.value.trim(),
+          email: emailInput.value.trim(),
+          password: passwordInput.value, // In a real app, this should be hashed
+          phone: phoneInput.value.trim(),
+          isNewUser: true,
+          createdAt: new Date().toISOString()
         };
         
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Save to users array
+        // Save user to localStorage
         saveUser(userData);
         
-        // Close modal
-        if (authModal) {
-          authModal.style.display = 'none';
-        }
+        // Show success message
+        alert('Registration successful! You can now log in with your credentials.');
         
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        // Reset form
+        registerForm.reset();
+        
+        // Switch to login tab
+        loginTabBtn.click();
       }
     });
   }
@@ -319,11 +298,17 @@ document.addEventListener('DOMContentLoaded', function() {
       } else if (!validateEmail(emailInput.value)) {
         showError(emailInput, 'Please enter a valid email');
         isValid = false;
+      } else if (!userExists(emailInput.value)) {
+        showError(emailInput, 'No account found with this email');
+        isValid = false;
       }
       
       if (isValid) {
         // In a real app, you would call your API to send a reset link
         alert(`Password reset link sent to ${emailInput.value}. Please check your email.`);
+        
+        // Reset form
+        forgotPasswordForm.reset();
         
         // Return to login form
         forgotPasswordForm.classList.remove('active');
@@ -332,104 +317,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Function to get user by email from localStorage
-  function getUserByEmail(email) {
-    // Get all users from localStorage
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    // Find user with matching email
-    return users.find(user => user.email === email);
-  }
-  
-  // Function to save user to localStorage
-  function saveUser(userData) {
-    // Get existing users
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    
-    // Check if user already exists
-    const existingUserIndex = users.findIndex(user => user.email === userData.email);
-    
-    if (existingUserIndex >= 0) {
-      // Update existing user
-      users[existingUserIndex] = userData;
-    } else {
-      // Add new user
-      users.push(userData);
-    }
-    
-    // Save updated users array
-    localStorage.setItem('users', JSON.stringify(users));
-  }
-  
   // Social login buttons (these would connect to OAuth providers in a real implementation)
   const socialButtons = document.querySelectorAll('.social-button');
   if (socialButtons) {
     socialButtons.forEach(button => {
       button.addEventListener('click', function() {
-        const provider = this.classList.contains('google') ? 'Google' : 'Facebook';
-        
-        // Store authentication data in localStorage
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('currentUser', JSON.stringify({
-          name: `${provider} User`,
-          email: `user@${provider.toLowerCase()}.example.com`,
-          isNewUser: true
-        }));
-        
-        // Close modal
-        if (authModal) {
-          authModal.style.display = 'none';
-        }
-        
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
+        alert('Social login is not implemented in this demo. Please use email registration.');
       });
-    });
-  }
-  
-  // Add a direct login link for testing
-  const directLoginLink = document.getElementById('directLoginLink');
-  if (directLoginLink) {
-    directLoginLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Set authentication state
-      localStorage.setItem('isAuthenticated', 'true');
-      
-      // Create demo user
-      const demoUser = {
-        email: 'demo@example.com',
-        name: 'Demo User',
-        isNewUser: true
-      };
-      
-      // Save user data
-      localStorage.setItem('currentUser', JSON.stringify(demoUser));
-      
-      // Redirect to dashboard
-      window.location.href = 'dashboard.html';
-    });
-  }
-  
-  // Also check if there's a standalone login button
-  const standaloneLoginButton = document.querySelector('.login-button:not(#loginForm .login-button)');
-  if (standaloneLoginButton && standaloneLoginButton !== loginButton) {
-    standaloneLoginButton.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Create a simple user for demo purposes
-      const demoUser = {
-        email: 'user@example.com',
-        name: 'Demo User',
-        isNewUser: true
-      };
-      
-      // Set authentication state
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('currentUser', JSON.stringify(demoUser));
-      
-      // Redirect to dashboard
-      window.location.href = 'dashboard.html';
     });
   }
 });

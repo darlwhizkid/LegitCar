@@ -1,15 +1,13 @@
 // Dashboard JavaScript
 
-console.log('Dashboard.js loaded');
-
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM fully loaded');
   
   // Check if user is authenticated
   const isAuthenticated = localStorage.getItem('isAuthenticated');
   if (!isAuthenticated) {
-    // Redirect to home page if not authenticated
-    window.location.href = 'index.html';
+    // Redirect to login page if not authenticated
+    window.location.href = 'login.html';
     return;
   }
   
@@ -49,8 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
       localStorage.removeItem('isAuthenticated');
       localStorage.removeItem('currentUser');
       
-      // Redirect to home page
-      window.location.href = 'index.html';
+      // Redirect to login page
+      window.location.href = 'login.html';
     });
   }
   
