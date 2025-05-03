@@ -1,10 +1,20 @@
 // New Application Page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  if (!isAuthenticated) {
-    // Redirect to home page if not authenticated
-    window.location.href = 'index.html';
+  console.log('Page loaded');
+  
+  // Consistent authentication check
+  const token = localStorage.getItem('token');
+  const currentUser = localStorage.getItem('currentUser');
+  
+  // Only proceed if both token and user data exist
+  if (!token || !currentUser) {
+    // Clear any partial auth data
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAuthenticated');
+    
+    // Redirect directly to login page, not index.html
+    window.location.href = 'login.html';
     return;
   }
   
@@ -47,8 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       
       // Clear authentication data
-      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('isAuthenticated');
       
       // Redirect to home page
       window.location.href = 'index.html';
@@ -406,158 +417,159 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Function to save application to localStorage
-  function saveApplication(application) {
-    const userEmail = userData.email;
-    if (!userEmail) return;
-    
-    // Get existing applications
-    let applications = [];
-    const storedApplications = localStorage.getItem(`applications_${userEmail}`);
-    
-    if (storedApplications) {
-      try {
-        applications = JSON.parse(storedApplications);
-      } catch (e) {
-        console.error('Error parsing stored applications:', e);
-      }
-    }
-    
-    // Add new application
-    applications.push(application);
-    
-    // Save updated applications
-    localStorage.setItem(`applications_${userEmail}`, JSON.stringify(applications));
-  }
-  
-  // Function to show success modal
-  function showSuccessModal(applicationId) {
-    const successModal = document.getElementById('successModal');
-    const successAppId = document.getElementById('successAppId');
-    const closeModalBtn = document.querySelector('.close-modal');
-    const viewApplicationsBtn = document.getElementById('viewApplicationsBtn');
-    const newApplicationBtn = document.getElementById('newApplicationBtn');
-    
-    // Set application ID in modal
-    if (successAppId) {
-      successAppId.textContent = applicationId;
-    }
-    
-    // Show modal
-    if (successModal) {
-      successModal.style.display = 'block';
-    }
-    
-    // Close modal button
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener('click', function() {
-        successModal.style.display = 'none';
-      });
-    }
-    
-    // View applications button
-    if (viewApplicationsBtn) {
-      viewApplicationsBtn.addEventListener('click', function() {
-        window.location.href = 'applications.html';
-      });
-    }
-    
-    // New application button
-    if (newApplicationBtn) {
-      newApplicationBtn.addEventListener('click', function() {
-        // Hide modal
-        successModal.style.display = 'none';
+      // Function to save application to localStorage
+      function saveApplication(application) {
+        const userEmail = userData.email;
+        if (!userEmail) return;
         
-        // Reset forms
-        const allForms = document.querySelectorAll('.application-form');
-        allForms.forEach(form => {
-          if (form) form.reset();
-        });
+        // Get existing applications
+        let applications = [];
+        const storedApplications = localStorage.getItem(`applications_${userEmail}`);
         
-        // Hide application form
-        if (applicationForm) {
-          applicationForm.style.display = 'none';
+        if (storedApplications) {
+          try {
+            applications = JSON.parse(storedApplications);
+          } catch (e) {
+            console.error('Error parsing stored applications:', e);
+          }
         }
         
-        // Remove selected class from all cards
-        applicationTypeCards.forEach(card => card.classList.remove('selected'));
+        // Add new application
+        applications.push(application);
         
-        // Scroll to application types
-        document.querySelector('.application-types').scrollIntoView({ behavior: 'smooth' });
-      });
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-      if (event.target === successModal) {
-        successModal.style.display = 'none';
+        // Save updated applications
+        localStorage.setItem(`applications_${userEmail}`, JSON.stringify(applications));
       }
-    });
-  }
+      
+      // Function to show success modal
+      function showSuccessModal(applicationId) {
+        const successModal = document.getElementById('successModal');
+        const successAppId = document.getElementById('successAppId');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const viewApplicationsBtn = document.getElementById('viewApplicationsBtn');
+        const newApplicationBtn = document.getElementById('newApplicationBtn');
+        
+        // Set application ID in modal
+        if (successAppId) {
+          successAppId.textContent = applicationId;
+        }
+        
+        // Show modal
+        if (successModal) {
+          successModal.style.display = 'block';
+        }
+        
+        // Close modal button
+        if (closeModalBtn) {
+          closeModalBtn.addEventListener('click', function() {
+            successModal.style.display = 'none';
+          });
+        }
+        
+        // View applications button
+        if (viewApplicationsBtn) {
+          viewApplicationsBtn.addEventListener('click', function() {
+            window.location.href = 'applications.html';
+          });
+        }
+        
+        // New application button
+        if (newApplicationBtn) {
+          newApplicationBtn.addEventListener('click', function() {
+            // Hide modal
+            successModal.style.display = 'none';
+            
+            // Reset forms
+            const allForms = document.querySelectorAll('.application-form');
+            allForms.forEach(form => {
+              if (form) form.reset();
+            });
+            
+            // Hide application form
+            if (applicationForm) {
+              applicationForm.style.display = 'none';
+            }
+            
+            // Remove selected class from all cards
+            applicationTypeCards.forEach(card => card.classList.remove('selected'));
+            
+            // Scroll to application types
+            document.querySelector('.application-types').scrollIntoView({ behavior: 'smooth' });
+          });
+        }
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+          if (event.target === successModal) {
+            successModal.style.display = 'none';
+          }
+        });
+      }
+      
+      // Pre-fill owner information from user data
+      function prefillOwnerInfo() {
+        // For vehicle registration form
+        const ownerName = document.getElementById('ownerName');
+        const ownerEmail = document.getElementById('ownerEmail');
+        const ownerPhone = document.getElementById('ownerPhone');
+        const ownerAddress = document.getElementById('ownerAddress');
+        
+        // For ownership transfer form
+        const newOwnerName = document.getElementById('newOwnerName');
+        const newOwnerEmail = document.getElementById('newOwnerEmail');
+        const newOwnerPhone = document.getElementById('newOwnerPhone');
+        
+        // For license renewal form
+        const applicantName = document.getElementById('applicantName');
+        const applicantEmail = document.getElementById('applicantEmail');
+        const applicantPhone = document.getElementById('applicantPhone');
+        
+        // For driver's license form
+        const dlApplicantName = document.getElementById('dlApplicantName');
+        const dlApplicantEmail = document.getElementById('dlApplicantEmail');
+        const dlApplicantPhone = document.getElementById('dlApplicantPhone');
+        
+        // For documentation form
+        const requestorName = document.getElementById('requestorName');
+        const requestorEmail = document.getElementById('requestorEmail');
+        const requestorPhone = document.getElementById('requestorPhone');
+        
+        // For accessories form
+        const customerName = document.getElementById('customerName');
+        const customerEmail = document.getElementById('customerEmail');
+        const customerPhone = document.getElementById('customerPhone');
+        
+        // Fill in the data if available
+        if (userData.name) {
+          if (ownerName) ownerName.value = userData.name;
+          if (newOwnerName) newOwnerName.value = userData.name;
+          if (applicantName) applicantName.value = userData.name;
+          if (dlApplicantName) dlApplicantName.value = userData.name;
+          if (requestorName) requestorName.value = userData.name;
+          if (customerName) customerName.value = userData.name;
+        }
+        
+        if (userData.email) {
+          if (ownerEmail) ownerEmail.value = userData.email;
+          if (newOwnerEmail) newOwnerEmail.value = userData.email;
+          if (applicantEmail) applicantEmail.value = userData.email;
+          if (dlApplicantEmail) dlApplicantEmail.value = userData.email;
+          if (requestorEmail) requestorEmail.value = userData.email;
+          if (customerEmail) customerEmail.value = userData.email;
+        }
+        
+        if (userData.phone) {
+          if (ownerPhone) ownerPhone.value = userData.phone;
+          if (newOwnerPhone) newOwnerPhone.value = userData.phone;
+          if (applicantPhone) applicantPhone.value = userData.phone;
+          if (dlApplicantPhone) dlApplicantPhone.value = userData.phone;
+          if (requestorPhone) requestorPhone.value = userData.phone;
+          if (customerPhone) customerPhone.value = userData.phone;
+        }
+        
+        if (userData.address && ownerAddress) {
+          ownerAddress.value = userData.address;
+        }
+      }
+  });
   
-  // Pre-fill owner information from user data
-  function prefillOwnerInfo() {
-    // For vehicle registration form
-    const ownerName = document.getElementById('ownerName');
-    const ownerEmail = document.getElementById('ownerEmail');
-    const ownerPhone = document.getElementById('ownerPhone');
-    const ownerAddress = document.getElementById('ownerAddress');
-    
-    // For ownership transfer form
-    const newOwnerName = document.getElementById('newOwnerName');
-    const newOwnerEmail = document.getElementById('newOwnerEmail');
-    const newOwnerPhone = document.getElementById('newOwnerPhone');
-    
-    // For license renewal form
-    const applicantName = document.getElementById('applicantName');
-    const applicantEmail = document.getElementById('applicantEmail');
-    const applicantPhone = document.getElementById('applicantPhone');
-    
-    // For driver's license form
-    const dlApplicantName = document.getElementById('dlApplicantName');
-    const dlApplicantEmail = document.getElementById('dlApplicantEmail');
-    const dlApplicantPhone = document.getElementById('dlApplicantPhone');
-    
-    // For documentation form
-    const requestorName = document.getElementById('requestorName');
-    const requestorEmail = document.getElementById('requestorEmail');
-    const requestorPhone = document.getElementById('requestorPhone');
-    
-    // For accessories form
-    const customerName = document.getElementById('customerName');
-    const customerEmail = document.getElementById('customerEmail');
-    const customerPhone = document.getElementById('customerPhone');
-    
-    // Fill in the data if available
-    if (userData.name) {
-      if (ownerName) ownerName.value = userData.name;
-      if (newOwnerName) newOwnerName.value = userData.name;
-      if (applicantName) applicantName.value = userData.name;
-      if (dlApplicantName) dlApplicantName.value = userData.name;
-      if (requestorName) requestorName.value = userData.name;
-      if (customerName) customerName.value = userData.name;
-    }
-    
-    if (userData.email) {
-      if (ownerEmail) ownerEmail.value = userData.email;
-      if (newOwnerEmail) newOwnerEmail.value = userData.email;
-      if (applicantEmail) applicantEmail.value = userData.email;
-      if (dlApplicantEmail) dlApplicantEmail.value = userData.email;
-      if (requestorEmail) requestorEmail.value = userData.email;
-      if (customerEmail) customerEmail.value = userData.email;
-    }
-    
-    if (userData.phone) {
-      if (ownerPhone) ownerPhone.value = userData.phone;
-      if (newOwnerPhone) newOwnerPhone.value = userData.phone;
-      if (applicantPhone) applicantPhone.value = userData.phone;
-      if (dlApplicantPhone) dlApplicantPhone.value = userData.phone;
-      if (requestorPhone) requestorPhone.value = userData.phone;
-      if (customerPhone) customerPhone.value = userData.phone;
-    }
-    
-    if (userData.address && ownerAddress) {
-      ownerAddress.value = userData.address;
-    }
-  }
-});      

@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLink = event.target.closest('.sidebar-nav a');
     
     if (navLink) {
-      // Only handle hash links
+      // Only handle hash links - don't interfere with normal page navigation
       if (navLink.getAttribute('href').startsWith('#')) {
         event.preventDefault();
         
@@ -193,17 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
           targetSection.style.display = 'block';
         }
       }
-      // Add this else if block to handle non-hash links
-      else if (navLink.getAttribute('href').includes('.html')) {
-        // For links to HTML pages, check if they're external to the dashboard
-        const href = navLink.getAttribute('href');
-        
-        // If it's trying to navigate to index.html, prevent it
-        if (href.includes('index.html')) {
-          event.preventDefault();
-          console.log('Prevented navigation to index.html');
-        }
-      }
+      // For normal links to other pages, don't interfere
     }
   });
   

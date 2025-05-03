@@ -1,10 +1,20 @@
 // Applications Page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  if (!isAuthenticated) {
-    // Redirect to home page if not authenticated
-    window.location.href = 'index.html';
+  console.log('Page loaded');
+  
+  // Consistent authentication check
+  const token = localStorage.getItem('token');
+  const currentUser = localStorage.getItem('currentUser');
+  
+  // Only proceed if both token and user data exist
+  if (!token || !currentUser) {
+    // Clear any partial auth data
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAuthenticated');
+    
+    // Redirect directly to login page, not index.html
+    window.location.href = 'login.html';
     return;
   }
   
@@ -47,8 +57,9 @@ document.addEventListener('DOMContentLoaded', function() {
       e.preventDefault();
       
       // Clear authentication data
-      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('isAuthenticated');
       
       // Redirect to home page
       window.location.href = 'index.html';
