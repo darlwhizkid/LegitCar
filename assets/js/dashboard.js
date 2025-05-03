@@ -142,6 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (navLink) {
       // Only handle hash links
       if (navLink.getAttribute('href').startsWith('#')) {
+        // This is the critical line - prevent default navigation
         event.preventDefault();
         
         // Remove active class from all links
@@ -164,6 +165,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
           targetSection.style.display = 'block';
+        
+          // Update URL hash without causing page reload
+          history.pushState(null, null, '#' + targetId);
         }
       }
     }
