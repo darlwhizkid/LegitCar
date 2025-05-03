@@ -79,15 +79,42 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Show/hide new user message
+  // Check for section parameter in URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const sectionParam = urlParams.get('section');
+
+  // Handle profile completion prompt
   const newUserMessage = document.getElementById('newUserMessage');
-  const activityList = document.getElementById('activityList');
-  
-  if (newUserMessage && activityList && userData) {
+  if (newUserMessage && userData) {
     if (userData.isNewUser) {
       newUserMessage.style.display = 'flex';
     } else {
       newUserMessage.style.display = 'none';
+    }
+  }
+
+  // If we have a section parameter, show that section
+  if (sectionParam) {
+    // Hide all sections
+    document.querySelectorAll('.dashboard-main > div[id]').forEach(section => {
+      section.style.display = 'none';
+    });
+    
+    // Show the target section
+    const targetSection = document.getElementById(sectionParam);
+    if (targetSection) {
+      targetSection.style.display = 'block';
+      
+      // Update sidebar active state
+      document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.parentElement.classList.remove('active');
+      });
+      
+      const activeLink = document.querySelector(`.sidebar-nav a[href="#${sectionParam}"]`) || 
+                        document.querySelector(`.sidebar-nav a[href="${sectionParam}.html"]`);
+      if (activeLink) {
+        activeLink.parentElement.classList.add('active');
+      }
     }
   }
   
@@ -140,22 +167,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLink = event.target.closest('.sidebar-nav a');
     
     if (navLink) {
-      // Get the href attribute
       const href = navLink.getAttribute('href');
       
-      // Handle all sidebar navigation links
-      event.preventDefault(); // Prevent default for all sidebar links
-      
-      // Remove active class from all links
-      document.querySelectorAll('.sidebar-nav a').forEach(link => {
-        link.parentElement.classList.remove('active');
-      });
-      
-      // Add active class to clicked link
-      navLink.parentElement.classList.add('active');
-      
+      // Only handle hash links and specific page links within the dashboard
       if (href.startsWith('#')) {
-        // It's a hash link - show the corresponding section
+        // This is a hash link - handle it as before
+        event.preventDefault();
+        
+        // Remove active class from all links
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+          link.parentElement.classList.remove('active');
+        });
+        
+        // Add active class to clicked link
+        navLink.parentElement.classList.add('active');
+        
+        // Get the target section ID
         const targetId = href.substring(1);
         
         // Hide all sections
@@ -167,65 +194,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const targetSection = document.getElementById(targetId);
         if (targetSection) {
           targetSection.style.display = 'block';
-        
-          // Update URL hash without causing page reload
-          history.pushState(null, null, href);
         }
-      } else if (href.endsWith('.html')) {
-        // It's a link to another HTML page - load it via AJAX instead
+      } 
+      else if (href === 'dashboard.html' || href === '/dashboard.html' || href === './dashboard.html') {
+        // Special handling for dashboard link - just reload the dashboard page
+        // Don't prevent default for this one
+        return; // Let the default navigation happen
+      }
+      else if (href.endsWith('.html') && !href.includes('index.html')) {
+        // For other HTML pages within the dashboard, prevent the default navigation
+        event.preventDefault();
         
-        // Show loading indicator if you have one
-        // const loadingIndicator = document.getElementById('loadingIndicator');
-        // if (loadingIndicator) loadingIndicator.style.display = 'block';
+        // Add active class to clicked link
+        document.querySelectorAll('.sidebar-nav a').forEach(link => {
+          link.parentElement.classList.remove('active');
+        });
+        navLink.parentElement.classList.add('active');
         
-        // Use fetch to get the content
-        fetch(href)
-          .then(response => response.text())
-          .then(html => {
-            // Create a temporary element to parse the HTML
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(html, 'text/html');
-            
-            // Extract the main content from the loaded page
-            const mainContent = doc.querySelector('.dashboard-main') || 
-                               doc.querySelector('main') || 
-                               doc.querySelector('.main-content');
-            
-            if (mainContent) {
-              // Get our dashboard main content container
-              const dashboardMain = document.querySelector('.dashboard-main');
-              if (dashboardMain) {
-                // Replace the content
-                dashboardMain.innerHTML = mainContent.innerHTML;
-                
-                // Update URL without reload
-                history.pushState(null, null, href);
-                
-                // Execute any scripts in the loaded content
-                const scripts = mainContent.querySelectorAll('script');
-                scripts.forEach(script => {
-                  const newScript = document.createElement('script');
-                  if (script.src) {
-                    newScript.src = script.src;
-                  } else {
-                    newScript.textContent = script.textContent;
-                  }
-                  document.body.appendChild(newScript);
-                });
-              }
-            }
-            
-            // Hide loading indicator
-            // if (loadingIndicator) loadingIndicator.style.display = 'none';
-          })
-          .catch(error => {
-            console.error('Error loading page:', error);
-            // Hide loading indicator
-            // if (loadingIndicator) loadingIndicator.style.display = 'none';
-            
-            // Show error message
-            alert('Failed to load the requested page. Please try again.');
-          });
+        // Instead of AJAX loading, use this approach:
+        // Store the target page in session storage
+        sessionStorage.setItem('dashboardTargetPage', href);
+        
+        // Redirect to dashboard with a special parameter
+        window.location.href = 'dashboard.html?section=' + href.replace('.html', '');
       }
     }
   });
