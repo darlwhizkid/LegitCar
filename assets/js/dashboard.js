@@ -3,10 +3,18 @@
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM fully loaded');
   
-  // Check if user is authenticated
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
-  if (!isAuthenticated) {
-    // Redirect to login page if not authenticated
+  // Check if user is authenticated - using token consistently
+  const token = localStorage.getItem('token');
+  const currentUser = localStorage.getItem('currentUser');
+  
+  // Only proceed if both token and user data exist
+  if (!token || !currentUser) {
+    // Clear any partial auth data
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAuthenticated');
+    
+    // Redirect to login page
     window.location.href = 'login.html';
     return;
   }
@@ -43,12 +51,31 @@ document.addEventListener('DOMContentLoaded', function() {
     logoutBtn.addEventListener('click', function(e) {
       e.preventDefault();
       
-      // Clear authentication data
-      localStorage.removeItem('isAuthenticated');
+      // Clear ALL authentication data
+      localStorage.removeItem('token');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('isAuthenticated');
       
-      // Redirect to login page
-      window.location.href = 'login.html';
+      // Redirect to homepage instead of login page
+      window.location.href = 'index.html';
+    });
+  }
+  
+  // Also update any other logout buttons
+  const logoutBtns = document.querySelectorAll('.logout-btn');
+  if (logoutBtns.length > 0) {
+    logoutBtns.forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Clear ALL authentication data
+        localStorage.removeItem('token');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('isAuthenticated');
+        
+        // Redirect to homepage instead of login page
+        window.location.href = 'index.html';
+      });
     });
   }
   

@@ -1,14 +1,43 @@
 // Login Page JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Get the login/register buttons
+  const loginButton = document.getElementById('loginButton');
+  const mobileLoginButton = document.getElementById('mobileLoginButton');
+  
+  // Add click handler to desktop login button
+  if (loginButton) {
+    loginButton.addEventListener('click', function(e) {
+      window.location.href = 'login.html';
+    });
+  }
+  
+  // Add click handler to mobile login button
+  if (mobileLoginButton) {
+    mobileLoginButton.addEventListener('click', function(e) {
+      window.location.href = 'login.html';
+    });
+  }
+  
   console.log("Login script loaded");
   
   // Check if user is already authenticated
   const token = localStorage.getItem('token');
-  if (token) {
+  const currentUser = localStorage.getItem('currentUser');
+  
+  // Only redirect if both token and user data exist
+  if (token && currentUser) {
     // Redirect to dashboard if already logged in
     window.location.href = 'dashboard.html';
     return;
+  }
+  
+  // If we're here, we don't have valid authentication
+  // Clear any partial authentication data to be safe
+  if (!token || !currentUser) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAuthenticated');
   }
   
   // DOM Elements
