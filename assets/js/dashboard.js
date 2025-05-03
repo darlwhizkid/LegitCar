@@ -83,10 +83,30 @@ document.addEventListener('DOMContentLoaded', function() {
   const urlParams = new URLSearchParams(window.location.search);
   const sectionParam = urlParams.get('section');
 
-  // Handle profile completion prompt
+  // Show/hide new user message and profile completion prompt
   const newUserMessage = document.getElementById('newUserMessage');
-  if (newUserMessage && userData) {
-    if (userData.isNewUser) {
+  const activityList = document.getElementById('activityList');
+
+  if (newUserMessage && activityList && userData) {
+    // Check if user is new or has incomplete profile
+    const isNewUser = userData.isNewUser;
+    const hasIncompleteProfile = !userData.phone || !userData.address || !userData.city || !userData.state;
+    
+    if (isNewUser || hasIncompleteProfile) {
+      // Update the message content to include profile completion prompt
+      newUserMessage.innerHTML = `
+        <div class="welcome-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="welcome-content">
+          <h3>Welcome to LegitCar!</h3>
+          <p>${isNewUser ? 'Thank you for joining our platform. ' : ''}
+             ${hasIncompleteProfile ? 'Please complete your profile to get the most out of our services.' : ''}
+          </p>
+          <a href="profile.html" class="btn-primary">Complete Your Profile</a>
+        </div>
+      `;
+      
       newUserMessage.style.display = 'flex';
     } else {
       newUserMessage.style.display = 'none';
