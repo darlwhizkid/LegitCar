@@ -140,21 +140,23 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLink = event.target.closest('.sidebar-nav a');
     
     if (navLink) {
-      // Only handle hash links
-      if (navLink.getAttribute('href').startsWith('#')) {
-        // This is the critical line - prevent default navigation
-        event.preventDefault();
-        
-        // Remove active class from all links
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-          link.parentElement.classList.remove('active');
-        });
-        
-        // Add active class to clicked link
-        navLink.parentElement.classList.add('active');
-        
-        // Get the target section ID
-        const targetId = navLink.getAttribute('href').substring(1);
+      // Get the href attribute
+      const href = navLink.getAttribute('href');
+      
+      // Handle all sidebar navigation links
+      event.preventDefault(); // Prevent default for all sidebar links
+      
+      // Remove active class from all links
+      document.querySelectorAll('.sidebar-nav a').forEach(link => {
+        link.parentElement.classList.remove('active');
+      });
+      
+      // Add active class to clicked link
+      navLink.parentElement.classList.add('active');
+      
+      if (href.startsWith('#')) {
+        // It's a hash link - show the corresponding section
+        const targetId = href.substring(1);
         
         // Hide all sections
         document.querySelectorAll('.dashboard-main > div[id]').forEach(section => {
@@ -167,8 +169,63 @@ document.addEventListener('DOMContentLoaded', function() {
           targetSection.style.display = 'block';
         
           // Update URL hash without causing page reload
-          history.pushState(null, null, '#' + targetId);
+          history.pushState(null, null, href);
         }
+      } else if (href.endsWith('.html')) {
+        // It's a link to another HTML page - load it via AJAX instead
+        
+        // Show loading indicator if you have one
+        // const loadingIndicator = document.getElementById('loadingIndicator');
+        // if (loadingIndicator) loadingIndicator.style.display = 'block';
+        
+        // Use fetch to get the content
+        fetch(href)
+          .then(response => response.text())
+          .then(html => {
+            // Create a temporary element to parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Extract the main content from the loaded page
+            const mainContent = doc.querySelector('.dashboard-main') || 
+                               doc.querySelector('main') || 
+                               doc.querySelector('.main-content');
+            
+            if (mainContent) {
+              // Get our dashboard main content container
+              const dashboardMain = document.querySelector('.dashboard-main');
+              if (dashboardMain) {
+                // Replace the content
+                dashboardMain.innerHTML = mainContent.innerHTML;
+                
+                // Update URL without reload
+                history.pushState(null, null, href);
+                
+                // Execute any scripts in the loaded content
+                const scripts = mainContent.querySelectorAll('script');
+                scripts.forEach(script => {
+                  const newScript = document.createElement('script');
+                  if (script.src) {
+                    newScript.src = script.src;
+                  } else {
+                    newScript.textContent = script.textContent;
+                  }
+                  document.body.appendChild(newScript);
+                });
+              }
+            }
+            
+            // Hide loading indicator
+            // if (loadingIndicator) loadingIndicator.style.display = 'none';
+          })
+          .catch(error => {
+            console.error('Error loading page:', error);
+            // Hide loading indicator
+            // if (loadingIndicator) loadingIndicator.style.display = 'none';
+            
+            // Show error message
+            alert('Failed to load the requested page. Please try again.');
+          });
       }
     }
   });
