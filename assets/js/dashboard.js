@@ -167,11 +167,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const navLink = event.target.closest('.sidebar-nav a');
     
     if (navLink) {
-      const href = navLink.getAttribute('href');
-      
-      // Only handle hash links and specific page links within the dashboard
-      if (href.startsWith('#')) {
-        // This is a hash link - handle it as before
+      // Only handle hash links
+      if (navLink.getAttribute('href').startsWith('#')) {
         event.preventDefault();
         
         // Remove active class from all links
@@ -183,7 +180,7 @@ document.addEventListener('DOMContentLoaded', function() {
         navLink.parentElement.classList.add('active');
         
         // Get the target section ID
-        const targetId = href.substring(1);
+        const targetId = navLink.getAttribute('href').substring(1);
         
         // Hide all sections
         document.querySelectorAll('.dashboard-main > div[id]').forEach(section => {
@@ -195,28 +192,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (targetSection) {
           targetSection.style.display = 'block';
         }
-      } 
-      else if (href === 'dashboard.html' || href === '/dashboard.html' || href === './dashboard.html') {
-        // Special handling for dashboard link - just reload the dashboard page
-        // Don't prevent default for this one
-        return; // Let the default navigation happen
       }
-      else if (href.endsWith('.html') && !href.includes('index.html')) {
-        // For other HTML pages within the dashboard, prevent the default navigation
-        event.preventDefault();
+      // Add this else if block to handle non-hash links
+      else if (navLink.getAttribute('href').includes('.html')) {
+        // For links to HTML pages, check if they're external to the dashboard
+        const href = navLink.getAttribute('href');
         
-        // Add active class to clicked link
-        document.querySelectorAll('.sidebar-nav a').forEach(link => {
-          link.parentElement.classList.remove('active');
-        });
-        navLink.parentElement.classList.add('active');
-        
-        // Instead of AJAX loading, use this approach:
-        // Store the target page in session storage
-        sessionStorage.setItem('dashboardTargetPage', href);
-        
-        // Redirect to dashboard with a special parameter
-        window.location.href = 'dashboard.html?section=' + href.replace('.html', '');
+        // If it's trying to navigate to index.html, prevent it
+        if (href.includes('index.html')) {
+          event.preventDefault();
+          console.log('Prevented navigation to index.html');
+        }
       }
     }
   });
