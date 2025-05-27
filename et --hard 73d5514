@@ -1,0 +1,30 @@
+[33mffa83eb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge stable-mongodb-09af1f4: Improve authentication checks and add profile completion prompt
+[33m73d5514[m[33m ([m[1;31morigin/stable-mongodb-09af1f4[m[33m, [m[1;32mstable-mongodb-09af1f4[m[33m)[m worked on the profile message
+[33mb97d95e[m still working on the sidebar
+[33md881d6c[m working on the dashboard
+[33mab97ace[m working on the dashboard
+[33m0bb0c18[m fixing navigating issues
+[33m67bf856[m fixing sidebar
+[33m18f198f[m trying to fix the flashing from login and dashboard
+[33m3473a2a[m Fix authentication and navigation issues
+[33m98680cb[m trying to fix dashboard
+[33mb592529[m fixed the logout issue
+[33m49bb42a[m tried to fix the flashing
+[33m9f217aa[m worked on the logo of partners
+[33ma97f8fb[m worked on the login/register button
+[33m9d45f47[m Worked on the login/register button
+[33m61ebf48[m made the login/register button work
+[33m4d69f04[m I don't need the track notification color
+[33mdec670e[m making sure you log in for our services
+[33m6850d9d[m[33m ([m[1;32mtrack[m[33m)[m Add login requirement for track application and service links
+[33m09af1f4[m Add MongoDB backend integration
+[33m661ee38[m Fix registration form handling and improve UX with automatic tab switching
+[33mb9791b8[m Worked on the login ish
+[33m3471a05[m worked on the track application and the contact support
+[33m2d1b6e7[m Add maritime and aviation documentation forms
+[33m8e7b9fd[m Add settings page with functionality
+[33m7eb11f4[m[33m ([m[1;31morigin/dashboard[m[33m)[m fixed the documents and the messages page issues
+[33m524c33b[m worked on the applications page
+[33m796cf7c[m worked on the profile page and mobile menu
+[33m62445df[m Implement complete profile functionality with persistent user data
+[33m627bc07[m[33m ([m[1;31morigin/stable-version-627bc07[m[33m, [m[1;32mstable-version-627bc07[m[33m)[m Initial commit of LegitCar dashboard and login system
