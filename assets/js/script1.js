@@ -43,6 +43,7 @@ function toggleMobileDropdown() {
 function handleLogout() {
   localStorage.removeItem('isAuthenticated');
   localStorage.removeItem('currentUser');
+  localStorage.removeItem('token');
   updateAuthUI();
   window.location.href = '/';
 }
@@ -82,8 +83,26 @@ function mockLogin(username, password) {
   updateAuthUI();
 }
 
+// Open auth modal
+function openAuthModal() {
+  window.location.href = 'login.html';
+}
+
+// Close auth modal
+function closeAuthModal() {
+  const authModal = document.getElementById('authModal');
+  if (authModal) {
+    authModal.classList.remove('active');
+    document.body.style.overflow = ''; // Restore scrolling
+  }
+}
+
 // Event Listeners
+console.log('Script1.js loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, setting up all handlers');
+  
   // Initialize date display
   updateDateDisplay();
   
@@ -91,10 +110,14 @@ document.addEventListener('DOMContentLoaded', function() {
   updateAuthUI();
   
   // Mobile menu toggle
-  menuButton.addEventListener('click', toggleMenu);
+  if (menuButton) {
+    menuButton.addEventListener('click', toggleMenu);
+  }
   
   // Mobile dropdown toggle
-  mobileServicesDropdown.addEventListener('click', toggleMobileDropdown);
+  if (mobileServicesDropdown) {
+    mobileServicesDropdown.addEventListener('click', toggleMobileDropdown);
+  }
   
   // Logout functionality
   logoutButtons.forEach(button => {
@@ -185,14 +208,19 @@ document.addEventListener('DOMContentLoaded', function() {
   let isScrolling = false;
   
   // Set current year in footer
-  document.getElementById('currentYear').textContent = new Date().getFullYear();
+  const currentYearElement = document.getElementById('currentYear');
+  if (currentYearElement) {
+    currentYearElement.textContent = new Date().getFullYear();
+  }
   
   // Toggle scroll button visibility based on scroll position
   function toggleScrollButtonVisibility() {
-    if (window.pageYOffset > 300) {
-      scrollButton.classList.add('visible');
-    } else {
-      scrollButton.classList.remove('visible');
+    if (scrollButton) {
+      if (window.pageYOffset > 300) {
+        scrollButton.classList.add('visible');
+      } else {
+        scrollButton.classList.remove('visible');
+      }
     }
   }
   
@@ -202,8 +230,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Change icon to car while scrolling
     const icon = scrollButton.querySelector('i');
-    icon.classList.remove('fa-arrow-up');
-    icon.classList.add('fa-car');
+    if (icon) {
+      icon.classList.remove('fa-arrow-up');
+      icon.classList.add('fa-car');
+    }
     
     window.scrollTo({
       top: 0,
@@ -213,197 +243,162 @@ document.addEventListener('DOMContentLoaded', function() {
     // Change icon back to arrow after scrolling
     setTimeout(function() {
       isScrolling = false;
-      icon.classList.remove('fa-car');
-      icon.classList.add('fa-arrow-up');
+      if (icon) {
+        icon.classList.remove('fa-car');
+        icon.classList.add('fa-arrow-up');
+      }
     }, 1000);
   }
   
   // Add event listeners
   window.addEventListener('scroll', toggleScrollButtonVisibility);
-  scrollButton.addEventListener('click', scrollToTop);
+  if (scrollButton) {
+    scrollButton.addEventListener('click', scrollToTop);
+  }
   
   // Initialize button visibility
   toggleScrollButtonVisibility();
-});
 
-// Add these functions to your script1.js file
-
-// Open auth modal
-function openAuthModal() {
-  window.location.href = 'login.html';
-}
-
-// Close auth modal
-function closeAuthModal() {
-    const authModal = document.getElementById('authModal');
-    if (authModal) {
-      authModal.classList.remove('active');
-      document.body.style.overflow = ''; // Restore scrolling
+  // Auth modal elements
+  const authModal = document.getElementById('authModal');
+  const closeModal = document.getElementById('closeModal');
+  const loginTabBtn = document.getElementById('loginTabBtn');
+  const registerTabBtn = document.getElementById('registerTabBtn');
+  const loginForm = document.getElementById('loginForm');
+  const registerForm = document.getElementById('registerForm');
+  const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+  const backToLoginBtn = document.getElementById('backToLoginBtn');
+  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
+  const resetSubmitBtn = document.getElementById('resetSubmitBtn');
+  const agreeTerms = document.getElementById('agreeTerms');
+  
+  // Login button click handlers
+  if (loginButton) {
+    loginButton.addEventListener('click', openAuthModal);
+  }
+  
+  if (mobileLoginButton) {
+    mobileLoginButton.addEventListener('click', openAuthModal);
+  }
+  
+  // Get Started button functionality
+  const getStartedButton = document.querySelector('.call-to-action');
+  if (getStartedButton) {
+    getStartedButton.addEventListener('click', function() {
+      // Check if user is authenticated
+      const isAuthenticated = localStorage.getItem('isAuthenticated');
+      
+      if (isAuthenticated) {
+        // Redirect to dashboard
+        window.location.href = 'dashboard.html';
+      } else {
+        // Redirect to login page
+        window.location.href = 'login.html';
+      }
+    });
+  }
+  
+  // Close modal when clicking the close button
+  if (closeModal) {
+    closeModal.addEventListener('click', closeAuthModal);
+  }
+  
+  // Close modal when clicking outside the modal content
+  if (authModal) {
+    authModal.addEventListener('click', function(e) {
+      if (e.target === authModal) {
+        closeAuthModal();
+      }
+    });
+  }
+  
+  // Tab switching
+  if (loginTabBtn) {
+    loginTabBtn.addEventListener('click', function() {
+      loginTabBtn.classList.add('active');
+      registerTabBtn.classList.remove('active');
+      loginForm.classList.add('active');
+      registerForm.classList.remove('active');
+      forgotPasswordForm.classList.remove('active');
+    });
+  }
+  
+  if (registerTabBtn) {
+    registerTabBtn.addEventListener('click', function() {
+      registerTabBtn.classList.add('active');
+      loginTabBtn.classList.remove('active');
+      registerForm.classList.add('active');
+      loginForm.classList.remove('active');
+      forgotPasswordForm.classList.remove('active');
+    });
+  }
+  
+  // Forgot password flow
+  if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      loginForm.classList.remove('active');
+      forgotPasswordForm.classList.add('active');
+    });
+  }
+  
+  if (backToLoginBtn) {
+    backToLoginBtn.addEventListener('click', function() {
+      forgotPasswordForm.classList.remove('active');
+      loginForm.classList.add('active');
+    });
+  }
+  
+  // Terms checkbox for register form
+  if (agreeTerms && registerSubmitBtn) {
+    agreeTerms.addEventListener('change', function() {
+      registerSubmitBtn.disabled = !this.checked;
+    });
+  }
+  
+  // Form validation helpers
+  function showError(input, message) {
+    const formGroup = input.closest('.form-group');
+    formGroup.classList.add('error');
+    
+    const errorMessage = formGroup.querySelector('.error-message');
+    if (errorMessage) {
+      errorMessage.textContent = message;
+      errorMessage.style.display = 'block';
     }
   }
   
-  // Add this to your DOMContentLoaded event handler
-  document.addEventListener('DOMContentLoaded', function() {
-    // ... existing code ...
-    
-    // Auth modal elements
-    const authModal = document.getElementById('authModal');
-    const closeModal = document.getElementById('closeModal');
-    const loginTabBtn = document.getElementById('loginTabBtn');
-    const registerTabBtn = document.getElementById('registerTabBtn');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-    const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-    const backToLoginBtn = document.getElementById('backToLoginBtn');
-    const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-    const registerSubmitBtn = document.getElementById('registerSubmitBtn');
-    const resetSubmitBtn = document.getElementById('resetSubmitBtn');
-    const agreeTerms = document.getElementById('agreeTerms');
-    
-    // Login button click handlers
-    if (loginButton) {
-      loginButton.addEventListener('click', openAuthModal);
-    }
-    
-    if (mobileLoginButton) {
-      mobileLoginButton.addEventListener('click', openAuthModal);
-    }
-    
-    // Get Started button functionality
-    const getStartedButton = document.querySelector('.call-to-action');
-    if (getStartedButton) {
-      getStartedButton.addEventListener('click', function() {
-        // Check if user is authenticated
-        const isAuthenticated = localStorage.getItem('isAuthenticated');
-        
-        if (isAuthenticated) {
-          // Redirect to dashboard
-          window.location.href = 'dashboard.html';
-        } else {
-          // Redirect to login page
-          window.location.href = 'login.html';
-        }
-      });
-    }
-    
-    // Track Application button
-    const trackAppButton = document.querySelector('.track-application-btn');
-    if (trackAppButton) {
-      trackAppButton.addEventListener('click', function() {
-        // Check if user is authenticated
-        const isAuthenticated = localStorage.getItem('isAuthenticated');
-        
-        if (isAuthenticated) {
-          // Redirect to dashboard
-          window.location.href = 'dashboard.html';
-        } else {
-          // Redirect to login page
-          window.location.href = 'login.html';
-        }
-      });
-    }
-    
-    // Close modal when clicking the close button
-    if (closeModal) {
-      closeModal.addEventListener('click', closeAuthModal);
-    }
-    
-    // Close modal when clicking outside the modal content
-    if (authModal) {
-      authModal.addEventListener('click', function(e) {
-        if (e.target === authModal) {
-          closeAuthModal();
-        }
-      });
-    }
-    
-    // Tab switching
-    if (loginTabBtn) {
-      loginTabBtn.addEventListener('click', function() {
-        loginTabBtn.classList.add('active');
-        registerTabBtn.classList.remove('active');
-        loginForm.classList.add('active');
-        registerForm.classList.remove('active');
-        forgotPasswordForm.classList.remove('active');
-      });
-    }
-    
-    if (registerTabBtn) {
-      registerTabBtn.addEventListener('click', function() {
-        registerTabBtn.classList.add('active');
-        loginTabBtn.classList.remove('active');
-        registerForm.classList.add('active');
-        loginForm.classList.remove('active');
-        forgotPasswordForm.classList.remove('active');
-      });
-    }
-    
-    // Forgot password flow
-    if (forgotPasswordLink) {
-      forgotPasswordLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        loginForm.classList.remove('active');
-        forgotPasswordForm.classList.add('active');
-      });
-    }
-    
-    if (backToLoginBtn) {
-      backToLoginBtn.addEventListener('click', function() {
-        forgotPasswordForm.classList.remove('active');
-        loginForm.classList.add('active');
-      });
-    }
-    
-    // Terms checkbox for register form
-    if (agreeTerms && registerSubmitBtn) {
-      agreeTerms.addEventListener('change', function() {
-        registerSubmitBtn.disabled = !this.checked;
-      });
-    }
-    
-    // Form validation helpers
-    function showError(input, message) {
-      const formGroup = input.closest('.form-group');
-      formGroup.classList.add('error');
-      
-      const errorMessage = formGroup.querySelector('.error-message');
+  function clearErrors(form) {
+    const errorGroups = form.querySelectorAll('.form-group.error');
+    errorGroups.forEach(group => {
+      group.classList.remove('error');
+      const errorMessage = group.querySelector('.error-message');
       if (errorMessage) {
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
+        errorMessage.textContent = '';
+        errorMessage.style.display = 'none';
       }
-    }
-    
-    function clearErrors(form) {
-      const errorGroups = form.querySelectorAll('.form-group.error');
-      errorGroups.forEach(group => {
-        group.classList.remove('error');
-        const errorMessage = group.querySelector('.error-message');
-        if (errorMessage) {
-          errorMessage.textContent = '';
-          errorMessage.style.display = 'none';
-        }
-      });
-    }
-    
-    function validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(String(email).toLowerCase());
-    }
-    
-    function validatePassword(password) {
-      return password.length >= 8;
-    }
-    
-    function validatePhone(phone) {
-      const re = /^(\+234|0)[0-9]{10}$/;
-      return re.test(phone);
-    }
-    
-    // Login form submission
-    if (loginSubmitBtn) {
-      loginSubmitBtn.addEventListener('click', function() {
-              // Login form submission (continued)
+    });
+  }
+  
+  function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+  }
+  
+  function validatePassword(password) {
+    return password.length >= 8;
+  }
+  
+  function validatePhone(phone) {
+    const re = /^(\+234|0)[0-9]{10}$/;
+    return re.test(phone);
+  }
+  
+  // Login form submission
+  if (loginSubmitBtn) {
+    loginSubmitBtn.addEventListener('click', function() {
       const emailInput = document.getElementById('loginEmail');
       const passwordInput = document.getElementById('loginPassword');
       let isValid = true;
@@ -427,6 +422,7 @@ function closeAuthModal() {
         // For demo purposes, we'll use the mock login
         // In a real app, you would call your API here
         localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('token', 'demo-token-' + Date.now());
         localStorage.setItem('currentUser', JSON.stringify({
           name: emailInput.value.split('@')[0],
           email: emailInput.value,
@@ -467,7 +463,7 @@ function closeAuthModal() {
       }
       
       if (!passwordInput.value.trim()) {
-        showError(passwordInput, 'Password is required');
+                showError(passwordInput, 'Password is required');
         isValid = false;
       } else if (!validatePassword(passwordInput.value)) {
         showError(passwordInput, 'Password must be at least 8 characters');
@@ -498,6 +494,7 @@ function closeAuthModal() {
         };
         
         localStorage.setItem('isAuthenticated', 'true');
+        localStorage.setItem('token', 'demo-token-' + Date.now());
         localStorage.setItem('currentUser', JSON.stringify(userData));
         
         // Update UI and redirect to dashboard
@@ -534,7 +531,41 @@ function closeAuthModal() {
       }
     });
   }
-});
 
-
+  // Track Application functionality
+  function isUserLoggedIn() {
+    const token = localStorage.getItem('token');
+    const currentUser = localStorage.getItem('currentUser');
+    return token && currentUser;
+  }
   
+  function showLoginNotification() {
+    alert('Please login first to track your application.');
+  }
+  
+  // Get all links that point to #track
+  const trackLinks = document.querySelectorAll('a[href="#track"]');
+  
+  trackLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      
+      console.log('Track application clicked'); // Debug log
+      
+      if (!isUserLoggedIn()) {
+        showLoginNotification();
+        // Redirect to login page
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1000);
+      } else {
+        // User is logged in, redirect to track application page
+        window.location.href = 'track-application.html';
+      }
+      
+      return false;
+    });
+  });
+
+});

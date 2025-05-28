@@ -1219,3 +1219,31 @@ body {
   transform: rotate(180deg);
   transition: transform 0.3s ease;
 }
+
+/* Add this to your existing CSS file */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #ff6b6b;
+  color: white;
+  padding: 15px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification.success {
+  background-color: #51cf66;
+}
+
+.notification.warning {
+  background-color: #ffd43b;
+  color: #333;
+}
