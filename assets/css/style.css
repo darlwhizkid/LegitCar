@@ -1024,6 +1024,11 @@ body {
 .auth-submit-btn:disabled {
   background-color: #cccccc;
   cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.auth-submit-btn:disabled:hover {
+  background-color: #cccccc;
 }
 
 .error-message {
@@ -1221,11 +1226,12 @@ body {
 }
 
 /* Add this to your existing CSS file */
+/* Notification Styles */
 .notification {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #ff6b6b;
+  background-color: #51cf66;
   color: white;
   padding: 15px 20px;
   border-radius: 5px;
@@ -1233,17 +1239,23 @@ body {
   z-index: 10000;
   transform: translateX(400px);
   transition: transform 0.3s ease;
+  max-width: 300px;
+  word-wrap: break-word;
 }
 
 .notification.show {
   transform: translateX(0);
 }
 
-.notification.success {
-  background-color: #51cf66;
+.notification.error {
+  background-color: #ff6b6b;
 }
 
 .notification.warning {
   background-color: #ffd43b;
   color: #333;
+}
+
+.notification.info {
+  background-color: #339af0;
 }

@@ -39,69 +39,78 @@ function toggleMobileDropdown() {
   icon.classList.toggle('rotate');
 }
 
-// Handle logout
-function handleLogout() {
-  localStorage.removeItem('isAuthenticated');
-  localStorage.removeItem('currentUser');
-  localStorage.removeItem('token');
-  updateAuthUI();
-  window.location.href = '/';
+// Handle logout - Updated to use real API
+async function handleLogout() {
+  try {
+    await propamitAPI.logout();
+    updateAuthUI();
+    window.location.href = 'index.html';
+  } catch (error) {
+    console.error('Logout error:', error);
+    // Force logout even if API call fails
+    localStorage.removeItem('token');
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('isAuthenticated');
+    updateAuthUI();
+    window.location.href = 'index.html';
+  }
 }
 
-// Update UI based on authentication status
+// Update UI based on authentication status - Updated to use real API
 function updateAuthUI() {
-  const isAuthenticated = localStorage.getItem('isAuthenticated');
+  const isAuthenticated = propamitAPI.isAuthenticated();
+  const user = propamitAPI.getCurrentUser();
   
-  if (isAuthenticated) {
-    const user = JSON.parse(localStorage.getItem('currentUser'));
-    if (user) {
+  if (isAuthenticated && user) {
+    if (usernameElement) {
       usernameElement.textContent = user.name;
     }
     
-    loginButtonElement.style.display = 'none';
-    userDropdown.style.display = 'block';
+    if (loginButtonElement) {
+      loginButtonElement.style.display = 'none';
+    }
+    if (userDropdown) {
+      userDropdown.style.display = 'block';
+    }
     
-    mobileAuthSection.style.display = 'none';
-    mobileUserSection.style.display = 'block';
+    if (mobileAuthSection) {
+      mobileAuthSection.style.display = 'none';
+    }
+    if (mobileUserSection) {
+      mobileUserSection.style.display = 'block';
+    }
   } else {
-    loginButtonElement.style.display = 'block';
-    userDropdown.style.display = 'none';
+    if (loginButtonElement) {
+      loginButtonElement.style.display = 'block';
+    }
+    if (userDropdown) {
+      userDropdown.style.display = 'none';
+    }
     
-    mobileAuthSection.style.display = 'block';
-    mobileUserSection.style.display = 'none';
+    if (mobileAuthSection) {
+      mobileAuthSection.style.display = 'block';
+    }
+    if (mobileUserSection) {
+      mobileUserSection.style.display = 'none';
+    }
   }
 }
 
-// Mock authentication function (to be replaced with your actual auth logic)
-function mockLogin(username, password) {
-  // This is just a placeholder for demonstration
-  localStorage.setItem('isAuthenticated', 'true');
-  localStorage.setItem('currentUser', JSON.stringify({
-    name: username,
-    email: username + '@example.com'
-  }));
-  updateAuthUI();
+// Function to check if user is logged in - Updated to use real API
+function isUserLoggedIn() {
+  return propamitAPI.isAuthenticated();
 }
 
-// Open auth modal
-function openAuthModal() {
-  window.location.href = 'login.html';
-}
-
-// Close auth modal
-function closeAuthModal() {
-  const authModal = document.getElementById('authModal');
-  if (authModal) {
-    authModal.classList.remove('active');
-    document.body.style.overflow = ''; // Restore scrolling
-  }
+// Function to show login notification
+function showLoginNotification() {
+  alert('Please login first to access this feature.');
 }
 
 // Event Listeners
 console.log('Script1.js loaded');
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, setting up all handlers');
+  console.log('DOM loaded, setting up handlers');
   
   // Initialize date display
   updateDateDisplay();
@@ -124,10 +133,55 @@ document.addEventListener('DOMContentLoaded', function() {
     button.addEventListener('click', handleLogout);
   });
 
+  // Login button click handlers
+  if (loginButton) {
+    loginButton.addEventListener('click', function() {
+      window.location.href = 'login.html';
+    });
+  }
+  
+  if (mobileLoginButton) {
+    mobileLoginButton.addEventListener('click', function() {
+      window.location.href = 'login.html';
+    });
+  }
+  
+  // Get Started button functionality
+  const getStartedButton = document.querySelector('.call-to-action');
+  if (getStartedButton) {
+    getStartedButton.addEventListener('click', function() {
+      if (isUserLoggedIn()) {
+        window.location.href = 'dashboard.html';
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+  }
+  
+  // Track Application functionality
+  const trackLinks = document.querySelectorAll('a[href="#track"]');
+  
+  trackLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      
+      if (!isUserLoggedIn()) {
+        showLoginNotification();
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 1000);
+      } else {
+        window.location.href = 'track-application.html';
+      }
+      
+      return false;
+    });
+  });
+
   // Feature cards animation on scroll
   const featureCards = document.querySelectorAll('.feature-card');
   
-  // Simple function to check if an element is in viewport
   function isInViewport(element) {
     const rect = element.getBoundingClientRect();
     return (
@@ -138,7 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
     );
   }
   
-  // Function to add animation class when element is in viewport
   function checkCards() {
     featureCards.forEach(card => {
       if (isInViewport(card)) {
@@ -147,16 +200,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Check on scroll
   window.addEventListener('scroll', checkCards);
-  
-  // Check on initial load
   checkCards();
 
   // Testimonial cards animation on scroll
   const testimonialCards = document.querySelectorAll('.testimonial-card');
   
-  // Function to add animation class when element is in viewport
   function checkTestimonials() {
     testimonialCards.forEach(card => {
       if (isInViewport(card)) {
@@ -165,10 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Check on scroll
   window.addEventListener('scroll', checkTestimonials);
-  
-  // Check on initial load
   checkTestimonials();
 
   // FAQ accordion functionality
@@ -205,367 +251,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Scroll to top button functionality
   const scrollButton = document.getElementById('scrollButton');
-  let isScrolling = false;
   
-  // Set current year in footer
-  const currentYearElement = document.getElementById('currentYear');
-  if (currentYearElement) {
-    currentYearElement.textContent = new Date().getFullYear();
-  }
-  
-  // Toggle scroll button visibility based on scroll position
-  function toggleScrollButtonVisibility() {
-    if (scrollButton) {
+  if (scrollButton) {
+    // Set current year in footer
+    const currentYearElement = document.getElementById('currentYear');
+    if (currentYearElement) {
+      currentYearElement.textContent = new Date().getFullYear();
+    }
+    
+    function toggleScrollButtonVisibility() {
       if (window.pageYOffset > 300) {
         scrollButton.classList.add('visible');
       } else {
         scrollButton.classList.remove('visible');
       }
     }
-  }
-  
-  // Scroll to top function
-  function scrollToTop() {
-    isScrolling = true;
     
-    // Change icon to car while scrolling
-    const icon = scrollButton.querySelector('i');
-    if (icon) {
+    function scrollToTop() {
+      const icon = scrollButton.querySelector('i');
       icon.classList.remove('fa-arrow-up');
       icon.classList.add('fa-car');
-    }
-    
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-    
-    // Change icon back to arrow after scrolling
-    setTimeout(function() {
-      isScrolling = false;
-      if (icon) {
+      
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
+      setTimeout(function() {
         icon.classList.remove('fa-car');
         icon.classList.add('fa-arrow-up');
-      }
-    }, 1000);
-  }
-  
-  // Add event listeners
-  window.addEventListener('scroll', toggleScrollButtonVisibility);
-  if (scrollButton) {
-    scrollButton.addEventListener('click', scrollToTop);
-  }
-  
-  // Initialize button visibility
-  toggleScrollButtonVisibility();
-
-  // Auth modal elements
-  const authModal = document.getElementById('authModal');
-  const closeModal = document.getElementById('closeModal');
-  const loginTabBtn = document.getElementById('loginTabBtn');
-  const registerTabBtn = document.getElementById('registerTabBtn');
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-  const backToLoginBtn = document.getElementById('backToLoginBtn');
-  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
-  const resetSubmitBtn = document.getElementById('resetSubmitBtn');
-  const agreeTerms = document.getElementById('agreeTerms');
-  
-  // Login button click handlers
-  if (loginButton) {
-    loginButton.addEventListener('click', openAuthModal);
-  }
-  
-  if (mobileLoginButton) {
-    mobileLoginButton.addEventListener('click', openAuthModal);
-  }
-  
-  // Get Started button functionality
-  const getStartedButton = document.querySelector('.call-to-action');
-  if (getStartedButton) {
-    getStartedButton.addEventListener('click', function() {
-      // Check if user is authenticated
-      const isAuthenticated = localStorage.getItem('isAuthenticated');
-      
-      if (isAuthenticated) {
-        // Redirect to dashboard
-        window.location.href = 'dashboard.html';
-      } else {
-        // Redirect to login page
-        window.location.href = 'login.html';
-      }
-    });
-  }
-  
-  // Close modal when clicking the close button
-  if (closeModal) {
-    closeModal.addEventListener('click', closeAuthModal);
-  }
-  
-  // Close modal when clicking outside the modal content
-  if (authModal) {
-    authModal.addEventListener('click', function(e) {
-      if (e.target === authModal) {
-        closeAuthModal();
-      }
-    });
-  }
-  
-  // Tab switching
-  if (loginTabBtn) {
-    loginTabBtn.addEventListener('click', function() {
-      loginTabBtn.classList.add('active');
-      registerTabBtn.classList.remove('active');
-      loginForm.classList.add('active');
-      registerForm.classList.remove('active');
-      forgotPasswordForm.classList.remove('active');
-    });
-  }
-  
-  if (registerTabBtn) {
-    registerTabBtn.addEventListener('click', function() {
-      registerTabBtn.classList.add('active');
-      loginTabBtn.classList.remove('active');
-      registerForm.classList.add('active');
-      loginForm.classList.remove('active');
-      forgotPasswordForm.classList.remove('active');
-    });
-  }
-  
-  // Forgot password flow
-  if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', function(e) {
-      e.preventDefault();
-      loginForm.classList.remove('active');
-      forgotPasswordForm.classList.add('active');
-    });
-  }
-  
-  if (backToLoginBtn) {
-    backToLoginBtn.addEventListener('click', function() {
-      forgotPasswordForm.classList.remove('active');
-      loginForm.classList.add('active');
-    });
-  }
-  
-  // Terms checkbox for register form
-  if (agreeTerms && registerSubmitBtn) {
-    agreeTerms.addEventListener('change', function() {
-      registerSubmitBtn.disabled = !this.checked;
-    });
-  }
-  
-  // Form validation helpers
-  function showError(input, message) {
-    const formGroup = input.closest('.form-group');
-    formGroup.classList.add('error');
-    
-    const errorMessage = formGroup.querySelector('.error-message');
-    if (errorMessage) {
-      errorMessage.textContent = message;
-      errorMessage.style.display = 'block';
+      }, 1000);
     }
+    
+    window.addEventListener('scroll', toggleScrollButtonVisibility);
+    scrollButton.addEventListener('click', scrollToTop);
+    toggleScrollButtonVisibility();
   }
-  
-  function clearErrors(form) {
-    const errorGroups = form.querySelectorAll('.form-group.error');
-    errorGroups.forEach(group => {
-      group.classList.remove('error');
-      const errorMessage = group.querySelector('.error-message');
-      if (errorMessage) {
-        errorMessage.textContent = '';
-        errorMessage.style.display = 'none';
-      }
-    });
-  }
-  
-  function validateEmail(email) {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  }
-  
-  function validatePassword(password) {
-    return password.length >= 8;
-  }
-  
-  function validatePhone(phone) {
-    const re = /^(\+234|0)[0-9]{10}$/;
-    return re.test(phone);
-  }
-  
-  // Login form submission
-  if (loginSubmitBtn) {
-    loginSubmitBtn.addEventListener('click', function() {
-      const emailInput = document.getElementById('loginEmail');
-      const passwordInput = document.getElementById('loginPassword');
-      let isValid = true;
-      
-      clearErrors(loginForm);
-      
-      if (!emailInput.value.trim()) {
-        showError(emailInput, 'Email is required');
-        isValid = false;
-      } else if (!validateEmail(emailInput.value)) {
-        showError(emailInput, 'Please enter a valid email');
-        isValid = false;
-      }
-      
-      if (!passwordInput.value.trim()) {
-        showError(passwordInput, 'Password is required');
-        isValid = false;
-      }
-      
-      if (isValid) {
-        // For demo purposes, we'll use the mock login
-        // In a real app, you would call your API here
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('token', 'demo-token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify({
-          name: emailInput.value.split('@')[0],
-          email: emailInput.value,
-          isNewUser: false
-        }));
-        
-        // Update UI and redirect to dashboard
-        updateAuthUI();
-        closeAuthModal();
-        window.location.href = 'dashboard.html';
-      }
-    });
-  }
-  
-  // Register form submission
-  if (registerSubmitBtn) {
-    registerSubmitBtn.addEventListener('click', function() {
-      const nameInput = document.getElementById('registerName');
-      const emailInput = document.getElementById('registerEmail');
-      const passwordInput = document.getElementById('registerPassword');
-      const phoneInput = document.getElementById('registerPhone');
-      const agreeTerms = document.getElementById('agreeTerms');
-      let isValid = true;
-      
-      clearErrors(registerForm);
-      
-      if (!nameInput.value.trim()) {
-        showError(nameInput, 'Name is required');
-        isValid = false;
-      }
-      
-      if (!emailInput.value.trim()) {
-        showError(emailInput, 'Email is required');
-        isValid = false;
-      } else if (!validateEmail(emailInput.value)) {
-        showError(emailInput, 'Please enter a valid email');
-        isValid = false;
-      }
-      
-      if (!passwordInput.value.trim()) {
-                showError(passwordInput, 'Password is required');
-        isValid = false;
-      } else if (!validatePassword(passwordInput.value)) {
-        showError(passwordInput, 'Password must be at least 8 characters');
-        isValid = false;
-      }
-      
-      if (!phoneInput.value.trim()) {
-        showError(phoneInput, 'Phone number is required');
-        isValid = false;
-      } else if (!validatePhone(phoneInput.value)) {
-        showError(phoneInput, 'Please enter a valid Nigerian phone number');
-        isValid = false;
-      }
-      
-      if (!agreeTerms.checked) {
-        showError(agreeTerms, 'You must agree to the terms and conditions');
-        isValid = false;
-      }
-      
-      if (isValid) {
-        // For demo purposes, we'll create a new user
-        // In a real app, you would call your API here
-        const userData = {
-          name: nameInput.value,
-          email: emailInput.value,
-          phone: phoneInput.value,
-          isNewUser: true
-        };
-        
-        localStorage.setItem('isAuthenticated', 'true');
-        localStorage.setItem('token', 'demo-token-' + Date.now());
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        
-        // Update UI and redirect to dashboard
-        updateAuthUI();
-        closeAuthModal();
-        window.location.href = 'dashboard.html';
-      }
-    });
-  }
-  
-  // Reset password form submission
-  if (resetSubmitBtn) {
-    resetSubmitBtn.addEventListener('click', function() {
-      const emailInput = document.getElementById('resetEmail');
-      let isValid = true;
-      
-      clearErrors(forgotPasswordForm);
-      
-      if (!emailInput.value.trim()) {
-        showError(emailInput, 'Email is required');
-        isValid = false;
-      } else if (!validateEmail(emailInput.value)) {
-        showError(emailInput, 'Please enter a valid email');
-        isValid = false;
-      }
-      
-      if (isValid) {
-        // In a real app, you would call your API to send a reset link
-        alert(`Password reset link sent to ${emailInput.value}. Please check your email.`);
-        
-        // Return to login form
-        forgotPasswordForm.classList.remove('active');
-        loginForm.classList.add('active');
-      }
-    });
-  }
-
-  // Track Application functionality
-  function isUserLoggedIn() {
-    const token = localStorage.getItem('token');
-    const currentUser = localStorage.getItem('currentUser');
-    return token && currentUser;
-  }
-  
-  function showLoginNotification() {
-    alert('Please login first to track your application.');
-  }
-  
-  // Get all links that point to #track
-  const trackLinks = document.querySelectorAll('a[href="#track"]');
-  
-  trackLinks.forEach(link => {
-    link.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      
-      console.log('Track application clicked'); // Debug log
-      
-      if (!isUserLoggedIn()) {
-        showLoginNotification();
-        // Redirect to login page
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 1000);
-      } else {
-        // User is logged in, redirect to track application page
-        window.location.href = 'track-application.html';
-      }
-      
-      return false;
-    });
-  });
-
 });
