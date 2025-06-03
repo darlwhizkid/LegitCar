@@ -14,53 +14,202 @@ const mobileAuthSection = document.getElementById('mobileAuthSection');
 const mobileUserSection = document.getElementById('mobileUserSection');
 const logoutButtons = document.querySelectorAll('.logout-btn');
 
-// Date display
+// Create mobile menu overlay
+let mobileMenuOverlay = null;
+
+// Initialize mobile menu overlay
+function createMobileMenuOverlay() {
+  if (!mobileMenuOverlay) {
+    mobileMenuOverlay = document.createElement('div');
+    mobileMenuOverlay.className = 'mobile-menu-overlay';
+    mobileMenuOverlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    `;
+    document.body.appendChild(mobileMenuOverlay);
+    
+    // Close menu when overlay is clicked
+    mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+  }
+}
+
+// Toggle mobile menu
+function toggleMenu() {
+  console.log('Toggle menu clicked');
+  
+  if (!menuButton || !mobileMenu) {
+    console.error('Menu button or mobile menu not found');
+    return;
+  }
+  
+  const isOpen = mobileMenu.classList.contains('open');
+  
+  if (isOpen) {
+    closeMobileMenu();
+  } else {
+    openMobileMenu();
+  }
+}
+
+// Open mobile menu
+function openMobileMenu() {
+  console.log('Opening mobile menu');
+  
+  if (menuButton) menuButton.classList.add('open');
+  if (mobileMenu) mobileMenu.classList.add('open');
+  
+  // Create and show overlay
+  createMobileMenuOverlay();
+  if (mobileMenuOverlay) {
+    mobileMenuOverlay.style.opacity = '1';
+    mobileMenuOverlay.style.visibility = 'visible';
+  }
+  
+  // Prevent body scroll
+  document.body.style.overflow = 'hidden';
+}
+
+// Close mobile menu
+function closeMobileMenu() {
+  console.log('Closing mobile menu');
+  
+  if (menuButton) menuButton.classList.remove('open');
+  if (mobileMenu) mobileMenu.classList.remove('open');
+  
+  // Hide overlay
+  if (mobileMenuOverlay) {
+    mobileMenuOverlay.style.opacity = '0';
+    mobileMenuOverlay.style.visibility = 'hidden';
+  }
+  
+  // Restore body scroll
+  document.body.style.overflow = '';
+  
+  // Close any open dropdowns
+  if (mobileDropdownMenu) {
+    mobileDropdownMenu.classList.remove('open');
+  }
+  
+  // Reset dropdown icon
+  const dropdownIcon = mobileServicesDropdown?.querySelector('.fa-caret-down');
+  if (dropdownIcon) {
+    dropdownIcon.classList.remove('rotate');
+  }
+}
+
+// Toggle mobile dropdown
+function toggleMobileDropdown() {
+  console.log('Toggle mobile dropdown clicked');
+  
+  if (!mobileDropdownMenu) {
+    console.error('Mobile dropdown menu not found');
+    return;
+  }
+  
+  mobileDropdownMenu.classList.toggle('open');
+  
+  const icon = mobileServicesDropdown?.querySelector('.fa-caret-down');
+  if (icon) {
+    icon.classList.toggle('rotate');
+  }
+}
+
+// Date display function - FIXED
 function updateDateDisplay() {
   const date = new Date();
   const day = date.getDate();
   const month = date.toLocaleString('default', { month: 'short' });
   const year = date.getFullYear();
   
-  document.getElementById('dayNumber').textContent = day;
-  document.getElementById('month').textContent = month;
-  document.getElementById('year').textContent = year;
+  const dayElement = document.getElementById('dayNumber');
+  const monthElement = document.getElementById('month');
+  const yearElement = document.getElementById('year');
+  
+  console.log('Updating date display:', { day, month, year });
+  console.log('Elements found:', { dayElement, monthElement, yearElement });
+  
+  if (dayElement) {
+    dayElement.textContent = day;
+    console.log('Day updated to:', day);
+  } else {
+    console.error('Day element not found');
+  }
+  
+  if (monthElement) {
+    monthElement.textContent = month;
+    console.log('Month updated to:', month);
+  } else {
+    console.error('Month element not found');
+  }
+  
+  if (yearElement) {
+    yearElement.textContent = year;
+    console.log('Year updated to:', year);
+  } else {
+    console.error('Year element not found');
+  }
 }
 
-// Toggle mobile menu
-function toggleMenu() {
-  menuButton.classList.toggle('open');
-  mobileMenu.classList.toggle('open');
-}
-
-// Toggle mobile dropdown
-function toggleMobileDropdown() {
-  mobileDropdownMenu.classList.toggle('open');
-  const icon = mobileServicesDropdown.querySelector('.fa-caret-down');
-  icon.classList.toggle('rotate');
-}
-
-// Handle logout - Updated to use real API
+// Handle logout
 async function handleLogout() {
   try {
-    await propamitAPI.logout();
+    // Close mobile menu first
+    closeMobileMenu();
+    
+    // Check if propamitAPI exists
+    if (typeof propamitAPI !== 'undefined' && propamitAPI.logout) {
+      await propamitAPI.logout();
+    } else {
+      // Fallback logout
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('userPicture');
+    }
+    
     updateAuthUI();
     window.location.href = 'index.html';
   } catch (error) {
     console.error('Logout error:', error);
     // Force logout even if API call fails
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAuthenticated');
+    localStorage.clear();
     updateAuthUI();
     window.location.href = 'index.html';
   }
 }
 
-// Update UI based on authentication status - Updated to use real API
+// Update UI based on authentication status
 function updateAuthUI() {
-  const isAuthenticated = propamitAPI.isAuthenticated();
-  const user = propamitAPI.getCurrentUser();
+  let isAuthenticated = false;
+  let user = null;
   
+  // Check if propamitAPI exists
+  if (typeof propamitAPI !== 'undefined') {
+    isAuthenticated = propamitAPI.isAuthenticated();
+    user = propamitAPI.getCurrentUser ? propamitAPI.getCurrentUser() : null;
+  } else {
+    // Fallback check
+    const token = localStorage.getItem('userToken');
+    isAuthenticated = !!token;
+    if (isAuthenticated) {
+      user = {
+        name: localStorage.getItem('userName') || 'User',
+        email: localStorage.getItem('userEmail')
+      };
+    }
+  }
+  
+  // Update desktop UI
   if (isAuthenticated && user) {
     if (usernameElement) {
       usernameElement.textContent = user.name;
@@ -72,13 +221,6 @@ function updateAuthUI() {
     if (userDropdown) {
       userDropdown.style.display = 'block';
     }
-    
-    if (mobileAuthSection) {
-      mobileAuthSection.style.display = 'none';
-    }
-    if (mobileUserSection) {
-      mobileUserSection.style.display = 'block';
-    }
   } else {
     if (loginButtonElement) {
       loginButtonElement.style.display = 'block';
@@ -86,7 +228,21 @@ function updateAuthUI() {
     if (userDropdown) {
       userDropdown.style.display = 'none';
     }
-    
+  }
+  
+  // Update mobile UI
+  if (isAuthenticated && user) {
+    if (mobileAuthSection) {
+      mobileAuthSection.style.display = 'none';
+    }
+    if (mobileUserSection) {
+      mobileUserSection.style.display = 'block';
+      const mobileUsername = mobileUserSection.querySelector('#mobileUsername');
+      if (mobileUsername) {
+        mobileUsername.textContent = user.name;
+      }
+    }
+  } else {
     if (mobileAuthSection) {
       mobileAuthSection.style.display = 'block';
     }
@@ -96,9 +252,12 @@ function updateAuthUI() {
   }
 }
 
-// Function to check if user is logged in - Updated to use real API
+// Function to check if user is logged in
 function isUserLoggedIn() {
-  return propamitAPI.isAuthenticated();
+  if (typeof propamitAPI !== 'undefined') {
+    return propamitAPI.isAuthenticated();
+  }
+  return !!localStorage.getItem('userToken');
 }
 
 // Function to show login notification
@@ -112,7 +271,7 @@ console.log('Script1.js loaded');
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, setting up handlers');
   
-  // Initialize date display
+  // Initialize date display FIRST
   updateDateDisplay();
   
   // Initialize auth UI
@@ -120,28 +279,53 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Mobile menu toggle
   if (menuButton) {
-    menuButton.addEventListener('click', toggleMenu);
+    console.log('Menu button found, adding click handler');
+    menuButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Menu button clicked');
+      toggleMenu();
+    });
+  } else {
+    console.error('Menu button not found! Looking for element with ID: menuButton');
   }
   
   // Mobile dropdown toggle
   if (mobileServicesDropdown) {
-    mobileServicesDropdown.addEventListener('click', toggleMobileDropdown);
+    mobileServicesDropdown.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleMobileDropdown();
+    });
   }
+  
+  // Handle escape key
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && mobileMenu?.classList.contains('open')) {
+      closeMobileMenu();
+    }
+  });
   
   // Logout functionality
   logoutButtons.forEach(button => {
-    button.addEventListener('click', handleLogout);
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      handleLogout();
+    });
   });
 
   // Login button click handlers
   if (loginButton) {
-    loginButton.addEventListener('click', function() {
+    loginButton.addEventListener('click', function(e) {
+      e.preventDefault();
       window.location.href = 'login.html';
     });
   }
   
   if (mobileLoginButton) {
-    mobileLoginButton.addEventListener('click', function() {
+    mobileLoginButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      closeMobileMenu();
       window.location.href = 'login.html';
     });
   }
@@ -149,7 +333,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Get Started button functionality
   const getStartedButton = document.querySelector('.call-to-action');
   if (getStartedButton) {
-    getStartedButton.addEventListener('click', function() {
+    getStartedButton.addEventListener('click', function(e) {
+      e.preventDefault();
       if (isUserLoggedIn()) {
         window.location.href = 'dashboard.html';
       } else {
@@ -269,8 +454,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function scrollToTop() {
       const icon = scrollButton.querySelector('i');
-      icon.classList.remove('fa-arrow-up');
-      icon.classList.add('fa-car');
+      if (icon) {
+        icon.classList.remove('fa-arrow-up');
+        icon.classList.add('fa-car');
+      }
       
       window.scrollTo({
         top: 0,
@@ -278,8 +465,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       setTimeout(function() {
-        icon.classList.remove('fa-car');
-        icon.classList.add('fa-arrow-up');
+        if (icon) {
+          icon.classList.remove('fa-car');
+          icon.classList.add('fa-arrow-up');
+        }
       }, 1000);
     }
     

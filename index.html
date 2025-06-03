@@ -78,53 +78,52 @@
           </div>
         </div>
 
-        <div class="menu-button" id="menuButton">
+        <button id="menuButton" class="mobile-menu-btn">
           <span></span>
           <span></span>
           <span></span>
-        </div>
+        </button>
+      </div>
 
-        <div class="mobile-menu" id="mobileMenu">
-          <div class="mobile-nav-links">
-            <a href="#home" class="mobile-nav-link">Home</a>
-            <a href="#about" class="mobile-nav-link">About Us</a>
-            <div class="mobile-dropdown-container">
-              <div class="mobile-nav-link" id="mobileServicesDropdown">
-                Our Services <i class="fas fa-caret-down"></i>
-              </div>
-              <div class="mobile-dropdown-menu" id="mobileDropdownMenu">
-                <a href="#registration" class="mobile-dropdown-item">Vehicle Registration</a>
-                <a href="#renewal" class="mobile-dropdown-item">Document Renewal</a>
-                <a href="#transfer" class="mobile-dropdown-item">Ownership Transfer</a>
-                <a href="#documentation" class="mobile-dropdown-item">Documentation Services</a>
-                <a href="#license" class="mobile-dropdown-item">Driver's License</a>
-                <a href="#accessories" class="mobile-dropdown-item">Vehicle Accessories</a>
-                <a href="#maritime" class="mobile-dropdown-item">Maritime Registration</a>
-                <a href="#aviation" class="mobile-dropdown-item">Aviation Documentation</a>
-              </div>
+      <div id="mobileMenu" class="mobile-menu">
+        <nav class="mobile-nav">
+          <a href="#home" class="mobile-nav-link">Home</a>
+          <a href="#about" class="mobile-nav-link">About Us</a>
+          <div class="mobile-dropdown-container">
+            <div class="mobile-nav-link" id="mobileServicesDropdown">
+              Our Services <i class="fas fa-caret-down"></i>
             </div>
-            <a href="#track" class="mobile-nav-link">Track Application</a>
-            <a href="#faq" class="mobile-nav-link">FAQ</a>
-
-            <div id="mobileAuthSection">
-              <button class="mobile-login-button" id="mobileLoginButton">
-                Login/Register
-              </button>
-            </div>
-
-            <div id="mobileUserSection" style="display: none">
-              <a href="/dashboard" class="mobile-nav-link">Dashboard</a>
-              <a href="#profile" class="mobile-nav-link">My Profile</a>
-              <a href="#vehicles" class="mobile-nav-link">My Vehicles</a>
-              <a href="#settings" class="mobile-nav-link">Settings</a>
-              <button class="mobile-nav-link logout-btn">Logout</button>
+            <div class="mobile-dropdown-menu" id="mobileDropdownMenu">
+              <a href="#registration" class="mobile-dropdown-item">Vehicle Registration</a>
+              <a href="#renewal" class="mobile-dropdown-item">Document Renewal</a>
+              <a href="#transfer" class="mobile-dropdown-item">Ownership Transfer</a>
+              <a href="#documentation" class="mobile-dropdown-item">Documentation Services</a>
+              <a href="#license" class="mobile-dropdown-item">Driver's License</a>
+              <a href="#accessories" class="mobile-dropdown-item">Vehicle Accessories</a>
+              <a href="#maritime" class="mobile-dropdown-item">Maritime Registration</a>
+              <a href="#aviation" class="mobile-dropdown-item">Aviation Documentation</a>
             </div>
           </div>
-        </div>
-      </div>
-    </nav>
+          <a href="#track" class="mobile-nav-link">Track Application</a>
+          <a href="#faq" class="mobile-nav-link">FAQ</a>
 
-    <section class="hero-section" id="home">
+          <div id="mobileAuthSection" class="mobile-auth">
+            <button class="mobile-login-button" id="mobileLoginButton">
+              Login/Register
+            </button>
+          </div>
+
+          <div id="mobileUserSection" class="mobile-user" style="display: none">
+            <span id="mobileUsername">User Name</span>
+            <a href="/dashboard" class="mobile-nav-link">Dashboard</a>
+            <a href="#profile" class="mobile-nav-link">My Profile</a>
+            <a href="#vehicles" class="mobile-nav-link">My Vehicles</a>
+            <a href="#settings" class="mobile-nav-link">Settings</a>
+            <button class="mobile-nav-link logout-btn">Logout</button>
+          </div>
+        </nav>
+      </div>
+    </nav>    <section class="hero-section" id="home">
       <div class="hero-container">
         <div class="content-section">
           <h1 class="hero-title">Simplify Your Transportation Documentation Journey</h1>
