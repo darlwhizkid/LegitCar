@@ -615,12 +615,26 @@ document.addEventListener('DOMContentLoaded', function() {
           const response = await propamitAPI.register(userData);
 
           if (response.success) {
-            showNotification('Account created successfully! Redirecting...', 'success');
-            
-            // Redirect to dashboard after short delay
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 1500);
+            if (response.requiresVerification) {
+              // Show email verification message
+              showNotification('Account created! Please check your email to verify your account before logging in.', 'success');
+              
+              // Switch to login tab after delay
+              setTimeout(() => {
+                switchTab('login');
+                // Pre-fill email in login form
+                const loginEmailInput = document.getElementById('loginEmail');
+                if (loginEmailInput) {
+                  loginEmailInput.value = emailInput.value;
+                }
+              }, 3000);
+            } else {
+              // Direct login (fallback)
+              showNotification('Account created successfully! Redirecting...', 'success');
+              setTimeout(() => {
+                window.location.href = 'dashboard.html';
+              }, 1500);
+            }
           }
         } catch (error) {
           console.error('Registration error:', error);
