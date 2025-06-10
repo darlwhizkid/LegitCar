@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Propamit - Transportation Documentation Made Easy</title>
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <script
+      src="https://kit.fontawesome.com/a076d05399.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <nav class="nav">
+      <div class="nav-container">
+        <div class="left-section">
+          <div class="date-container">
+            <span class="day-number" id="dayNumber"></span>
+            <div class="month-year">
+              <span class="month" id="month"></span>
+              <span class="year" id="year"></span>
+            </div>
+          </div>
+          <div class="logo-section">
+            <img src="assets/img/logofornow.svg" alt="Propamit" class="company-logo" />
+          </div>
+        </div>
+
+        <div class="desktop-menu">
+          <div class="nav-links">
+            <a href="#home" class="nav-link">Home</a>
+            <a href="#home" class="nav-link">About Us</a>
+            <div class="dropdown-container" id="servicesDropdown">
+              <a href="#services" class="nav-link">
+                Our Services <i class="fas fa-caret-down"></i>
+              </a>
+              <div class="dropdown-menu">
+                <a href="#registration" class="dropdown-item">Vehicle Registration</a>
+                <a href="#renewal" class="dropdown-item">Document Renewal</a>
+                <a href="#transfer" class="dropdown-item">Ownership Transfer</a>
+                <a href="#documentation" class="dropdown-item">Documentation Services</a>
+                <a href="#license" class="dropdown-item">Driver's License</a>
+                <a href="#accessories" class="dropdown-item">Vehicle Accessories</a>
+                <a href="#maritime" class="dropdown-item">Maritime Registration</a>
+                <a href="#aviation" class="dropdown-item">Aviation Documentation</a>
+              </div>
+            </div>
+            <a href="#track" class="nav-link">Track Application</a>
+            <a href="#faq" class="nav-link">FAQ</a>
+          </div>
+
+          <div class="user-section" id="userSection">
+            <button class="login-button" id="loginButton">
+              Login/Register
+            </button>
+
+            <div class="user-dropdown-container" id="userDropdown" style="display: none">
+              <div class="user-dropdown-trigger">
+                Hello! <span id="username"></span>
+                <i class="fas fa-caret-down"></i>
+              </div>
+              <div class="user-dropdown-menu">
+                <a href="/dashboard" class="user-dropdown-item">Dashboard</a>
+                <a href="#profile" class="user-dropdown-item">My Profile</a>
+                <a href="#vehicles" class="user-dropdown-item">My Vehicles</a>
+                <a href="#settings" class="user-dropdown-item">Settings</a>
+                <button class="user-dropdown-item logout-btn">Logout</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="menuButton" class="mobile-menu-btn">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <div id="mobileMenu" class="mobile-menu">
+        <nav class="mobile-nav">
+          <a href="#home" class="mobile-nav-link">Home</a>
+          <a href="#about" class="mobile-nav-link">About Us</a>
+          <div class="mobile-dropdown-container">
+            <div class="mobile-nav-link" id="mobileServicesDropdown">
+              Our Services <i class="fas fa-caret-down"></i>
+            </div>
+            <div class="mobile-dropdown-menu" id="mobileDropdownMenu">
+              <a href="#registration" class="mobile-dropdown-item">Vehicle Registration</a>
+              <a href="#renewal" class="mobile-dropdown-item">Document Renewal</a>
+              <a href="#transfer" class="mobile-dropdown-item">Ownership Transfer</a>
+              <a href="#documentation" class="mobile-dropdown-item">Documentation Services</a>
+              <a href="#license" class="mobile-dropdown-item">Driver's License</a>
+              <a href="#accessories" class="mobile-dropdown-item">Vehicle Accessories</a>
+              <a href="#maritime" class="mobile-dropdown-item">Maritime Registration</a>
+              <a href="#aviation" class="mobile-dropdown-item">Aviation Documentation</a>
+            </div>
+          </div>
+          <a href="#track" class="mobile-nav-link">Track Application</a>
+          <a href="#faq" class="mobile-nav-link">FAQ</a>
+
+          <div id="mobileAuthSection" class="mobile-auth">
+            <button class="mobile-login-button" id="mobileLoginButton">
+              Login/Register
+            </button>
+          </div>
+
+          <div id="mobileUserSection" class="mobile-user" style="display: none">
+            <span id="mobileUsername">User Name</span>
+            <a href="/dashboard" class="mobile-nav-link">Dashboard</a>
+            <a href="#profile" class="mobile-nav-link">My Profile</a>
+            <a href="#vehicles" class="mobile-nav-link">My Vehicles</a>
+            <a href="#settings" class="mobile-nav-link">Settings</a>
+            <button class="mobile-nav-link logout-btn">Logout</button>
+          </div>
+        </nav>
+      </div>
+    </nav>    <section class="hero-section" id="home">
+      <div class="hero-container">
+        <div class="content-section">
+          <h1 class="hero-title">Simplify Your Transportation Documentation Journey</h1>
+          <p class="hero-text">
+            Your one-stop platform for managing vehicle, maritime, and aviation documentation, registrations, 
+            and renewals. Experience hassle-free documentation like never before.
+          </p>
+          <button class="call-to-action">Get Started</button>
+        </div>
+        <div class="image-section">
+          <img
+            src="https://placehold.co/600x400"
+            alt="Vehicle Import"
+            class="hero-image"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" id="services">
+      <div class="features-container">
+        <h2 class="section-title">What We Offer</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-car"></i>
+            </div>
+            <h3 class="feature-title">Vehicle Registration</h3>
+            <p class="feature-description">
+              Quick and efficient processing of your vehicle registration documents
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-sync"></i>
+            </div>
+            <h3 class="feature-title">Document Renewal</h3>
+            <p class="feature-description">
+              Hassle-free renewal of all your vehicle-related documents
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h3 class="feature-title">Ownership Transfer</h3>
+            <p class="feature-description">
+              Smooth and secure transfer of vehicle ownership
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-file-alt"></i>
+            </div>
+            <h3 class="feature-title">Documentation Services</h3>
+            <p class="feature-description">
+              Comprehensive assistance with all vehicle documentation needs
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-id-card"></i>
+            </div>
+            <h3 class="feature-title">Driver's Licence</h3>
+            <p class="feature-description">
+              Professional support for driver's licence applications and renewals
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-cogs"></i>
+            </div>
+            <h3 class="feature-title">Vehicle Accessories</h3>
+            <p class="feature-description">
+              Quality accessories and parts for your vehicle needs
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-ship"></i>
+            </div>
+            <h3 class="feature-title">Maritime Registration</h3>
+            <p class="feature-description">
+              Complete documentation and registration services for boats, ships, and maritime vessels
+            </p>
+          </div>
+
+          <div class="feature-card">
+            <div class="icon-container">
+              <i class="fas fa-plane"></i>
+            </div>
+            <h3 class="feature-title">Aviation Documentation</h3>
+            <p class="feature-description">
+              Professional assistance with aircraft registration, permits, and aviation compliance
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="partners-section">
+      <div class="partners-container">
+        <h2 class="section-title">Partner Brands/Agencies</h2>
+        <div class="logo-scroller">
+          <div class="logo-track">
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=FRSC" alt="FRSC" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=FIRS" alt="FIRS" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=SON" alt="SON" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=Nigeria+Police" alt="Nigeria Police" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=MOT" alt="Ministry of Transport" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=NPA" alt="Nigerian Ports Authority" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=FRSC" alt="FRSC" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=FIRS" alt="FIRS" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=SON" alt="SON" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=Nigeria+Police" alt="Nigeria Police" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=MOT" alt="Ministry of Transport" class="partner-logo" />
+            </div>
+            <div class="logo-item">
+              <img src="https://placehold.co/200x100/e0e0e0/666666?text=NPA" alt="Nigerian Ports Authority" class="partner-logo" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="testimonials-section">
+      <div class="testimonials-container">
+        <h2 class="section-title">What Our Clients Say</h2>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="John Smith" class="client-image" />
+              <div class="client-details">
+                <h3 class="client-name">John Smith</h3>
+                <p class="client-location">Lagos, Nigeria</p>
+              </div>
+            </div>
+            <div class="star-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              The vehicle registration process was incredibly smooth. The team
+              guided me through every step, making what seemed complex very simple.
+            </p>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="Sarah Johnson" class="client-image" />
+              <div class="client-details">
+                <h3 class="client-name">Sarah Johnson</h3>
+                <p class="client-location">Port Harcourt, Nigeria</p>
+              </div>
+            </div>
+            <div class="star-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              Outstanding service! They handled my documentation with utmost
+              professionalism. I highly recommend their services to anyone
+              looking to register their vehicle.
+            </p>
+          </div>
+
+          <div class="testimonial-card">
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/men/2.jpg" alt="Michael Brown" class="client-image" />
+              <div class="client-details">
+                <h3 class="client-name">Michael Brown</h3>
+                <p class="client-location">Abuja, Nigeria</p>
+              </div>
+            </div>
+            <div class="star-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">
+              Excellent customer service and quick turnaround time. The entire
+              process was transparent and hassle-free. Will definitely use their
+              services again.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq" class="faq-section">
+      <div class="faq-container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">What documents do I need to register my vehicle?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                To register your vehicle, you'll need: Original logbook,
+                National ID/Passport, KRA PIN certificate, Import documentation
+                (for imported vehicles), and proof of ownership.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">How long does the registration process take?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                The standard vehicle registration process typically takes 3-5
+                working days, provided all required documentation is complete
+                and accurate.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">What are the costs involved in vehicle registration?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                Registration costs vary depending on vehicle type, age, and
+                engine capacity. Our team will provide a detailed breakdown of
+                all applicable fees and charges.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">Can you help with vehicle inspection?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                Yes, we assist with scheduling and coordinating vehicle
+                inspections at authorized inspection centers, ensuring your
+                vehicle meets all regulatory requirements.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">Do you handle registration for all types of vehicles?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                Yes, we handle registration for all vehicle types including
+                private cars, commercial vehicles, motorcycles, and heavy
+                machinery.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">What happens if my registration is rejected?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                If your registration is rejected, our team will help identify
+                the issues, make necessary corrections, and resubmit the
+                application at no additional cost.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="question-button">
+              <span class="question-text">Do you handle maritime and aviation registrations?</span>
+              <i class="fas fa-plus"></i>
+            </button>
+            <div class="answer-container">
+              <p class="answer-text">
+                Yes, we provide comprehensive registration and documentation services for maritime vessels and aircraft. 
+                Our team is experienced with the specific requirements for both industries and can guide you through 
+                the entire process.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer-container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3 class="footer-title">About Us</h3>
+          <p class="about-text">
+            Propermit is Nigeria's leading vehicle registration and documentation
+            platform. We provide seamless solutions for all your vehicle-related
+            documentation needs.
+          </p>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Quick Links</h3>
+          <div class="footer-links">
+            <a href="#home" class="footer-link">Home</a>
+            <a href="#about" class="footer-link">About Us</a>
+            <a href="#services" class="footer-link">Services</a>
+            <a href="#faq" class="footer-link">FAQ</a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Our Services</h3>
+          <div class="footer-links">
+            <a href="#registration" class="footer-link">Vehicle Registration</a>
+            <a href="#renewal" class="footer-link">Document Renewal</a>
+            <a href="#transfer" class="footer-link">Ownership Transfer</a>
+            <a href="#documentation" class="footer-link">Documentation Services</a>
+            <a href="#license" class="footer-link">Driver's License</a>
+            <a href="#accessories" class="footer-link">Vehicle Accessories</a>
+            <a href="#maritime" class="footer-link">Maritime Registration</a>
+            <a href="#aviation" class="footer-link">Aviation Documentation</a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3 class="footer-title">Contact Info</h3>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>123 Business District, Lagos, Nigeria</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-phone"></i>
+              <span>+234 123 456 7890</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span>info@propermit.com</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="copyright">
+          © <span id="currentYear"></span> Propermit. All rights reserved.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+
+      <button id="scrollButton" class="scroll-button">
+        <i class="fas fa-arrow-up"></i>
+      </button>
+    </footer>
+
+    <div id="authModal" class="auth-modal">
+      <div class="auth-modal-content">
+        <span id="closeModal" class="close-modal">×</span>
+        
+        <div class="auth-tabs">
+          <button id="loginTabBtn" class="auth-tab active">Login</button>
+          <button id="registerTabBtn" class="auth-tab">Register</button>
+        </div>
+        
+        <div id="loginForm" class="auth-form active">
+          <h3>Welcome Back</h3>
+          <div class="form-group">
+            <label for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-options">
+            <label>
+              <input type="checkbox" id="rememberMe"> Remember me
+            </label>
+            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
+          </div>
+          <button type="button" id="loginSubmitBtn" class="auth-submit-btn">Login</button>
+        </div>
+        
+        <div id="registerForm" class="auth-form">
+          <h3>Create an Account</h3>
+          <div class="form-group">
+            <label for="registerName">Full Name</label>
+            <input type="text" id="registerName" placeholder="Enter your full name" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="registerEmail">Email</label>
+            <input type="email" id="registerEmail" placeholder="Enter your email" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="registerPassword">Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-group">
+            <label for="registerPhone">Phone Number</label>
+            <input type="tel" id="registerPhone" placeholder="Enter your phone number" required>
+            <div class="error-message"></div>
+          </div>
+          <div class="form-group terms-checkbox">
+            <label>
+              <input type="checkbox" id="agreeTerms"> I agree to the Terms and Conditions
+            </label>
+            <div class="error-message"></div>
+          </div>
+          <button type="button" id="registerSubmitBtn" class="auth-submit-btn">Register</button>
+        </div>
+        
+        <div id="forgotPasswordForm" class="auth-form">
+          <h3>Reset Your Password</h3>
+          <p>Enter your email address and we'll send you a link to reset your password.</p>
+          <div class="form-group">
+            <label for="resetEmail">Email</label>
+            <input type="email" id="resetEmail" placeholder="Enter your email" required>
+            <div class="error-message"></div>
+          </div>
+          <button type="button" id="resetSubmitBtn" class="auth-submit-btn">Send Reset Link</button>
+          <button type="button" id="backToLoginBtn" class="back-link">Back to Login</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/script1.js"></script>
+    <script src="assets/js/login.js"></script>
+  </body>
+</html>
