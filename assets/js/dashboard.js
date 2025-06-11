@@ -1,10 +1,17 @@
-// Dashboard JavaScript - Propamit with Backend Integration
+// Dashboard JavaScript - Propamit with Smart User Experience
 class PropamitDashboard {
   constructor() {
     this.apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : '/api';
     this.token = localStorage.getItem('userToken');
     this.user = null;
     this.applications = [];
+    this.isNewUser = false;
+    this.userStats = {
+      loginCount: 0,
+      profileComplete: false,
+      firstLogin: null,
+      lastLogin: null
+    };
     
     this.init();
   }
@@ -25,12 +32,18 @@ class PropamitDashboard {
       // Verify token and get user data
       await this.verifyAuthentication();
       
+      // Determine if user is new
+      this.checkUserStatus();
+      
       // Setup UI
       this.setupEventListeners();
       this.setupMobileHandlers();
       
-      // Load dashboard data
+      // Load dashboard data based on user status
       await this.loadDashboardData();
+      
+      // Show appropriate welcome experience
+      this.setupWelcomeExperience();
       
       // Hide loading
       this.hideLoading();
@@ -60,10 +73,21 @@ class PropamitDashboard {
       const data = await response.json();
       this.user = data.user;
       
+      // Get user stats from backend
+      if (data.user.stats) {
+        this.userStats = {
+          loginCount: data.user.stats.loginCount || 0,
+          profileComplete: this.checkProfileCompleteness(data.user),
+          firstLogin: data.user.stats.firstLogin,
+          lastLogin: data.user.stats.lastLogin
+        };
+      }
+      
       // Update UI with user data
       this.updateUserInterface();
       
       console.log('Authentication verified:', this.user);
+      console.log('User stats:', this.userStats);
       
     } catch (error) {
       console.error('Auth verification failed:', error);
@@ -71,9 +95,25 @@ class PropamitDashboard {
       // Fallback to localStorage data for demo
       const userName = localStorage.getItem('userName');
       const userEmail = localStorage.getItem('userEmail');
+      const registrationTime = localStorage.getItem('registrationTime');
       
       if (userName && userEmail) {
-        this.user = { name: userName, email: userEmail };
+        this.user = { 
+          name: userName, 
+          email: userEmail,
+          phone: localStorage.getItem('userPhone') || '',
+          address: localStorage.getItem('userAddress') || '',
+          createdAt: registrationTime || new Date().toISOString()
+        };
+        
+        // Demo stats for new users
+        this.userStats = {
+          loginCount: parseInt(localStorage.getItem('loginCount') || '1'),
+          profileComplete: this.checkProfileCompleteness(this.user),
+          firstLogin: registrationTime || new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        };
+        
         this.updateUserInterface();
         console.log('Using fallback user data');
       } else {
@@ -82,11 +122,40 @@ class PropamitDashboard {
     }
   }
 
+  checkUserStatus() {
+    // Determine if user is new (first time login or registered recently)
+    const now = new Date();
+    const registrationDate = new Date(this.user.createdAt || now);
+    const daysSinceRegistration = (now - registrationDate) / (1000 * 60 * 60 * 24);
+    
+    this.isNewUser = (
+      this.userStats.loginCount <= 2 || // First or second login
+      daysSinceRegistration <= 1 || // Registered within last 24 hours
+      !this.userStats.profileComplete // Profile not complete
+    );
+    
+    console.log('User status check:', {
+      isNewUser: this.isNewUser,
+      loginCount: this.userStats.loginCount,
+      daysSinceRegistration: daysSinceRegistration.toFixed(1),
+      profileComplete: this.userStats.profileComplete
+    });
+  }
+
+  checkProfileCompleteness(user) {
+    const requiredFields = ['name', 'email', 'phone'];
+    const optionalFields = ['address', 'dateOfBirth'];
+    
+    const requiredComplete = requiredFields.every(field => user[field] && user[field].trim());
+    const optionalComplete = optionalFields.some(field => user[field] && user[field].trim());
+    
+    return requiredComplete && optionalComplete;
+  }
+
   updateUserInterface() {
     // Update user name and email
     const userNameEl = document.getElementById('userName');
     const userEmailEl = document.getElementById('userEmail');
-    const welcomeMessageEl = document.getElementById('welcomeMessage');
 
     if (userNameEl && this.user.name) {
       userNameEl.textContent = this.user.name;
@@ -95,24 +164,197 @@ class PropamitDashboard {
     if (userEmailEl && this.user.email) {
       userEmailEl.textContent = this.user.email;
     }
+  }
 
-    if (welcomeMessageEl && this.user.name) {
-      welcomeMessageEl.textContent = `Welcome back, ${this.user.name.split(' ')[0]}!`;
+  setupWelcomeExperience() {
+    const welcomeMessageEl = document.getElementById('welcomeMessage');
+    const welcomeSection = document.querySelector('.welcome-section');
+    const dashboardContainer = document.querySelector('.dashboard-container');
+    
+    // Add profile complete class to body/container for styling
+    if (this.userStats.profileComplete) {
+      if (dashboardContainer) {
+        dashboardContainer.classList.add('profile-complete');
+      }
+      document.body.classList.add('profile-complete');
     }
+    
+    if (this.isNewUser) {
+      // New user experience
+      if (welcomeMessageEl) {
+        const firstName = this.user.name.split(' ')[0];
+        if (this.userStats.profileComplete) {
+          welcomeMessageEl.textContent = `Congratulations, ${firstName}!`;
+        } else {
+          welcomeMessageEl.textContent = `Welcome, ${firstName}!`;
+        }
+      }
+      
+      // Add new user welcome content
+      this.addNewUserWelcome();
+      
+      // Show profile completion prompt (only if not complete)
+      if (!this.userStats.profileComplete) {
+        this.showProfileCompletionPrompt();
+      }
+      
+    } else {
+      // Returning user experience
+      if (welcomeMessageEl) {
+        const firstName = this.user.name.split(' ')[0];
+        const timeOfDay = this.getTimeOfDay();
+        
+        if (this.userStats.profileComplete) {
+          welcomeMessageEl.textContent = `${timeOfDay}, ${firstName}!`;
+        } else {
+          welcomeMessageEl.textContent = `${timeOfDay}, ${firstName}!`;
+        }
+      }
+    }
+  }
+
+  addNewUserWelcome() {
+    const welcomeSection = document.querySelector('.welcome-section');
+    if (!welcomeSection) return;
+    
+    // Update welcome text for new users
+    const welcomeText = welcomeSection.querySelector('.welcome-text p');
+    if (welcomeText) {
+      welcomeText.textContent = "Let's get you started with your first application. Complete your profile for a smoother experience.";
+    }
+    
+    // Add getting started steps
+    const gettingStartedHTML = `
+      <div class="getting-started-section">
+        <h3>🚀 Getting Started</h3>
+        <div class="steps-container">
+          <div class="step-item ${this.userStats.profileComplete ? 'completed' : ''}">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h4>Complete Your Profile</h4>
+              <p>Add your personal information for faster processing</p>
+              ${!this.userStats.profileComplete ? '<a href="profile.html" class="step-action">Complete Now</a>' : '<span class="step-done">✓ Completed</span>'}
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h4>Submit Your First Application</h4>
+              <p>Choose from vehicle registration, renewals, or transfers</p>
+              <a href="new-application.html" class="step-action">Start Application</a>
+            </div>
+          </div>
+          
+          <div class="step-item">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h4>Track Your Progress</h4>
+              <p>Monitor your application status in real-time</p>
+              <span class="step-info">Available after submission</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // Insert after welcome section
+    welcomeSection.insertAdjacentHTML('afterend', gettingStartedHTML);
+  }
+
+  showProfileCompletionPrompt() {
+    if (this.userStats.profileComplete) return;
+    
+    const completionPercentage = this.calculateProfileCompletion();
+    
+    const promptHTML = `
+      <div class="profile-completion-card dashboard-card">
+        <div class="card-header">
+          <h3>Complete Your Profile</h3>
+          <span class="completion-percentage">${completionPercentage}% Complete</span>
+        </div>
+        <div class="card-content">
+          <div class="completion-bar">
+            <div class="completion-progress" style="width: ${completionPercentage}%"></div>
+          </div>
+          <p>Complete your profile to unlock all features and speed up your applications.</p>
+          <div class="missing-fields">
+            ${this.getMissingFieldsHTML()}
+          </div>
+          <a href="profile.html" class="btn btn-primary">
+            <i class="fas fa-user-edit"></i>
+            Complete Profile
+          </a>
+        </div>
+      </div>
+    `;
+    
+    // Insert at the beginning of dashboard content
+    const dashboardContent = document.querySelector('.dashboard-content');
+    const statsGrid = document.querySelector('.stats-grid');
+    
+    if (dashboardContent && statsGrid) {
+      statsGrid.insertAdjacentHTML('beforebegin', promptHTML);
+    }
+  }
+
+  calculateProfileCompletion() {
+    const fields = {
+      name: this.user.name,
+      email: this.user.email,
+      phone: this.user.phone,
+      address: this.user.address,
+      dateOfBirth: this.user.dateOfBirth
+    };
+    
+    const completedFields = Object.values(fields).filter(value => value && value.trim()).length;
+    return Math.round((completedFields / Object.keys(fields).length) * 100);
+  }
+
+  getMissingFieldsHTML() {
+    const missingFields = [];
+    
+    if (!this.user.phone) missingFields.push('Phone Number');
+    if (!this.user.address) missingFields.push('Address');
+    if (!this.user.dateOfBirth) missingFields.push('Date of Birth');
+    
+    if (missingFields.length === 0) return '';
+    
+    return `
+      <div class="missing-fields-list">
+        <strong>Missing:</strong> ${missingFields.join(', ')}
+      </div>
+    `;
+  }
+
+  getTimeOfDay() {
+    const hour = new Date().getHours();
+    
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
   }
 
   async loadDashboardData() {
     try {
       console.log('Loading dashboard data...');
       
-      // Try to load from backend
-      await this.loadApplicationsFromBackend();
+      if (this.isNewUser) {
+        // New users get clean dashboard
+        this.applications = [];
+        console.log('New user - showing clean dashboard');
+      } else {
+        // Existing users get their data
+        await this.loadApplicationsFromBackend();
+      }
       
     } catch (error) {
-      console.error('Backend data loading failed, using demo data:', error);
+      console.error('Backend data loading failed:', error);
       
-      // Use demo data as fallback
-      this.loadDemoData();
+      if (!this.isNewUser) {
+        // Only load demo data for existing users
+        this.loadDemoData();
+      }
     }
     
     // Update UI with loaded data
@@ -139,14 +381,14 @@ class PropamitDashboard {
   }
 
   loadDemoData() {
-    // Demo applications data
+    // Only for existing users - demo applications data
     this.applications = [
       {
         _id: 'APP001',
         applicationId: 'VR-2024-001',
         type: 'Vehicle Registration',
         status: 'pending',
-        createdAt: new Date().toISOString(),
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
         updatedAt: new Date().toISOString()
       },
       {
@@ -154,28 +396,12 @@ class PropamitDashboard {
         applicationId: 'DR-2024-002',
         type: 'Document Renewal',
         status: 'approved',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date(Date.now() - 43200000).toISOString()
-      },
-      {
-        _id: 'APP003',
-        applicationId: 'OT-2024-003',
-        type: 'Ownership Transfer',
-        status: 'processing',
         createdAt: new Date(Date.now() - 172800000).toISOString(),
-        updatedAt: new Date(Date.now() - 86400000).toISOString()
-      },
-      {
-        _id: 'APP004',
-        applicationId: 'DL-2024-004',
-        type: 'Driver License',
-        status: 'rejected',
-        createdAt: new Date(Date.now() - 259200000).toISOString(),
-        updatedAt: new Date(Date.now() - 172800000).toISOString()
+        updatedAt: new Date(Date.now() - 43200000).toISOString()
       }
     ];
     
-    console.log('Demo data loaded:', this.applications);
+    console.log('Demo data loaded for existing user:', this.applications);
   }
 
   updateDashboardStats() {
@@ -192,8 +418,8 @@ class PropamitDashboard {
     this.updateElement('approvedApplications', stats.approved);
     this.updateElement('processingApplications', stats.processing);
 
-    // Update messages badge (demo)
-    this.updateElement('messagesBadge', Math.floor(Math.random() * 5));
+    // Update messages badge
+    this.updateElement('messagesBadge', this.isNewUser ? 0 : Math.floor(Math.random() * 3));
 
     console.log('Dashboard stats updated:', stats);
   }
@@ -202,15 +428,15 @@ class PropamitDashboard {
     const container = document.getElementById('recentApplications');
     if (!container) return;
 
+    if (this.applications.length === 0) {
+      container.innerHTML = this.getEmptyApplicationsHTML();
+      return;
+    }
+
     // Sort by date and take first 5
     const recentApps = this.applications
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 5);
-
-    if (recentApps.length === 0) {
-      container.innerHTML = this.getEmptyApplicationsHTML();
-      return;
-    }
 
     const applicationsHTML = recentApps.map(app => `
       <div class="application-item fade-in">
@@ -227,17 +453,39 @@ class PropamitDashboard {
   }
 
   getEmptyApplicationsHTML() {
-    return `
-      <div class="empty-state">
-        <i class="fas fa-file-alt"></i>
-        <h3>No Applications Yet</h3>
-        <p>Start by creating your first application</p>
-        <a href="new-application.html" class="btn btn-primary">
-          <i class="fas fa-plus"></i>
-          New Application
-        </a>
-      </div>
-    `;
+    if (this.isNewUser) {
+      return `
+        <div class="empty-state new-user">
+          <div class="welcome-illustration">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h3>Ready to Get Started?</h3>
+          <p>You haven't submitted any applications yet. Let's create your first one!</p>
+          <div class="empty-actions">
+            <a href="new-application.html" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Create First Application
+            </a>
+            <a href="profile.html" class="btn btn-outline">
+              <i class="fas fa-user"></i>
+              Complete Profile First
+            </a>
+          </div>
+        </div>
+      `;
+    } else {
+      return `
+        <div class="empty-state">
+          <i class="fas fa-file-alt"></i>
+          <h3>No Recent Applications</h3>
+          <p>Your recent applications will appear here</p>
+          <a href="new-application.html" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            New Application
+          </a>
+        </div>
+      `;
+    }
   }
 
   setupEventListeners() {

@@ -44,23 +44,24 @@ body {
 .logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  padding: 0;
 }
 
 .logo-img {
-  width: 32px;
-  height: 32px;
+  height: 40px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
 }
 
 .logo-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1e293b;
+  display: flex;
+  align-items: center;
 }
 
 .sidebar-close {
   display: none;
-  background: none;
+  width: none;
   border: none;
   font-size: 20px;
   color: #64748b;
@@ -329,15 +330,104 @@ body {
   color: white;
 }
 
-.welcome-text h2 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 8px;
+/* Enhanced Welcome Message - More Visible */
+#welcomeMessage {
+  font-size: 32px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  margin-bottom: 12px;
+  letter-spacing: -0.5px;
+  text-transform: none;
+  line-height: 1.2;
 }
 
+/* GOLD CELEBRATION for Profile Complete Users! */
+.profile-complete #welcomeMessage {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 4px 8px rgba(251, 191, 36, 0.3);
+  animation: goldShine 2s ease-in-out infinite alternate;
+}
+
+/* Gold shine animation for completed profiles */
+@keyframes goldShine {
+  0% {
+    filter: brightness(1);
+    transform: scale(1);
+  }
+  100% {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+  }
+}
+
+/* Add a gold glow effect */
+.profile-complete .welcome-section {
+  position: relative;
+}
+
+.profile-complete .welcome-section::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border-radius: 12px;
+  z-index: -1;
+  animation: goldGlow 3s ease-in-out infinite;
+}
+
+@keyframes goldGlow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+/* Celebration badge for completed profiles */
+.profile-complete #welcomeMessage::after {
+  content: ' 🏆';
+  font-size: 0.8em;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Make regular welcome text more visible too */
+.welcome-section:hover #welcomeMessage:not(.profile-complete #welcomeMessage) {
+  color: #ffffff;
+  text-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  transition: all 0.3s ease;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #welcomeMessage {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  #welcomeMessage {
+    font-size: 24px;
+    letter-spacing: -0.3px;
+  }
+}
+
+/* Also make the welcome text white for consistency */
 .welcome-text p {
+  color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
-  opacity: 0.9;
+  line-height: 1.6;
+  margin-bottom: 0;
+  font-weight: 400;
 }
 
 /* Buttons */
@@ -418,7 +508,7 @@ body {
 
 .stat-label {
   font-size: 14px;
-  color: #64748b;
+  color: #66748b;
   margin-top: 4px;
 }
 
@@ -440,7 +530,7 @@ body {
 
 .card-header {
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e880;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -514,7 +604,6 @@ body {
   font-weight: 600;
   text-transform: capitalize;
 }
-
 .status-badge.pending {
   background-color: #fef3c7;
   color: #d97706;
@@ -819,7 +908,7 @@ body {
 
 .notification-close:hover {
   background-color: #f1f5f9;
-  color: #64748b;
+  color: #66748b;
 }
 
 /* Mobile Overlay */
@@ -1019,4 +1108,367 @@ body {
   .dashboard-content {
     padding: 0;
   }
+}
+
+/* Getting Started Section */
+.getting-started-section {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin: 24px 0;
+}
+
+.getting-started-section h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.steps-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.step-item:hover {
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.step-item.completed {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.step-number {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e2e8f0;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.step-item.completed .step-number {
+  background-color: #10b981;
+  color: white;
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-content h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.step-content p {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+
+.step-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #2563eb;
+  color: white;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.step-action:hover {
+  background-color: #1d4ed8;
+}
+
+.step-done {
+  color: #10b981;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.step-info {
+  color: #64748b;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Profile Completion Card */
+.profile-completion-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin-bottom: 24px;
+}
+
+.profile-completion-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.profile-completion-card .card-header h3 {
+  color: white;
+  margin: 0;
+}
+
+.completion-percentage {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.completion-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.completion-progress {
+  height: 100%;
+  background: #10b981;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.profile-completion-card p {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 12px;
+}
+
+.missing-fields-list {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.profile-completion-card .btn {
+  background: white;
+  color: #667eea;
+  border: none;
+}
+
+.profile-completion-card .btn:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+/* Enhanced Empty State */
+.empty-state.new-user {
+  text-align: center;
+  padding: 48px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+}
+
+.welcome-illustration {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.welcome-illustration i {
+  font-size: 32px;
+  color: white;
+}
+
+.empty-state.new-user h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+}
+
+.empty-state.new-user p {
+  font-size: 16px;
+  color: #64748b;
+  margin-bottom: 32px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn.btn-outline {
+  background: transparent;
+  color: #2563eb;
+  border: 2px solid #2563eb;
+}
+
+.btn.btn-outline:hover {
+  background: #2563eb;
+  color: white;
+}
+
+/* Welcome Section Enhancements */
+.welcome-section .welcome-text h2 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Responsive Design for New Elements */
+@media (max-width: 768px) {
+  .getting-started-section {
+    padding: 16px;
+    margin: 16px 0;
+  }
+  
+  .step-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .step-number {
+    align-self: center;
+  }
+  
+  .empty-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .empty-actions .btn {
+    width: 100%;
+    max-width: 280px;
+  }
+  
+  .profile-completion-card .card-header {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .welcome-illustration {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .welcome-illustration i {
+    font-size: 24px;
+  }
+  
+  .empty-state.new-user h3 {
+    font-size: 20px;
+  }
+  
+  .empty-state.new-user p {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .steps-container {
+    gap: 12px;
+  }
+  
+  .step-item {
+    padding: 12px;
+  }
+  
+  .step-content h4 {
+    font-size: 14px;
+  }
+  
+  .step-content p {
+    font-size: 13px;
+  }
+  
+  .getting-started-section h3 {
+    font-size: 18px;
+  }
+}
+
+/* Animation for new elements */
+.getting-started-section,
+.profile-completion-card {
+  animation: slideUp 0.5s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse animation for call-to-action buttons */
+.step-action,
+.profile-completion-card .btn {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(37, 99, 235, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+}
+
+/* Hover effects */
+.step-item:hover .step-action {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.profile-completion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
