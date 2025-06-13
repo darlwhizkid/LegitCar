@@ -1,278 +1,527 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Settings | LegitCar</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
-  <link rel="stylesheet" href="assets/css/settings.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-  <!-- Header -->
-  <header class="dashboard-header">
-    <div class="container">
-      <div class="logo">
-        <a href="index.html">
-          <img src="assets/images/logo.png" alt="Logo">
-        </a>
-      </div>
-      
-      <div class="user-menu">
-        <div class="user-info">
-          <span id="userGreeting">Welcome, User</span>
-          <button id="userMenuToggle" class="user-menu-toggle">
-            <img src="assets/images/default-avatar.png" alt="User Avatar" class="user-avatar" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
-            <i class="fas fa-caret-down"></i>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - Propamit</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css" />
+    <link rel="stylesheet" href="assets/css/settings.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="dashboard-wrapper">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo">
+            <img
+              src="assets/img/logofornow.svg"
+              alt="Propamit"
+              class="logo-img"
+            />
+          </div>
+          <button class="sidebar-close" id="sidebarClose">
+            <i class="fas fa-times"></i>
           </button>
-          <div id="userDropdownMenu" class="user-dropdown-menu">
-            <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
-            <a href="settings.html"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="profile.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <a href="applications.html" class="nav-item">
+            <i class="fas fa-file-alt"></i>
+            <span>Applications</span>
+          </a>
+          <a href="new-application.html" class="nav-item">
+            <i class="fas fa-plus-circle"></i>
+            <span>New Application</span>
+          </a>
+          <a href="documents.html" class="nav-item">
+            <i class="fas fa-folder"></i>
+            <span>Documents</span>
+          </a>
+          <a href="messages.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Messages</span>
+            <span class="badge" id="messagesBadge">0</span>
+          </a>
+          <a href="settings.html" class="nav-item active">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <button class="logout-btn" id="logoutBtn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+          <div class="header-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+              <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Settings</h1>
           </div>
+
+          <div class="header-right">
+            <div class="user-menu">
+              <div class="user-info">
+                <div class="user-avatar">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                  <span class="user-name" id="userName">Loading...</span>
+                  <span class="user-email" id="userEmail">Loading...</span>
+                </div>
+              </div>
+              <button class="user-menu-toggle" id="userMenuToggle">
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="user-dropdown" id="userDropdown">
+                <a href="profile.html" class="dropdown-item">
+                  <i class="fas fa-user"></i>
+                  My Profile
+                </a>
+                <a href="settings.html" class="dropdown-item">
+                  <i class="fas fa-cog"></i>
+                  Settings
+                </a>
+                <button class="dropdown-item logout-item" id="headerLogoutBtn">
+                  <i class="fas fa-sign-out-alt"></i>
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Settings Content -->
+        <div class="dashboard-content">
+          <!-- Settings Navigation -->
+          <div class="settings-nav">
+            <div class="nav-tabs">
+              <button class="tab-btn active" data-tab="account">
+                <i class="fas fa-user"></i>
+                <span>Account</span>
+              </button>
+              <button class="tab-btn" data-tab="notifications">
+                <i class="fas fa-bell"></i>
+                <span>Notifications</span>
+              </button>
+              <button class="tab-btn" data-tab="security">
+                <i class="fas fa-shield-alt"></i>
+                <span>Security</span>
+              </button>
+              <button class="tab-btn" data-tab="privacy">
+                <i class="fas fa-lock"></i>
+                <span>Privacy</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Account Settings -->
+          <div id="account" class="tab-content active">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Personal Information</h3>
+                <p>Update your account details and personal information</p>
+              </div>
+              <div class="card-content">
+                <form class="settings-form">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="fullName">Full Name</label>
+                      <input type="text" id="fullName" placeholder="Enter your full name" />
+                    </div>
+                    <div class="form-group">
+                      <label for="email">Email Address</label>
+                      <input type="email" id="email" placeholder="Enter your email" />
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="phone">Phone Number</label>
+                      <input type="tel" id="phone" placeholder="Enter your phone number" />
+                    </div>
+                    <div class="form-group">
+                      <label for="dateOfBirth">Date of Birth</label>
+                      <input type="date" id="dateOfBirth" />
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="address">Address</label>
+                      <input type="text" id="address" placeholder="Enter your address" />
+                    </div>
+                    <div class="form-group">
+                      <label for="language">Language</label>
+                      <select id="language">
+                        <option value="en">English</option>
+                        <option value="fr">French</option>
+                        <option value="es">Spanish</option>
+                      </select>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Profile Completion Card -->
+            <div class="dashboard-card" id="profileCompletionCard">
+              <div class="card-header">
+                <h3>Profile Completion</h3>
+                <span class="completion-percentage" id="completionPercentage">75%</span>
+              </div>
+              <div class="card-content">
+                <div class="completion-bar">
+                  <div class="completion-progress" id="completionProgress" style="width: 75%"></div>
+                </div>
+                <p>Complete your profile to unlock all features and get better service.</p>
+                <div class="missing-fields" id="missingFields">
+                  <strong>Missing:</strong> Date of Birth, Address
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications Settings -->
+          <div id="notifications" class="tab-content">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Email Notifications</h3>
+                <p>Choose what email notifications you'd like to receive</p>
+              </div>
+              <div class="card-content">
+                <div class="notification-settings">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Application Updates</h4>
+                      <p>Get notified when your application status changes</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="applicationUpdates" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Document Reminders</h4>
+                      <p>Reminders for document renewals and expirations</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="documentReminders" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Marketing Emails</h4>
+                      <p>Receive updates about new features and services</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="marketingEmails">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Weekly Summary</h4>
+                      <p>Get a weekly summary of your account activity</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="weeklySummary">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>SMS Notifications</h3>
+                <p>Manage your SMS notification preferences</p>
+              </div>
+              <div class="card-content">
+                <div class="notification-settings">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Critical Updates</h4>
+                      <p>Important updates about your applications</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="smsUpdates" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Appointment Reminders</h4>
+                      <p>SMS reminders for scheduled appointments</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="appointmentSms">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security Settings -->
+          <div id="security" class="tab-content">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Change Password</h3>
+                <p>Update your password to keep your account secure</p>
+              </div>
+              <div class="card-content">
+                <form class="settings-form">
+                  <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <div class="password-input-group">
+                      <input type="password" id="currentPassword" placeholder="Enter current password" />
+                      <button type="button" class="password-toggle">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label for="newPassword">New Password</label>
+                      <div class="password-input-group">
+                        <input type="password" id="newPassword" placeholder="Enter new password" />
+                        <button type="button" class="password-toggle">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="form-group">
+                      <label for="confirmPassword">Confirm Password</label>
+                      <div class="password-input-group">
+                        <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+                        <button type="button" class="password-toggle">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button type="button" class="btn btn-primary" id="changePasswordBtn">
+                    <i class="fas fa-key"></i>
+                    Change Password
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Two-Factor Authentication</h3>
+                <p>Add an extra layer of security to your account</p>
+              </div>
+              <div class="card-content">
+                <div class="security-settings">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>SMS Authentication</h4>
+                      <p>Receive verification codes via SMS</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="sms2fa">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Email Authentication</h4>
+                      <p>Receive verification codes via email</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="email2fa">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Login Notifications</h4>
+                      <p>Get notified of new login attempts</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="loginNotifications" checked>
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy Settings -->
+          <div id="privacy" class="tab-content">
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Data & Privacy</h3>
+                <p>Control how your data is used and shared</p>
+              </div>
+              <div class="card-content">
+                <div class="privacy-settings">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Data Analytics</h4>
+                      <p>Help us improve our service by sharing usage data</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="dataAnalytics">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Profile Visibility</h4>
+                      <p>Make your profile visible to other users</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="profileVisibility">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <h4>Third-party Integrations</h4>
+                      <p>Allow third-party services to access your data</p>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="thirdPartyAccess">
+                      <span class="slider"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Account Management</h3>
+                <p>Manage your account data and preferences</p>
+              </div>
+              <div class="card-content">
+                <div class="account-actions">
+                  <div class="action-item">
+                    <div class="action-info">
+                      <h4>Download Your Data</h4>
+                      <p>Get a copy of all your data in a downloadable format</p>
+                    </div>
+                    <button class="btn btn-outline" id="downloadDataBtn">
+                      <i class="fas fa-download"></i>
+                      Download Data
+                    </button>
+                  </div>
+
+                  <div class="action-item">
+                    <div class="action-info">
+                      <h4>Delete Account</h4>
+                      <p>Permanently delete your account and all associated data</p>
+                    </div>
+                    <button class="btn btn-danger" id="deleteAccountBtn">
+                      <i class="fas fa-trash"></i>
+                      Delete Account
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settings Actions -->
+          <div class="settings-actions">
+            <button class="btn btn-outline" id="cancelBtn" style="display: none;">
+              <i class="fas fa-times"></i>
+              Cancel Changes
+            </button>
+            <button class="btn btn-primary" id="saveChangesBtn" disabled>
+              <i class="fas fa-save"></i>
+              Save Changes
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Overlay -->
+      <div class="mobile-overlay" id="mobileOverlay"></div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal">
+        <div class="modal-header">
+          <h3 id="modalTitle">Confirm Action</h3>
+          <button class="modal-close" id="modalClose">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="modalMessage">Are you sure you want to perform this action?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" id="cancelAction">Cancel</button>
+          <button class="btn btn-primary" id="confirmAction">Confirm</button>
         </div>
       </div>
     </div>
-  </header>
-  
-  <!-- Dashboard Content -->
-  <div class="dashboard-container">
-    <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle">
-      <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar -->
-    <aside class="dashboard-sidebar">
-      <nav class="sidebar-nav">
-        <ul>
-          <li>
-            <a href="dashboard.html">
-              <i class="fas fa-tachometer-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="applications.html">
-              <i class="fas fa-file-alt"></i>
-              <span>My Applications</span>
-            </a>
-          </li>
-          <li>
-            <a href="new-application.html">
-              <i class="fas fa-plus-circle"></i>
-              <span>New Application</span>
-            </a>
-          </li>
-          <li>
-            <a href="documents.html">
-              <i class="fas fa-folder"></i>
-              <span>Documents</span>
-            </a>
-          </li>
-          <li>
-            <a href="messages.html">
-              <i class="fas fa-envelope"></i>
-              <span>Messages</span>
-              <span class="badge">3</span>
-            </a>
-          </li>
-          <li>
-            <a href="profile.html">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li class="active">
-            <a href="settings.html">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="dashboard-main">
-      <div class="page-header">
-        <h1><i class="fas fa-cog"></i> Account Settings</h1>
-        <p>Manage your account preferences and settings</p>
-      </div>
-      
-      <div class="settings-container">
-        <!-- Account Settings Section -->
-        <div class="settings-section">
-          <h2><i class="fas fa-user-cog"></i> Account Preferences</h2>
-          
-          <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email" id="email" value="user@example.com">
-          </div>
-          
-          <div class="form-group">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" value="+234 800 123 4567">
-          </div>
-          
-          <div class="form-group">
-            <label for="language">Language</label>
-            <select id="language">
-              <option value="en">English</option>
-              <option value="fr">French</option>
-              <option value="es">Spanish</option>
-              <option value="yo">Yoruba</option>
-              <option value="ha">Hausa</option>
-              <option value="ig">Igbo</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="timezone">Timezone</label>
-            <select id="timezone">
-              <option value="WAT">West Africa Time (GMT+1)</option>
-              <option value="GMT">Greenwich Mean Time (GMT+0)</option>
-              <option value="EST">Eastern Standard Time (GMT-5)</option>
-              <option value="CST">Central Standard Time (GMT-6)</option>
-              <option value="PST">Pacific Standard Time (GMT-8)</option>
-            </select>
-          </div>
-        </div>
-        
-        <!-- Notification Settings Section -->
-        <div class="settings-section">
-          <h2><i class="fas fa-bell"></i> Notification Settings</h2>
-          
-          <div class="toggle-option">
-            <span>Email Notifications</span>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-option">
-            <span>SMS Notifications</span>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-option">
-            <span>Application Status Updates</span>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-option">
-            <span>Marketing Communications</span>
-            <label class="toggle-switch">
-              <input type="checkbox">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <!-- Security Settings Section -->
-        <div class="settings-section">
-          <h2><i class="fas fa-shield-alt"></i> Security Settings</h2>
-          
-          <div class="form-group">
-            <label for="current-password">Current Password</label>
-            <input type="password" id="current-password">
-          </div>
-          
-          <div class="form-group">
-            <label for="new-password">New Password</label>
-            <input type="password" id="new-password">
-          </div>
-          
-          <div class="form-group">
-            <label for="confirm-password">Confirm New Password</label>
-            <input type="password" id="confirm-password">
-          </div>
-          
-          <div class="toggle-option">
-            <span>Two-Factor Authentication</span>
-            <label class="toggle-switch">
-              <input type="checkbox">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-option">
-            <span>Login Notifications</span>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <!-- Privacy Settings Section -->
-        <div class="settings-section">
-          <h2><i class="fas fa-user-secret"></i> Privacy Settings</h2>
-          
-          <div class="toggle-option">
-            <span>Share my application data with LegitCar partners</span>
-            <label class="toggle-switch">
-              <input type="checkbox">
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-          
-          <div class="toggle-option">
-            <span>Allow LegitCar to use my data for service improvement</span>
-            <label class="toggle-switch">
-              <input type="checkbox" checked>
-              <span class="toggle-slider"></span>
-            </label>
-          </div>
-        </div>
-        
-        <!-- Danger Zone Section -->
-        <div class="settings-section">
-          <div class="danger-zone">
-            <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
-            <p>Once you delete your account, there is no going back. Please be certain.</p>
-            <button class="btn-danger" id="deleteAccountBtn">Delete Account</button>
-          </div>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button class="btn-cancel" id="cancelBtn">Cancel</button>
-          <button class="btn-save" id="saveChangesBtn">Save Changes</button>
-        </div>
-      </div>
-    </main>
-  </div>
-  
-  <!-- Footer -->
-  <footer class="dashboard-footer">
-    <div class="container">
-      <p>© <span id="currentYear">2023</span> LegitCar. All rights reserved.</p>
-    </div>
-  </footer>
-  
-  <!-- Confirmation Modal -->
-  <div id="confirmationModal" class="modal">
-    <div class="modal-content">
-      <span class="close-modal">×</span>
-      <h2><i class="fas fa-exclamation-circle"></i> Confirm Action</h2>
-      <p id="modalMessage">Are you sure you want to proceed with this action?</p>
-      <div class="modal-buttons">
-        <button id="cancelAction" class="btn-cancel">Cancel</button>
-        <button id="confirmAction" class="btn-danger">Confirm</button>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Processing...</p>
       </div>
     </div>
-  </div>
-  
-  <script src="assets/js/dashboard.js"></script>
-  <script src="assets/js/settings.js"></script>
-</body>
+
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+      <div class="footer-content">
+        <p>&copy; <span id="currentYear">2024</span> Propamit. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="terms.html">Terms of Service</a>
+          <a href="contact.html">Contact Support</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="assets/js/settings.js"></script>
+  </body>
 </html>
