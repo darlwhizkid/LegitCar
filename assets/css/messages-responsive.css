@@ -1,0 +1,160 @@
+/* ===== ADDITIONAL RESPONSIVE STYLES ===== */
+
+/* Extra small devices (phones, 320px and up) */
+@media (max-width: 320px) {
+  .messages-header {
+    padding: 0.75rem;
+  }
+  
+  .messages-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .message-item {
+    padding: 0.5rem;
+  }
+  
+  .message-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+  }
+  
+  .sender-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 0.875rem;
+  }
+  
+  .message-subject {
+    font-size: 1.125rem;
+  }
+  
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+  
+  .modal {
+    width: 98%;
+    margin: 0.5rem;
+  }
+}
+
+/* Large devices (desktops, 1200px and up) */
+@media (min-width: 1200px) {
+  .messages-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  
+  .messages-sidebar {
+    width: 350px;
+  }
+  
+  .message-content {
+    width: calc(100% - 350px);
+  }
+  
+  .message-body {
+    padding: 2rem;
+  }
+  
+  .sender-info {
+    padding: 2rem;
+  }
+}
+
+/* Extra large devices (large desktops, 1400px and up) */
+@media (min-width: 1400px) {
+  .messages-sidebar {
+    width: 400px;
+  }
+  
+  .message-content {
+    width: calc(100% - 400px);
+  }
+  
+  .compose-modal {
+    max-width: 800px;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  .messages-container {
+    background: #1a1a1a;
+    color: #ffffff;
+  }
+  
+  .messages-sidebar {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .message-content {
+    background: #1a1a1a;
+  }
+  
+  .message-item {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .message-item:hover {
+    background: #3d3d3d;
+  }
+  
+  .message-item.active {
+    background: #4a5568;
+  }
+  
+  .message-view {
+    background: #2d2d2d;
+    border-color: #404040;
+  }
+  
+  .modal {
+    background: #2d2d2d;
+    color: #ffffff;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    background: #1a1a1a;
+    border-color: #404040;
+    color: #ffffff;
+  }
+  
+  .btn-secondary {
+    background: #404040;
+    color: #ffffff;
+    border-color: #606060;
+  }
+}
+
+/* ===== PRINT OPTIMIZATIONS ===== */
+@media print {
+  .messages-container {
+    height: auto !important;
+  }
+  
+  .message-item {
+    break-inside: avoid;
+  }
+  
+  .message-content {
+    box-shadow: none !important;
+  }
+  
+  .btn,
+  .action-btn {
+    display: none !important;
+  }
+  
+  .message-body {
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+}
