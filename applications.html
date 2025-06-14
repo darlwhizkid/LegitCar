@@ -3,171 +3,231 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Applications | LegitCar</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <title>My Applications - Propamit</title>
   <link rel="stylesheet" href="assets/css/dashboard.css">
   <link rel="stylesheet" href="assets/css/applications.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Header -->
-  <header class="dashboard-header">
-    <div class="container">
-      <div class="logo">
-        <a href="index.html">
-          <img src="assets/images/logo.png" alt="Logo">
-        </a>
-      </div>
-      
-      <div class="user-menu">
-        <div class="user-info">
-          <span id="userGreeting">Welcome, User</span>
-          <button id="userMenuToggle" class="user-menu-toggle">
-            <i class="fas fa-user-circle"></i>
-            <i class="fas fa-caret-down"></i>
-          </button>
-          <div id="userDropdownMenu" class="user-dropdown-menu">
-            <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
-            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
-
-  <!-- Sidebar Toggle Button (outside dashboard container) -->
-  <button class="sidebar-toggle" id="sidebarToggle">
-    <i class="fas fa-bars"></i>
-  </button>
-  
-  <div class="dashboard-container">
+  <div class="dashboard-wrapper">
     <!-- Sidebar -->
-    <aside class="dashboard-sidebar">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="assets/img/logofornow.svg" alt="Propamit" class="logo-img">
+        </div>
+        <button class="sidebar-close" id="sidebarClose">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
       <nav class="sidebar-nav">
-        <ul>
-          <li>
-            <a href="dashboard.html">
-              <i class="fas fa-tachometer-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li class="active">
-            <a href="applications.html">
-              <i class="fas fa-file-alt"></i>
-              <span>My Applications</span>
-            </a>
-          </li>
-          <li>
-            <a href="new-application.html">
-              <i class="fas fa-plus-circle"></i>
-              <span>New Application</span>
-            </a>
-          </li>
-          <li>
-            <a href="#documents">
-              <i class="fas fa-folder"></i>
-              <span>Documents</span>
-            </a>
-          </li>
-          <li>
-            <a href="#messages">
-              <i class="fas fa-envelope"></i>
-              <span>Messages</span>
-              <span class="badge">3</span>
-            </a>
-          </li>
-          <li>
-            <a href="profile.html">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a href="#settings">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
+        <a href="dashboard.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="applications.html" class="nav-item active">
+          <i class="fas fa-file-alt"></i>
+          <span>Applications</span>
+        </a>
+        <a href="new-application.html" class="nav-item">
+          <i class="fas fa-plus-circle"></i>
+          <span>New Application</span>
+        </a>
+        <a href="documents.html" class="nav-item">
+          <i class="fas fa-folder"></i>
+          <span>Documents</span>
+        </a>
+        <a href="messages.html" class="nav-item">
+          <i class="fas fa-envelope"></i>
+          <span>Messages</span>
+          <span class="badge" id="messagesBadge">0</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
       </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
     </aside>
-    
-    <main class="dashboard-main">
-      <div class="applications-section">
-        <h1>My Applications</h1>
-        <div class="back-button-container">
-          <a href="dashboard.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-          </a>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="page-title">My Applications</h1>
         </div>
 
-        <!-- Applications Filter and Search -->
-        <div class="applications-controls">
-          <div class="search-box">
-            <input type="text" id="applicationSearch" placeholder="Search applications...">
-            <button type="button" id="searchBtn">
-              <i class="fas fa-search"></i>
+        <div class="header-right">
+          <div class="user-menu">
+            <div class="user-info">
+              <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <div class="user-details">
+                <span class="user-name" id="userName">Loading...</span>
+                <span class="user-email" id="userEmail">Loading...</span>
+              </div>
+            </div>
+            <button class="user-menu-toggle" id="userMenuToggle">
+              <i class="fas fa-chevron-down"></i>
             </button>
-          </div>
-          
-          <div class="filter-controls">
-            <select id="statusFilter">
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="in-progress">In Progress</option>
-            </select>
-            
-            <select id="dateFilter">
-              <option value="all">All Time</option>
-              <option value="today">Today</option>
-              <option value="week">This Week</option>
-              <option value="month">This Month</option>
-              <option value="year">This Year</option>
-            </select>
+            <div class="user-dropdown" id="userDropdown">
+              <a href="profile.html" class="dropdown-item">
+                <i class="fas fa-user"></i>
+                My Profile
+              </a>
+              <a href="settings.html" class="dropdown-item">
+                <i class="fas fa-cog"></i>
+                Settings
+              </a>
+              <button class="dropdown-item logout-item" id="headerLogoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
-        
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-content">
+        <!-- Applications Header -->
+        <div class="applications-header">
+          <div class="header-actions">
+            <a href="dashboard.html" class="back-btn">
+              <i class="fas fa-arrow-left"></i>
+              Back to Dashboard
+            </a>
+            <a href="new-application.html" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              New Application
+            </a>
+          </div>
+        </div>
+
+        <!-- Applications Controls -->
+        <div class="dashboard-card">
+          <div class="applications-controls">
+            <div class="search-section">
+              <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="applicationSearch" placeholder="Search applications...">
+              </div>
+            </div>
+            
+            <div class="filter-section">
+              <select id="statusFilter" class="filter-select">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="in-progress">In Progress</option>
+              </select>
+              
+              <select id="dateFilter" class="filter-select">
+                <option value="all">All Time</option>
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month">This Month</option>
+                <option value="year">This Year</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Applications List -->
-        <div class="applications-list">
-          <div id="noApplications" class="no-applications">
-            <div class="empty-state">
-              <i class="fas fa-file-alt"></i>
-              <h3>No Applications Found</h3>
-              <p>You haven't submitted any applications yet.</p>
-              <a href="new-application.html" class="btn-primary">Create New Application</a>
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Your Applications</h3>
+            <div class="applications-stats">
+              <span class="stat-item">
+                <span class="stat-number" id="totalApplications">0</span>
+                <span class="stat-label">Total</span>
+              </span>
+              <span class="stat-item">
+                <span class="stat-number" id="pendingApplications">0</span>
+                <span class="stat-label">Pending</span>
+              </span>
+              <span class="stat-item">
+                <span class="stat-number" id="approvedApplications">0</span>
+                <span class="stat-label">Approved</span>
+              </span>
             </div>
           </div>
           
-          <div id="applicationsList" class="applications-grid">
-            <!-- Application cards will be dynamically added here -->
+          <div class="card-content">
+            <!-- Loading State -->
+            <div id="applicationsLoading" class="loading-state">
+              <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+              </div>
+              <p>Loading your applications...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="noApplications" class="empty-state" style="display: none;">
+              <div class="empty-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h3>No Applications Found</h3>
+              <p>You haven't submitted any applications yet.</p>
+              <a href="new-application.html" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Create New Application
+              </a>
+            </div>
+            
+            <!-- Applications Grid -->
+            <div id="applicationsList" class="applications-grid" style="display: none;">
+              <!-- Application cards will be dynamically added here -->
+            </div>
           </div>
         </div>
         
         <!-- Pagination -->
-        <div class="pagination" id="applicationsPagination">
-          <button class="pagination-btn" id="prevPage" disabled>
-            <i class="fas fa-chevron-left"></i> Previous
-          </button>
-          <div class="pagination-info">
-            Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+        <div class="pagination-container" id="paginationContainer" style="display: none;">
+          <div class="pagination">
+            <button class="pagination-btn" id="prevPage" disabled>
+              <i class="fas fa-chevron-left"></i>
+              Previous
+            </button>
+            <div class="pagination-info">
+              Page <span id="currentPage">1</span> of <span id="totalPages">1</span>
+            </div>
+            <button class="pagination-btn" id="nextPage" disabled>
+              Next
+              <i class="fas fa-chevron-right"></i>
+            </button>
           </div>
-          <button class="pagination-btn" id="nextPage" disabled>
-            Next <i class="fas fa-chevron-right"></i>
-          </button>
         </div>
       </div>
-    </main>
+    </div>
   </div>
-  
+
   <!-- Application Details Modal -->
   <div id="applicationModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <h2>Application Details</h2>
-        <button class="close-modal">×</button>
+        <button class="close-modal" id="closeModal">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
         <div class="application-details">
@@ -209,19 +269,16 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn-secondary" id="closeModalBtn">Close</button>
-        <button class="btn-primary" id="trackAppBtn">Track Application</button>
+        <button class="btn btn-secondary" id="closeModalBtn">Close</button>
+        <button class="btn btn-primary" id="trackAppBtn">Track Application</button>
       </div>
     </div>
   </div>
-  
-  <!-- Footer -->
-  <footer class="dashboard-footer">
-    <div class="container">
-      <p>© <span id="currentYear">2023</span> LegitCar. All rights reserved.</p>
-    </div>
-  </footer>
-  
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- Scripts -->
   <script src="assets/js/applications.js"></script>
 </body>
 </html>

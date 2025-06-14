@@ -1,30 +1,651 @@
 // Applications Page JavaScript
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Page loaded');
+  console.log('Applications page loaded');
   
-  // Consistent authentication check
-  const token = localStorage.getItem('token');
-  const currentUser = localStorage.getItem('currentUser');
+  // Authentication check using correct localStorage keys
+  const token = localStorage.getItem('userToken');
+  const userEmail = localStorage.getItem('userEmail');
+  const userName = localStorage.getItem('userName');
   
-  // Only proceed if both token and user data exist
-  if (!token || !currentUser) {
-    // Clear any partial auth data
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAuthenticated');
-    
-    // Redirect directly to login page, not index.html
+  if (!token) {
+    console.log('No token found, redirecting to login');
     window.location.href = 'login.html';
     return;
   }
   
-  // Get user data
-  const userData = JSON.parse(localStorage.getItem('currentUser')) || {};
+  // Update user info in header
+  const userNameElement = document.getElementById('userName');
+  const userEmailElement = document.getElementById('userEmail');
   
-  // Update user greeting
-  const userGreeting = document.getElementById('userGreeting');
-  if (userGreeting && userData) {
-    userGreeting.textContent = `Welcome, ${userData.name || 'User'}`;
+  if (userNameElement && userName) {
+    userNameElement.textContent = userName;
+  }
+  
+  if (userEmailElement && userEmail) {
+    userEmailElement.textContent = userEmail;
+  }
+  
+  // DOM Elements
+  const applicationsList = document.getElementById('applicationsList');
+  const applicationsLoading = document.getElementById('applicationsLoading');
+  const noApplications = document.getElementById('noApplications');
+  const applicationSearch = document.getElementById('applicationSearch');
+  const statusFilter = document.getElementById('statusFilter');
+  const dateFilter = document.getElementById('dateFilter');
+  const totalApplicationsEl = document.getElementById('totalApplications');
+  const pendingApplicationsEl = document.getElementById('pendingApplications');
+  const approvedApplicationsEl = document.getElementById('approvedApplications');
+  const paginationContainer = document.getElementById('paginationContainer');
+  const currentPageEl = document.getElementById('currentPage');
+  const totalPagesEl = document.getElementById('totalPages');
+  const prevPageBtn = document.getElementById('prevPage');
+  const nextPageBtn = document.getElementById('nextPage');
+  const applicationModal = document.getElementById('applicationModal');
+  const closeModal = document.getElementById('closeModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  
+  // State management
+  let allApplications = [];
+  let filteredApplications = [];
+  let currentPage = 1;
+  const itemsPerPage = 6;
+  
+  // User menu functionality
+  const userMenuToggle = document.getElementById('userMenuToggle');
+  const userDropdown = document.getElementById('userDropdown');
+  
+  if (userMenuToggle && userDropdown) {
+    userMenuToggle.addEventListener('click', function() {
+      userDropdown.classList.toggle('active');
+    });
+    
+    document.addEventListener('click', function(event) {
+      if (!userMenuToggle.contains(event.target) && !userDropdown.contains(event.target)) {
+        userDropdown.classList.remove('active');
+      }
+    });
+  }
+  
+  // Logout functionality
+  const logoutBtn = document.getElementById('logoutBtn');
+  const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+  
+  function handleLogout(e) {
+    e.preventDefault();
+    
+    // Clear authentication data
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('isAuthenticated');
+    
+    // Redirect to homepage
+    window.location.href = 'index.html';
+  }
+  
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+  }
+  
+  if (headerLogoutBtn) {
+    headerLogoutBtn.addEventListener('click', handleLogout);
+  }
+  
+  // Sidebar functionality
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarClose = document.getElementById('sidebarClose');
+  const mobileOverlay = document.getElementById('mobileOverlay');
+  
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', function() {
+      sidebar.classList.add('active');
+      if (mobileOverlay) {
+        mobileOverlay.classList.add('active');
+      }
+    });
+  }
+  
+  if (sidebarClose && sidebar) {
+    sidebarClose.addEventListener('click', function() {
+      sidebar.classList.remove('active');
+      if (mobileOverlay) {
+        mobileOverlay.classList.remove('active');
+      }
+    });
+  }
+  
+  if (mobileOverlay && sidebar) {
+    mobileOverlay.addEventListener('click', function() {
+      sidebar.classList.remove('active');
+      mobileOverlay.classList.remove('active');
+    });
+  }
+  
+  // API Configuration
+  const API_BASE_URL = 'http://localhost:3000/api'; // Your backend URL
+  
+  // API Functions
+  async function fetchApplications() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Token expired or invalid
+          handleLogout({ preventDefault: () => {} });
+          return;
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.applications || [];
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      showNotification('Failed to load applications. Please try again.', 'error');
+      return [];
+    }
+  }
+  
+  async function fetchApplicationDetails(applicationId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/${applicationId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.application;
+    } catch (error) {
+      console.error('Error fetching application details:', error);
+      showNotification('Failed to load application details.', 'error');
+      return null;
+    }
+  }
+  
+  // Initialize page
+  async function initializePage() {
+    showLoading();
+    allApplications = await fetchApplications();
+    
+    if (allApplications.length === 0) {
+      showEmptyState();
+    } else {
+      filteredApplications = [...allApplications];
+      updateStats();
+      renderApplications();
+      setupPagination();
+      hideLoading();
+    }
+  }
+  
+  // Show/Hide states
+  function showLoading() {
+    applicationsLoading.style.display = 'flex';
+    applicationsList.style.display = 'none';
+    noApplications.style.display = 'none';
+    paginationContainer.style.display = 'none';
+  }
+  
+  function hideLoading() {
+    applicationsLoading.style.display = 'none';
+    applicationsList.style.display = 'grid';
+    paginationContainer.style.display = 'flex';
+  }
+  
+  function showEmptyState() {
+    applicationsLoading.style.display = 'none';
+    applicationsList.style.display = 'none';
+    noApplications.style.display = 'flex';
+    paginationContainer.style.display = 'none';
+  }
+  
+  // Update statistics
+  function updateStats() {
+    const total = allApplications.length;
+    const pending = allApplications.filter(app => app.status === 'pending').length;
+    const approved = allApplications.filter(app => app.status === 'approved').length;
+    
+    if (totalApplicationsEl) totalApplicationsEl.textContent = total;
+    if (pendingApplicationsEl) pendingApplicationsEl.textContent = pending;
+    if (approvedApplicationsEl) approvedApplicationsEl.textContent = approved;
+  }
+  
+  // Render applications
+  function renderApplications() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const applicationsToShow = filteredApplications.slice(startIndex, endIndex);
+    
+    if (applicationsToShow.length === 0 && filteredApplications.length === 0) {
+      showEmptyState();
+      return;
+    }
+    
+    applicationsList.innerHTML = '';
+    
+    applicationsToShow.forEach((application, index) => {
+      const applicationCard = createApplicationCard(application, index);
+      applicationsList.appendChild(applicationCard);
+    });
+    
+    hideLoading();
+  }
+  
+  // Create application card
+  function createApplicationCard(application, index) {
+    const card = document.createElement('div');
+    card.className = 'application-card';
+    card.style.animationDelay = `${index * 0.1}s`;
+    
+    const statusClass = `status-${application.status.toLowerCase().replace(' ', '-')}`;
+    const formattedDate = new Date(application.createdAt || application.submissionDate).toLocaleDateString();
+    
+    card.innerHTML = `
+      <div class="application-header">
+        <div>
+          <div class="application-id">#${application.id || application._id}</div>
+          <div class="application-type">${application.type || 'Vehicle Registration'}</div>
+        </div>
+        <span class="status-badge ${statusClass}">${application.status}</span>
+      </div>
+      
+      <div class="application-details">
+        <div class="detail-item">
+          <span class="detail-label">Vehicle:</span>
+          <span class="detail-value">${application.vehicleInfo?.make || 'N/A'} ${application.vehicleInfo?.model || ''}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Year:</span>
+          <span class="detail-value">${application.vehicleInfo?.year || 'N/A'}</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">Documents:</span>
+          <span class="detail-value">${application.documents?.length || 0} files</span>
+        </div>
+      </div>
+      
+      <div class="application-footer">
+        <span class="application-date">Submitted: ${formattedDate}</span>
+        <button class="view-details-btn" onclick="openApplicationModal('${application.id || application._id}')">
+          View Details
+        </button>
+      </div>
+    `;
+    
+    // Add click handler for the entire card
+    card.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('view-details-btn')) {
+        openApplicationModal(application.id || application._id);
+      }
+    });
+    
+    return card;
+  }
+  
+  // Open application modal
+  window.openApplicationModal = async function(applicationId) {
+    const application = allApplications.find(app => (app.id || app._id) === applicationId);
+    
+    if (!application) {
+      showNotification('Application not found', 'error');
+      return;
+    }
+    
+    // Populate modal with application data
+    document.getElementById('modalAppId').textContent = `#${application.id || application._id}`;
+    document.getElementById('modalAppType').textContent = application.type || 'Vehicle Registration';
+    document.getElementById('modalAppDate').textContent = new Date(application.createdAt || application.submissionDate).toLocaleDateString();
+    
+    const statusBadge = document.getElementById('modalAppStatus');
+    const statusClass = `status-${application.status.toLowerCase().replace(' ', '-')}`;
+    statusBadge.className = `detail-value status-badge ${statusClass}`;
+    statusBadge.textContent = application.status;
+    
+    // Vehicle information
+    const vehicleInfo = application.vehicleInfo || {};
+    document.getElementById('modalVehicleInfo').textContent = 
+      `${vehicleInfo.make || 'N/A'} ${vehicleInfo.model || ''} (${vehicleInfo.year || 'N/A'})`;
+    
+    // Documents
+    const documentsContainer = document.getElementById('modalDocuments');
+    if (application.documents && application.documents.length > 0) {
+      documentsContainer.innerHTML = application.documents.map(doc => `
+        <div class="document-item">
+          <i class="fas fa-file-alt"></i>
+          <span>${doc.name || doc.filename || 'Document'}</span>
+        </div>
+      `).join('');
+    } else {
+      documentsContainer.innerHTML = '<span>No documents uploaded</span>';
+    }
+    
+    // Notes
+    document.getElementById('modalNotes').textContent = application.notes || 'No additional notes';
+    
+    // Timeline
+    renderTimeline(application);
+    
+    // Show modal
+    applicationModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+  
+  // Render timeline
+  function renderTimeline(application) {
+    const timelineContainer = document.getElementById('modalTimeline');
+    
+    // Default timeline based on status
+    let timelineItems = [
+      {
+        title: 'Application Submitted',
+        description: 'Your application has been received and is being processed',
+        date: new Date(application.createdAt || application.submissionDate).toLocaleDateString(),
+        status: 'completed'
+      }
+    ];
+    
+    // Add status-specific timeline items
+    switch (application.status.toLowerCase()) {
+      case 'pending':
+        timelineItems.push({
+          title: 'Under Review',
+          description: 'Your application is currently being reviewed by our team',
+          date: 'In Progress',
+          status: 'current'
+        });
+        break;
+        
+      case 'in-progress':
+        timelineItems.push(
+          {
+            title: 'Document Verification',
+            description: 'Your documents are being verified',
+            date: 'In Progress',
+            status: 'completed'
+          },
+          {
+            title: 'Processing',
+            description: 'Your application is being processed',
+            date: 'Current',
+            status: 'current'
+          }
+        );
+        break;
+        
+      case 'approved':
+        timelineItems.push(
+          {
+            title: 'Document Verification',
+            description: 'Your documents have been verified successfully',
+            date: 'Completed',
+            status: 'completed'
+          },
+          {
+            title: 'Application Approved',
+            description: 'Your application has been approved',
+            date: application.approvedDate || 'Recently',
+            status: 'completed'
+          }
+        );
+        break;
+        
+      case 'rejected':
+        timelineItems.push({
+          title: 'Application Rejected',
+          description: application.rejectionReason || 'Please contact support for more information',
+          date: application.rejectedDate || 'Recently',
+          status: 'completed'
+        });
+        break;
+    }
+    
+    timelineContainer.innerHTML = timelineItems.map(item => `
+      <div class="timeline-item ${item.status}">
+        <div class="timeline-content">
+          <div class="timeline-title">${item.title}</div>
+          <div class="timeline-description">${item.description}</div>
+          <div class="timeline-date">${item.date}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  // Close modal
+  function closeApplicationModal() {
+    applicationModal.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  
+  if (closeModal) {
+    closeModal.addEventListener('click', closeApplicationModal);
+  }
+  
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener('click', closeApplicationModal);
+  }
+  
+  // Close modal when clicking outside
+  applicationModal.addEventListener('click', function(e) {
+    if (e.target === applicationModal) {
+      closeApplicationModal();
+    }
+  });
+  
+  // Track application button
+  const trackAppBtn = document.getElementById('trackAppBtn');
+  if (trackAppBtn) {
+    trackAppBtn.addEventListener('click', function() {
+      // You can implement tracking functionality here
+      showNotification('Tracking feature coming soon!', 'info');
+    });
+  }
+  
+  // Search functionality
+  if (applicationSearch) {
+    applicationSearch.addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase().trim();
+      filterApplications();
+    });
+  }
+  
+  // Filter functionality
+  if (statusFilter) {
+    statusFilter.addEventListener('change', filterApplications);
+  }
+  
+  if (dateFilter) {
+    dateFilter.addEventListener('change', filterApplications);
+  }
+  
+  // Filter applications
+  function filterApplications() {
+    const searchTerm = applicationSearch.value.toLowerCase().trim();
+    const statusValue = statusFilter.value;
+    const dateValue = dateFilter.value;
+    
+    filteredApplications = allApplications.filter(application => {
+      // Search filter
+      const matchesSearch = !searchTerm || 
+        (application.id || application._id).toString().toLowerCase().includes(searchTerm) ||
+        (application.type || '').toLowerCase().includes(searchTerm) ||
+        (application.vehicleInfo?.make || '').toLowerCase().includes(searchTerm) ||
+        (application.vehicleInfo?.model || '').toLowerCase().includes(searchTerm);
+      
+      // Status filter
+      const matchesStatus = statusValue === 'all' || application.status === statusValue;
+      
+      // Date filter
+      let matchesDate = true;
+      if (dateValue !== 'all') {
+        const appDate = new Date(application.createdAt || application.submissionDate);
+        const now = new Date();
+        
+        switch (dateValue) {
+          case 'today':
+            matchesDate = appDate.toDateString() === now.toDateString();
+            break;
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchesDate = appDate >= weekAgo;
+            break;
+          case 'month':
+            const monthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+            matchesDate = appDate >= monthAgo;
+            break;
+          case 'year':
+            const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+            matchesDate = appDate >= yearAgo;
+            break;
+        }
+      }
+      
+      return matchesSearch && matchesStatus && matchesDate;
+    });
+    
+    currentPage = 1;
+    renderApplications();
+    setupPagination();
+  }
+  
+  // Pagination
+  function setupPagination() {
+    const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+    
+    if (totalPages <= 1) {
+      paginationContainer.style.display = 'none';
+      return;
+    }
+    
+    paginationContainer.style.display = 'flex';
+    currentPageEl.textContent = currentPage;
+    totalPagesEl.textContent = totalPages;
+    
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+  }
+  
+  // Pagination event listeners
+  if (prevPageBtn) {
+    prevPageBtn.addEventListener('click', function() {
+      if (currentPage > 1) {
+        currentPage--;
+        renderApplications();
+        setupPagination();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+  
+  if (nextPageBtn) {
+    nextPageBtn.addEventListener('click', function() {
+      const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+      if (currentPage < totalPages) {
+        currentPage++;
+        renderApplications();
+        setupPagination();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  }
+  
+  // Notification system
+  function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notif => notif.remove());
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span>${message}</span>
+        <button class="notification-close">&times;</button>
+      </div>
+    `;
+    
+    // Add styles if they don't exist
+    if (!document.querySelector('#notification-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'notification-styles';
+      styles.textContent = `
+        .notification {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          padding: 15px 20px;
+          border-radius: 8px;
+          color: white;
+          font-weight: 500;
+          z-index: 10000;
+          transform: translateX(400px);
+          transition: transform 0.3s ease;
+          max-width: 300px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .notification.success { background-color: #10b981; }
+        .notification.error { background-color: #ef4444; }
+        .notification.info { background-color: #3b82f6; }
+        .notification.warning { background-color: #f59e0b; }
+        .notification.show { transform: translateX(0); }
+        .notification-content { display: flex; justify-content: space-between; align-items: center; }
+        .notification-close { 
+          background: none; 
+          border: none; 
+          color: white; 
+          font-size: 18px; 
+          cursor: pointer; 
+          margin-left: 10px;
+          padding: 0;
+          line-height: 1;
+        }
+        .notification-close:hover { opacity: 0.8; }
+      `;
+      document.head.appendChild(styles);
+    }
+    
+    document.body.appendChild(notification);
+    
+    // Close button functionality
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+      notification.classList.remove('show');
+      setTimeout(() => {
+        if (notification.parentNode) {
+          notification.parentNode.removeChild(notification);
+        }
+      }, 300);
+    });
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Hide notification after 5 seconds
+    setTimeout(() => {
+      if (notification.classList.contains('show')) {
+        notification.classList.remove('show');
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }
+    }, 5000);
   }
   
   // Set current year in footer
@@ -33,555 +654,8 @@ document.addEventListener('DOMContentLoaded', function() {
     currentYearElement.textContent = new Date().getFullYear();
   }
   
-  // User menu toggle
-  const userMenuToggle = document.getElementById('userMenuToggle');
-  const userDropdownMenu = document.getElementById('userDropdownMenu');
+  // Initialize the page
+  initializePage();
   
-  if (userMenuToggle && userDropdownMenu) {
-    userMenuToggle.addEventListener('click', function() {
-      userDropdownMenu.classList.toggle('active');
-    });
-    
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function(event) {
-      if (!userMenuToggle.contains(event.target) && !userDropdownMenu.contains(event.target)) {
-        userDropdownMenu.classList.remove('active');
-      }
-    });
-  }
-  
-  // Logout functionality
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', function(e) {
-      e.preventDefault();
-      
-      // Clear authentication data
-      localStorage.removeItem('token');
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('isAuthenticated');
-      
-      // Redirect to home page
-      window.location.href = 'index.html';
-    });
-  }
-  
-  // Mobile sidebar toggle functionality
-  const sidebarToggle = document.getElementById('sidebarToggle');
-  const sidebar = document.querySelector('.dashboard-sidebar');
-  
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', function() {
-      sidebar.classList.toggle('active');
-      console.log('Sidebar toggle clicked'); // For debugging
-    });
-    
-    // Close sidebar when clicking outside on mobile
-    document.addEventListener('click', function(event) {
-      if (window.innerWidth <= 992) {
-        if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-          sidebar.classList.remove('active');
-        }
-      }
-    });
-  }
-  
-  // Sample applications data (in a real app, this would come from an API)
-  const sampleApplications = [
-    {
-      id: 'APP-001',
-      type: 'Vehicle Registration',
-      date: '2023-05-15',
-      status: 'approved',
-      vehicleInfo: 'Toyota Camry 2020, Black, VIN: 1HGBH41JXMN109186',
-      documents: [
-        { name: 'Proof of Ownership', type: 'pdf' },
-        { name: 'ID Card', type: 'jpg' },
-        { name: 'Insurance Certificate', type: 'pdf' }
-      ],
-      notes: 'Registration completed successfully.',
-      timeline: [
-        { date: '2023-05-10', title: 'Application Submitted', description: 'Your application has been received and is being processed.' },
-        { date: '2023-05-12', title: 'Document Verification', description: 'Your documents are being verified by our team.' },
-        { date: '2023-05-14', title: 'Payment Confirmed', description: 'Your payment has been confirmed.' },
-        { date: '2023-05-15', title: 'Application Approved', description: 'Your vehicle registration has been approved.' }
-      ]
-    },
-    {
-      id: 'APP-002',
-      type: 'Change of Ownership',
-      date: '2023-06-02',
-      status: 'pending',
-      vehicleInfo: 'Honda Accord 2018, Silver, VIN: 2HGFC2F74LH123456',
-      documents: [
-        { name: 'Sales Agreement', type: 'pdf' },
-        { name: 'Previous Owner ID', type: 'jpg' },
-        { name: 'New Owner ID', type: 'jpg' }
-      ],
-      notes: 'Awaiting document verification.',
-      timeline: [
-        { date: '2023-06-02', title: 'Application Submitted', description: 'Your application has been received and is being processed.' },
-        { date: '2023-06-03', title: 'Document Verification', description: 'Your documents are being verified by our team.' }
-      ]
-    },
-    {
-      id: 'APP-003',
-      type: 'License Renewal',
-      date: '2023-06-10',
-      status: 'in-progress',
-      vehicleInfo: 'Ford Explorer 2019, Blue, VIN: 1FMSK8DH3LGB12345',
-      documents: [
-        { name: 'Expired License', type: 'jpg' },
-        { name: 'Proof of Address', type: 'pdf' },
-        { name: 'Passport Photo', type: 'jpg' }
-      ],
-      notes: 'Processing payment.',
-      timeline: [
-        { date: '2023-06-10', title: 'Application Submitted', description: 'Your application has been received and is being processed.' },
-        { date: '2023-06-12', title: 'Document Verification', description: 'Your documents have been verified.' },
-        { date: '2023-06-14', title: 'Payment Processing', description: 'Your payment is being processed.' }
-      ]
-    }
-  ];
-  
-  // Get DOM elements
-  const applicationsList = document.getElementById('applicationsList');
-  const noApplications = document.getElementById('noApplications');
-  const applicationModal = document.getElementById('applicationModal');
-  const closeModalBtn = document.getElementById('closeModalBtn');
-  const closeModalX = document.querySelector('.close-modal');
-  const trackAppBtn = document.getElementById('trackAppBtn');
-  const applicationSearch = document.getElementById('applicationSearch');
-  const searchBtn = document.getElementById('searchBtn');
-  const statusFilter = document.getElementById('statusFilter');
-  const dateFilter = document.getElementById('dateFilter');
-  const prevPageBtn = document.getElementById('prevPage');
-  const nextPageBtn = document.getElementById('nextPage');
-  const currentPageElement = document.getElementById('currentPage');
-  const totalPagesElement = document.getElementById('totalPages');
-  
-  // Pagination state
-  let currentPage = 1;
-  const itemsPerPage = 6;
-  let filteredApplications = [...sampleApplications];
-      // Initialize the page
-      initializeApplicationsPage();
-
-      // Function to initialize the applications page
-      function initializeApplicationsPage() {
-        // Get user-specific applications instead of sample data
-        const userEmail = userData.email;
-        let userApplications = [];
-  
-        if (userEmail) {
-          const storedApplications = localStorage.getItem(`applications_${userEmail}`);
-          if (storedApplications) {
-            try {
-              userApplications = JSON.parse(storedApplications);
-            } catch (e) {
-              console.error('Error parsing stored applications:', e);
-            }
-          }
-        }
-  
-        // Use user applications instead of sample data
-        filteredApplications = [...userApplications];
-  
-        // Check if user has any applications
-        if (userApplications.length === 0) {
-          showNoApplications();
-        } else {
-          hideNoApplications();
-          renderApplications();
-          setupPagination();
-        }
-  
-        // Add event listeners
-        setupEventListeners();
-      }
-
-      // Function to show "No Applications" message
-  function showNoApplications() {
-    if (noApplications) {
-      noApplications.style.display = 'flex';
-    }
-    if (applicationsList) {
-      applicationsList.style.display = 'none';
-    }
-  }
-  
-  // Function to hide "No Applications" message
-  function hideNoApplications() {
-    if (noApplications) {
-      noApplications.style.display = 'none';
-    }
-    if (applicationsList) {
-      applicationsList.style.display = 'grid';
-    }
-  }
-  
-  // Function to render applications
-  function renderApplications() {
-    if (!applicationsList) return;
-    
-    // Clear the applications list
-    applicationsList.innerHTML = '';
-    
-    // Calculate pagination
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedApplications = filteredApplications.slice(startIndex, endIndex);
-    
-    // If no applications after filtering, show no applications message
-    if (paginatedApplications.length === 0) {
-      showNoApplications();
-      return;
-    }
-    
-    // Hide no applications message
-    hideNoApplications();
-    
-    // Create application cards
-    paginatedApplications.forEach(app => {
-      const card = createApplicationCard(app);
-      applicationsList.appendChild(card);
-    });
-  }
-  
-  // Function to create an application card
-  function createApplicationCard(app) {
-    const card = document.createElement('div');
-    card.className = 'application-card';
-    
-    // Format date
-    const formattedDate = formatDate(app.date);
-    
-    card.innerHTML = `
-      <div class="card-header">
-        <span class="app-type">${app.type}</span>
-        <span class="status-badge status-${app.status}">${capitalizeFirstLetter(app.status)}</span>
-      </div>
-      <div class="card-body">
-        <div class="card-info">
-          <div class="info-row">
-            <div class="info-label">Application ID:</div>
-            <div class="info-value">${app.id}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Date:</div>
-            <div class="info-value">${formattedDate}</div>
-          </div>
-          <div class="info-row">
-            <div class="info-label">Vehicle:</div>
-            <div class="info-value">${app.vehicleInfo.split(',')[0]}</div>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button class="view-details-btn" data-app-id="${app.id}">View Details</button>
-          <button class="track-app-btn" data-app-id="${app.id}">Track Application</button>
-        </div>
-      </div>
-    `;
-    
-    // Add event listeners to buttons
-    const viewDetailsBtn = card.querySelector('.view-details-btn');
-    const trackAppBtn = card.querySelector('.track-app-btn');
-    
-    viewDetailsBtn.addEventListener('click', function() {
-      openApplicationModal(app);
-    });
-    
-    trackAppBtn.addEventListener('click', function() {
-      // In a real app, this would navigate to a tracking page
-      alert(`Tracking application ${app.id}`);
-    });
-    
-    return card;
-  }
-  
-  // Function to open application modal
-  function openApplicationModal(app) {
-    // Populate modal with application details
-    document.getElementById('modalAppId').textContent = app.id;
-    document.getElementById('modalAppType').textContent = app.type;
-    document.getElementById('modalAppDate').textContent = formatDate(app.date);
-    
-    const statusElement = document.getElementById('modalAppStatus');
-    statusElement.textContent = capitalizeFirstLetter(app.status);
-    statusElement.className = 'detail-value status-badge status-' + app.status;
-    
-    document.getElementById('modalVehicleInfo').textContent = app.vehicleInfo;
-    
-    // Populate documents
-    const documentsContainer = document.getElementById('modalDocuments');
-    documentsContainer.innerHTML = '';
-    
-    app.documents.forEach(doc => {
-      const docElement = document.createElement('div');
-      docElement.className = 'document-item';
-      
-      const iconClass = doc.type === 'pdf' ? 'fa-file-pdf' : 'fa-file-image';
-      
-      docElement.innerHTML = `
-        <i class="fas ${iconClass}"></i>
-        <span>${doc.name}</span>
-      `;
-      
-      documentsContainer.appendChild(docElement);
-    });
-    
-    document.getElementById('modalNotes').textContent = app.notes;
-    
-    // Populate timeline
-    const timelineContainer = document.getElementById('modalTimeline');
-    timelineContainer.innerHTML = '';
-    
-    app.timeline.forEach((item, index) => {
-      const timelineItem = document.createElement('div');
-      timelineItem.className = 'timeline-item';
-      
-      // Mark the last item as active
-      if (index === app.timeline.length - 1) {
-        timelineItem.classList.add('active');
-      }
-      
-      timelineItem.innerHTML = `
-        <div class="timeline-date">${formatDate(item.date)}</div>
-        <div class="timeline-title">${item.title}</div>
-        <div class="timeline-description">${item.description}</div>
-      `;
-      
-      timelineContainer.appendChild(timelineItem);
-    });
-    
-    // Show the modal
-    applicationModal.style.display = 'block';
-    
-    // Prevent body scrolling when modal is open
-    document.body.style.overflow = 'hidden';
-  }
-  
-  // Function to close application modal
-  function closeApplicationModal() {
-    applicationModal.style.display = 'none';
-    
-    // Restore body scrolling
-    document.body.style.overflow = 'auto';
-  }
-  
-  // Function to setup pagination
-  function setupPagination() {
-    const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
-    
-    if (currentPageElement) {
-      currentPageElement.textContent = currentPage;
-    }
-    
-    if (totalPagesElement) {
-      totalPagesElement.textContent = totalPages;
-    }
-    
-    // Update pagination buttons state
-    if (prevPageBtn) {
-      prevPageBtn.disabled = currentPage === 1;
-    }
-    
-    if (nextPageBtn) {
-      nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
-    }
-  }
-  
-  // Function to setup event listeners
-  function setupEventListeners() {
-    // Close modal buttons
-    if (closeModalBtn) {
-      closeModalBtn.addEventListener('click', closeApplicationModal);
-    }
-    
-    if (closeModalX) {
-      closeModalX.addEventListener('click', closeApplicationModal);
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(event) {
-      if (event.target === applicationModal) {
-        closeApplicationModal();
-      }
-    });
-    
-    // Track application button in modal
-    if (trackAppBtn) {
-      trackAppBtn.addEventListener('click', function() {
-        const appId = document.getElementById('modalAppId').textContent;
-        alert(`Tracking application ${appId}`);
-        closeApplicationModal();
-      });
-    }
-    
-    // Search functionality
-    if (searchBtn && applicationSearch) {
-      searchBtn.addEventListener('click', function() {
-        filterApplications();
-      });
-      
-      applicationSearch.addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-          filterApplications();
-        }
-      });
-    }
-    
-    // Filter dropdowns
-    if (statusFilter) {
-      statusFilter.addEventListener('change', filterApplications);
-    }
-    
-    if (dateFilter) {
-      dateFilter.addEventListener('change', filterApplications);
-    }
-    
-    // Pagination buttons
-    if (prevPageBtn) {
-      prevPageBtn.addEventListener('click', function() {
-        if (currentPage > 1) {
-          currentPage--;
-          renderApplications();
-          setupPagination();
-        }
-      });
-    }
-    
-    if (nextPageBtn) {
-      nextPageBtn.addEventListener('click', function() {
-        const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderApplications();
-          setupPagination();
-        }
-      });
-    }
-  }
-  
-  // Function to filter applications
-  function filterApplications() {
-    const searchTerm = applicationSearch ? applicationSearch.value.toLowerCase() : '';
-    const statusValue = statusFilter ? statusFilter.value : 'all';
-    const dateValue = dateFilter ? dateFilter.value : 'all';
-    
-    // Reset to first page when filtering
-    currentPage = 1;
-    
-    // Filter by search term, status, and date
-    filteredApplications = sampleApplications.filter(app => {
-      // Search term filter
-      const matchesSearch = 
-        app.id.toLowerCase().includes(searchTerm) ||
-        app.type.toLowerCase().includes(searchTerm) ||
-        app.vehicleInfo.toLowerCase().includes(searchTerm);
-      
-      // Status filter
-      const matchesStatus = statusValue === 'all' || app.status === statusValue;
-      
-      // Date filter
-      let matchesDate = true;
-      if (dateValue !== 'all') {
-        const appDate = new Date(app.date);
-        const today = new Date();
-        
-        switch (dateValue) {
-          case 'today':
-            matchesDate = isSameDay(appDate, today);
-            break;
-          case 'week':
-            matchesDate = isThisWeek(appDate, today);
-            break;
-          case 'month':
-            matchesDate = isSameMonth(appDate, today);
-            break;
-          case 'year':
-            matchesDate = isSameYear(appDate, today);
-            break;
-        }
-      }
-      
-      return matchesSearch && matchesStatus && matchesDate;
-    });
-    
-    // Render filtered applications
-    renderApplications();
-    setupPagination();
-  }
-  
-  // Helper function: Format date
-  function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  }
-  
-  // Helper function: Capitalize first letter
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-  
-  // Helper function: Check if two dates are the same day
-  function isSameDay(date1, date2) {
-    return date1.getDate() === date2.getDate() &&
-           date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
-  }
-  
-  // Helper function: Check if a date is in the current week
-  function isThisWeek(date, currentDate) {
-    const oneDay = 24 * 60 * 60 * 1000;
-    const firstDayOfWeek = new Date(currentDate);
-    firstDayOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-    firstDayOfWeek.setHours(0, 0, 0, 0);
-    
-    const lastDayOfWeek = new Date(firstDayOfWeek);
-    lastDayOfWeek.setDate(firstDayOfWeek.getDate() + 6);
-    lastDayOfWeek.setHours(23, 59, 59, 999);
-    
-    return date >= firstDayOfWeek && date <= lastDayOfWeek;
-  }
-  
-  // Helper function: Check if two dates are in the same month
-  function isSameMonth(date1, date2) {
-    return date1.getMonth() === date2.getMonth() &&
-           date1.getFullYear() === date2.getFullYear();
-  }
-  
-  // Helper function: Check if two dates are in the same year
-  function isSameYear(date1, date2) {
-    return date1.getFullYear() === date2.getFullYear();
-  }
-  
-  // Load user applications from localStorage if available
-  function loadUserApplications() {
-    // In a real app, this would fetch from an API
-    // For now, we'll use the sample data
-    
-    // Check if we have applications in localStorage
-    const userEmail = userData.email;
-    if (!userEmail) return sampleApplications;
-    
-    const storedApplications = localStorage.getItem(`applications_${userEmail}`);
-    if (storedApplications) {
-      try {
-        return JSON.parse(storedApplications);
-      } catch (e) {
-        console.error('Error parsing stored applications:', e);
-      }
-    }
-    
-    return sampleApplications;
-  }
-  
-  // Save applications to localStorage
-  function saveUserApplications(applications) {
-    const userEmail = userData.email;
-    if (!userEmail) return;
-    
-    localStorage.setItem(`applications_${userEmail}`, JSON.stringify(applications));
-  }
+  console.log('Applications page initialized successfully');
 });
