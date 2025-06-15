@@ -3,257 +3,322 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Messages | LegitCar</title>
-  <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link rel="stylesheet" href="assets/css/messages-new.css">
+  <title>My Messages - Propamit</title>
+  <link rel="stylesheet" href="assets/css/dashboard.css">
+  <link rel="stylesheet" href="assets/css/messages.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Header -->
-  <header class="site-header">
-    <div class="container">
-      <div class="logo">
-        <a href="index.html">
-          <img src="assets/images/logo.png" alt="Logo">
-        </a>
+  <div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <img src="assets/img/logofornow.svg" alt="Propamit" class="logo-img">
+        </div>
+        <button class="sidebar-close" id="sidebarClose">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
-      
-      <div class="user-menu">
-        <div class="user-info">
-          <span id="userGreeting">Welcome, User</span>
-          <button id="userMenuToggle" class="user-menu-toggle">
-            <i class="fas fa-user-circle"></i>
-            <i class="fas fa-caret-down"></i>
+
+      <nav class="sidebar-nav">
+        <a href="dashboard.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="applications.html" class="nav-item">
+          <i class="fas fa-file-alt"></i>
+          <span>Applications</span>
+        </a>
+        <a href="new-application.html" class="nav-item">
+          <i class="fas fa-plus-circle"></i>
+          <span>New Application</span>
+        </a>
+        <a href="documents.html" class="nav-item">
+          <i class="fas fa-folder"></i>
+          <span>Documents</span>
+        </a>
+        <a href="messages.html" class="nav-item active">
+          <i class="fas fa-envelope"></i>
+          <span>Messages</span>
+          <span class="badge" id="messagesBadge">0</span>
+        </a>
+        <a href="settings.html" class="nav-item">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
           </button>
-          <div id="userDropdownMenu" class="user-dropdown-menu">
-            <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
-            <a href="#settings"><i class="fas fa-cog"></i> Settings</a>
-            <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+          <h1 class="page-title">My Messages</h1>
+        </div>
+
+        <div class="header-right">
+          <div class="user-menu">
+            <div class="user-info">
+              <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+              </div>
+              <div class="user-details">
+                <span class="user-name" id="userName">Loading...</span>
+                <span class="user-email" id="userEmail">Loading...</span>
+              </div>
+            </div>
+            <button class="user-menu-toggle" id="userMenuToggle">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+              <a href="profile.html" class="dropdown-item">
+                <i class="fas fa-user"></i>
+                My Profile
+              </a>
+              <a href="settings.html" class="dropdown-item">
+                <i class="fas fa-cog"></i>
+                Settings
+              </a>
+              <button class="dropdown-item logout-item" id="headerLogoutBtn">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dashboard Content -->
+      <div class="dashboard-content">
+        <!-- Messages Header -->
+        <div class="messages-header">
+          <div class="header-actions">
+            <a href="dashboard.html" class="back-btn">
+              <i class="fas fa-arrow-left"></i>
+              Back to Dashboard
+            </a>
+            <button id="composeBtn" class="btn btn-primary">
+              <i class="fas fa-plus"></i>
+              Compose Message
+            </button>
+          </div>
+        </div>
+
+        <!-- Messages Stats -->
+        <div class="dashboard-card">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number" id="totalMessages">0</div>
+              <div class="stat-label">Total Messages</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="unreadMessages">0</div>
+              <div class="stat-label">Unread</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="importantMessages">0</div>
+              <div class="stat-label">Important</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="archivedMessages">0</div>
+              <div class="stat-label">Archived</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="dashboard-card">
+          <div class="messages-container">
+            <!-- Messages Sidebar -->
+            <div class="messages-sidebar">
+              <!-- Search -->
+              <div class="messages-search">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" id="messageSearch" placeholder="Search messages...">
+                </div>
+              </div>
+
+              <!-- Filters -->
+              <div class="message-filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="unread">Unread</button>
+                <button class="filter-btn" data-filter="important">Important</button>
+                <button class="filter-btn" data-filter="archived">Archived</button>
+              </div>
+
+              <!-- Message List -->
+              <div class="message-list" id="messageList">
+                <!-- Loading State -->
+                <div id="messagesLoading" class="loading-state">
+                  <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </div>
+                  <p>Loading messages...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="noMessages" class="empty-state" style="display: none;">
+                  <div class="empty-icon">
+                    <i class="fas fa-envelope"></i>
+                  </div>
+                  <h3>No Messages</h3>
+                  <p>You don't have any messages yet.</p>
+                </div>
+
+                <!-- Messages will be dynamically loaded here -->
+              </div>
+            </div>
+
+            <!-- Message Content Area -->
+            <div class="message-content">
+              <!-- Empty State -->
+              <div id="messageEmptyState" class="empty-state">
+                <div class="empty-icon">
+                  <i class="fas fa-envelope-open"></i>
+                </div>
+                <h3>Select a Message</h3>
+                <p>Choose a message from the list to view its content.</p>
+              </div>
+
+              <!-- Message View -->
+              <div id="messageView" class="message-view" style="display: none;">
+                <!-- Message Header -->
+                <div class="message-header">
+                  <h2 id="messageSubject">Message Subject</h2>
+                  <div class="message-actions">
+                    <button class="action-btn" id="markImportantBtn" title="Mark as Important">
+                      <i class="fas fa-star"></i>
+                    </button>
+                    <button class="action-btn" id="archiveBtn" title="Archive">
+                      <i class="fas fa-archive"></i>
+                    </button>
+                    <button class="action-btn" id="deleteBtn" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Message Info -->
+                <div class="message-info">
+                  <div class="sender-info">
+                    <div class="sender-avatar">
+                      <i class="fas fa-user"></i>
+                    </div>
+                    <div class="sender-details">
+                      <div class="sender-name" id="messageSender">Sender Name</div>
+                      <div class="message-date" id="messageDate">Date</div>
+                    </div>
+                  </div>
+                  <div class="message-tags" id="messageTags">
+                    <!-- Tags will be added dynamically -->
+                  </div>
+                </div>
+
+                <!-- Message Body -->
+                <div class="message-body" id="messageBody">
+                  <!-- Message content will be loaded here -->
+                </div>
+
+                <!-- Attachments -->
+                <div class="message-attachments" id="messageAttachments" style="display: none;">
+                  <div class="attachments-title">Attachments</div>
+                  <div class="attachment-list" id="attachmentList">
+                    <!-- Attachments will be loaded here -->
+                  </div>
+                </div>
+
+                <!-- Reply Section -->
+                <div class="reply-section">
+                  <button class="reply-btn" id="replyBtn">
+                    <i class="fas fa-reply"></i>
+                    Reply
+                  </button>
+                  
+                  <div class="reply-form" id="replyForm">
+                    <textarea id="replyText" placeholder="Type your reply..."></textarea>
+                    <div class="form-actions">
+                      <button class="btn btn-secondary" id="cancelReplyBtn">Cancel</button>
+                      <button class="btn btn-primary" id="sendReplyBtn">
+                        <i class="fas fa-paper-plane"></i>
+                        Send Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </header>
-
-  <!-- Main Content Area -->
-  <div class="page-container">
-    <!-- Sidebar Toggle Button -->
-    <button class="sidebar-toggle" id="sidebarToggle">
-      <i class="fas fa-bars"></i>
-    </button>
-    
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <nav class="sidebar-nav">
-        <ul>
-          <li>
-            <a href="dashboard.html">
-              <i class="fas fa-tachometer-alt"></i>
-              <span>Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="applications.html">
-              <i class="fas fa-file-alt"></i>
-              <span>My Applications</span>
-            </a>
-          </li>
-          <li>
-            <a href="new-application.html">
-              <i class="fas fa-plus-circle"></i>
-              <span>New Application</span>
-            </a>
-          </li>
-          <li>
-            <a href="documents.html">
-              <i class="fas fa-folder"></i>
-              <span>Documents</span>
-            </a>
-          </li>
-          <li class="active">
-            <a href="messages.html">
-              <i class="fas fa-envelope"></i>
-              <span>Messages</span>
-              <span class="badge" id="unreadBadge">0</span>
-            </a>
-          </li>
-          <li>
-            <a href="profile.html">
-              <i class="fas fa-user"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a href="#settings">
-              <i class="fas fa-cog"></i>
-              <span>Settings</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="messages-section">
-        <h1>Messages</h1>
-        <div class="back-button-container">
-          <a href="dashboard.html" class="back-button">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-          </a>
-        </div>
-
-        <div class="messages-container">
-          <!-- Messages Sidebar -->
-          <div class="messages-sidebar">
-            <div class="messages-search">
-              <input type="text" id="messageSearch" placeholder="Search messages...">
-              <button type="button" id="searchBtn"><i class="fas fa-search"></i></button>
-            </div>
-            
-            <div class="message-filters">
-              <button class="filter-btn active" data-filter="all">All</button>
-              <button class="filter-btn" data-filter="unread">Unread</button>
-              <button class="filter-btn" data-filter="important">Important</button>
-            </div>
-            
-            <div class="message-list" id="messageList">
-              <!-- Messages will be loaded here dynamically -->
-            </div>
-            
-            <button class="compose-btn" id="composeBtn">
-              <i class="fas fa-pen"></i> Compose New Message
-            </button>
-          </div>
-          
-          <!-- Message Content -->
-          <div class="message-content" id="messageContent">
-            <div class="empty-state" id="emptyMessage">
-              <div class="empty-icon">
-                <i class="fas fa-envelope-open"></i>
-              </div>
-              <h3>No Message Selected</h3>
-              <p>Select a message from the list to view its contents or compose a new message.</p>
-            </div>
-            
-            <div class="message-view" id="messageView" style="display: none;">
-              <div class="message-header">
-                <h2 id="messageSubject">Message Subject</h2>
-                <div class="message-actions">
-                  <button class="action-btn" id="markReadBtn" title="Mark as Read/Unread">
-                    <i class="fas fa-envelope-open"></i>
-                  </button>
-                  <button class="action-btn" id="markImportantBtn" title="Mark as Important">
-                    <i class="far fa-star"></i>
-                  </button>
-                  <button class="action-btn" id="deleteMessageBtn" title="Delete">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                </div>
-              </div>
-              
-              <div class="message-info">
-                <div class="sender-info">
-                  <div class="sender-avatar">
-                    <i class="fas fa-user-circle"></i>
-                  </div>
-                  <div class="sender-details">
-                    <div class="sender-name" id="senderName">Sender Name</div>
-                    <div class="message-date" id="messageDate">Jan 1, 2023</div>
-                  </div>
-                </div>
-                <div class="message-tags" id="messageTags">
-                  <!-- Tags will be added here -->
-                </div>
-              </div>
-              
-              <div class="message-body" id="messageBody">
-                <!-- Message content will be loaded here -->
-              </div>
-              
-              <div class="message-attachments" id="messageAttachments">
-                <!-- Attachments will be loaded here -->
-              </div>
-              
-              <div class="reply-section">
-                <button class="reply-btn" id="replyBtn">
-                  <i class="fas fa-reply"></i> Reply
-                </button>
-                
-                <div class="reply-form" id="replyForm" style="display: none;">
-                  <textarea id="replyMessage" placeholder="Type your reply here..."></textarea>
-                  <div class="form-actions">
-                    <button type="button" class="btn-secondary" id="cancelReplyBtn">Cancel</button>
-                    <button type="button" class="btn-primary" id="sendReplyBtn">Send Reply</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
   </div>
-  
+
   <!-- Compose Message Modal -->
   <div id="composeModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h2>Compose New Message</h2>
-        <button class="close-modal" id="closeComposeModal">×</button>
+        <h2>Compose Message</h2>
+        <button class="close-modal" id="closeComposeModal">
+          <i class="fas fa-times"></i>
+        </button>
       </div>
       <div class="modal-body">
         <form id="composeForm">
           <div class="form-group">
-            <label for="messageRecipient" class="required-field">Recipient</label>
-            <select id="messageRecipient" name="recipient" required>
-              <option value="">Select Recipient</option>
-              <option value="support">Customer Support</option>
-              <option value="applications">Applications Department</option>
-              <option value="technical">Technical Support</option>
+            <label for="composeTo">To</label>
+            <select id="composeTo" class="form-input" required>
+              <option value="">Select recipient...</option>
+              <option value="support">Support Team</option>
+              <option value="admin">Administrator</option>
               <option value="billing">Billing Department</option>
             </select>
           </div>
-          
           <div class="form-group">
-            <label for="messageSubjectInput" class="required-field">Subject</label>
-            <input type="text" id="messageSubjectInput" name="subject" required>
+            <label for="composeSubject">Subject</label>
+            <input type="text" id="composeSubject" class="form-input" placeholder="Enter subject..." required>
           </div>
-          
           <div class="form-group">
-            <label for="relatedApplication">Related Application (Optional)</label>
-            <select id="relatedApplication" name="relatedApplication">
-              <option value="">Select Application</option>
-              <!-- Applications will be loaded here dynamically -->
-            </select>
+            <label for="composeMessage">Message</label>
+            <textarea id="composeMessage" class="form-input" rows="8" placeholder="Type your message..." required></textarea>
           </div>
-          
           <div class="form-group">
-            <label for="messageContent" class="required-field">Message</label>
-            <textarea id="messageContent" name="content" rows="6" required></textarea>
-          </div>
-          
-          <div class="form-group">
-            <label for="messageAttachment">Attachment (Optional)</label>
-            <input type="file" id="messageAttachment" name="attachment">
-          </div>
-          
-          <div class="form-actions">
-            <button type="button" class="btn-secondary" id="cancelComposeBtn">Cancel</button>
-            <button type="submit" class="btn-primary">Send Message</button>
+            <label for="composeAttachment">Attachment (optional)</label>
+            <input type="file" id="composeAttachment" class="form-input" multiple>
           </div>
         </form>
       </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelComposeBtn">Cancel</button>
+        <button class="btn btn-primary" id="sendMessageBtn">
+          <i class="fas fa-paper-plane"></i>
+          Send Message
+        </button>
+      </div>
     </div>
   </div>
-  
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="container">
-      <p>© <span id="currentYear">2023</span> LegitCar. All rights reserved.</p>
-    </div>
-  </footer>
-  
-  <script src="assets/js/messages-new.js"></script>
+
+  <!-- Mobile Overlay -->
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- Scripts -->
+  <script src="assets/js/messages.js"></script>
 </body>
 </html>
