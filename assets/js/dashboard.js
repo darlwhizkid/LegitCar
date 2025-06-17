@@ -1,7 +1,7 @@
 // Dashboard JavaScript - Propamit with Smart User Experience
 class PropamitDashboard {
   constructor() {
-    this.apiBaseUrl = window.location.hostname === 'localhost' ? 'http://localhost:3000/api' : '/api';
+    this.apiBaseUrl = API_CONFIG.BASE_URL + '/api'; // Use centralized config
     this.token = localStorage.getItem('userToken');
     this.user = null;
     this.applications = [];
@@ -20,7 +20,7 @@ class PropamitDashboard {
     console.log('Initializing Propamit Dashboard...');
     
     // Check authentication
-    if (!this.token) {
+    if (!this.token || !propamitAPI.isAuthenticated()) {
       this.redirectToLogin();
       return;
     }
@@ -42,6 +42,9 @@ class PropamitDashboard {
       // Load dashboard data based on user status
       await this.loadDashboardData();
       
+      // Load user applications
+      await this.loadUserApplications();
+      
       // Show appropriate welcome experience
       this.setupWelcomeExperience();
       
@@ -58,476 +61,352 @@ class PropamitDashboard {
 
   async verifyAuthentication() {
     try {
-      const response = await fetch(`${this.apiBaseUrl}/auth/me`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Authentication failed');
-      }
-
-      const data = await response.json();
-      this.user = data.user;
+      const response = await ApiService.get('/auth/me');
+      this.user = response.user;
       
       // Get user stats from backend
-      if (data.user.stats) {
+      if (response.user.stats) {
         this.userStats = {
-          loginCount: data.user.stats.loginCount || 0,
-          profileComplete: this.checkProfileCompleteness(data.user),
-          firstLogin: data.user.stats.firstLogin,
-          lastLogin: data.user.stats.lastLogin
+          loginCount: response.user.stats.loginCount || 0,
+          profileComplete: response.user.stats.profileComplete || false,
+          firstLogin: response.user.stats.firstLogin,
+          lastLogin: response.user.stats.lastLogin
         };
       }
-      
-      // Update UI with user data
-      this.updateUserInterface();
-      
-      console.log('Authentication verified:', this.user);
-      console.log('User stats:', this.userStats);
       
     } catch (error) {
-      console.error('Auth verification failed:', error);
-      
-      // Fallback to localStorage data for demo
-      const userName = localStorage.getItem('userName');
-      const userEmail = localStorage.getItem('userEmail');
-      const registrationTime = localStorage.getItem('registrationTime');
-      
-      if (userName && userEmail) {
-        this.user = { 
-          name: userName, 
-          email: userEmail,
-          phone: localStorage.getItem('userPhone') || '',
-          address: localStorage.getItem('userAddress') || '',
-          createdAt: registrationTime || new Date().toISOString()
-        };
-        
-        // Demo stats for new users
-        this.userStats = {
-          loginCount: parseInt(localStorage.getItem('loginCount') || '1'),
-          profileComplete: this.checkProfileCompleteness(this.user),
-          firstLogin: registrationTime || new Date().toISOString(),
-          lastLogin: new Date().toISOString()
-        };
-        
-        this.updateUserInterface();
-        console.log('Using fallback user data');
-      } else {
-        throw error;
-      }
+      console.error('Authentication verification failed:', error);
+      throw error;
     }
   }
 
+  async loadUserApplications() {
+    try {
+      const response = await ApplicationTracker.getUserApplications();
+      this.applications = response.applications || [];
+      this.updateApplicationsDisplay();
+    } catch (error) {
+      console.error('Failed to load applications:', error);
+    }
+  }
+
+  updateApplicationsDisplay() {
+    // Update application statistics
+    const totalApps = this.applications.length;
+    const pendingApps = this.applications.filter(app => app.status === 'pending' || app.status === 'submitted').length;
+    const approvedApps = this.applications.filter(app => app.status === 'approved').length;
+
+    // Update UI elements
+    const totalAppsEl = document.getElementById('totalApplications');
+    const pendingAppsEl = document.getElementById('pendingApplications');
+    const approvedAppsEl = document.getElementById('approvedApplications');
+
+    if (totalAppsEl) totalAppsEl.textContent = totalApps;
+    if (pendingAppsEl) pendingAppsEl.textContent = pendingApps;
+    if (approvedAppsEl) approvedAppsEl.textContent = approvedApps;
+
+    // Display recent applications
+    this.displayRecentApplications();
+  }
+
+  displayRecentApplications() {
+    const recentAppsContainer = document.getElementById('recentApplications');
+    if (!recentAppsContainer) return;
+
+    const recentApps = this.applications
+      .sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt))
+      .slice(0, 5);
+
+    if (recentApps.length === 0) {
+      recentAppsContainer.innerHTML = '<p class="no-applications">No applications found. <a href="apply.html">Submit your first application</a></p>';
+      return;
+    }
+
+    recentAppsContainer.innerHTML = recentApps.map(app => `
+      <div class="application-item" data-id="${app.id || app._id}">
+        <div class="app-info">
+          <h4>${app.type || 'Application'}</h4>
+          <p class="app-id">ID: ${app.trackingNumber || app.id || app._id}</p>
+          <p class="app-date">Submitted: ${new Date(app.submittedAt).toLocaleDateString()}</p>
+        </div>
+        <div class="app-status">
+          <span class="status-badge status-${app.status}">${app.status}</span>
+          <button class="track-btn" onclick="dashboard.trackApplication('${app.id || app._id}')">
+            Track
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async trackApplication(applicationId) {
+    try {
+      const trackingData = await ApplicationTracker.trackApplication(applicationId);
+      this.showTrackingModal(trackingData);
+    } catch (error) {
+      console.error('Failed to track application:', error);
+      this.showNotification('Failed to load tracking information', 'error');
+    }
+  }
+
+  showTrackingModal(trackingData) {
+    // Create and show tracking modal
+    const modal = document.createElement('div');
+    modal.className = 'modal tracking-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Application Tracking</h3>
+          <button class="close-btn" onclick="this.closest('.modal').remove()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="tracking-info">
+            <h4>Application ID: ${trackingData.trackingNumber || trackingData.id}</h4>
+            <p><strong>Status:</strong> <span class="status-badge status-${trackingData.status}">${trackingData.status}</span></p>
+            <p><strong>Submitted:</strong> ${new Date(trackingData.submittedAt).toLocaleString()}</p>
+            ${trackingData.lastUpdated ? `<p><strong>Last Updated:</strong> ${new Date(trackingData.lastUpdated).toLocaleString()}</p>` : ''}
+          </div>
+          <div class="tracking-timeline">
+            <h5>Progress Timeline</h5>
+            ${this.generateTimelineHTML(trackingData.timeline || [])}
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+  }
+
+  generateTimelineHTML(timeline) {
+    if (!timeline.length) {
+      return '<p>No timeline data available</p>';
+    }
+
+    return timeline.map(item => `
+      <div class="timeline-item">
+        <div class="timeline-date">${new Date(item.date).toLocaleString()}</div>
+        <div class="timeline-content">
+          <h6>${item.title}</h6>
+          <p>${item.description}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Loading and UI methods
+  showLoading() {
+    const loadingEl = document.getElementById('dashboardLoading');
+    if (loadingEl) {
+      loadingEl.style.display = 'flex';
+    }
+  }
+
+  hideLoading() {
+    const loadingEl = document.getElementById('dashboardLoading');
+    if (loadingEl) {
+      loadingEl.style.display = 'none';
+    }
+  }
+
+  // Check if user is new based on login count and profile completion
   checkUserStatus() {
-    // Determine if user is new (first time login or registered recently)
-    const now = new Date();
-    const registrationDate = new Date(this.user.createdAt || now);
-    const daysSinceRegistration = (now - registrationDate) / (1000 * 60 * 60 * 24);
-    
-    this.isNewUser = (
-      this.userStats.loginCount <= 2 || // First or second login
-      daysSinceRegistration <= 1 || // Registered within last 24 hours
-      !this.userStats.profileComplete // Profile not complete
-    );
-    
-    console.log('User status check:', {
-      isNewUser: this.isNewUser,
-      loginCount: this.userStats.loginCount,
-      daysSinceRegistration: daysSinceRegistration.toFixed(1),
-      profileComplete: this.userStats.profileComplete
-    });
+    this.isNewUser = this.userStats.loginCount <= 1 || !this.userStats.profileComplete;
   }
 
-  checkProfileCompleteness(user) {
-    const requiredFields = ['name', 'email', 'phone'];
-    const optionalFields = ['address', 'dateOfBirth'];
+  // Setup welcome experience for new users
+  setupWelcomeExperience() {
+    if (this.isNewUser) {
+      this.showWelcomeModal();
+    }
     
-    const requiredComplete = requiredFields.every(field => user[field] && user[field].trim());
-    const optionalComplete = optionalFields.some(field => user[field] && user[field].trim());
-    
-    return requiredComplete && optionalComplete;
+    // Update user info in header
+    this.updateUserInterface();
   }
 
+  showWelcomeModal() {
+    const modal = document.createElement('div');
+    modal.className = 'modal welcome-modal';
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Welcome to Propamit!</h3>
+        </div>
+        <div class="modal-body">
+          <div class="welcome-content">
+            <h4>Hello ${this.user.name}!</h4>
+            <p>Welcome to your Propamit dashboard. Here's what you can do:</p>
+            <ul>
+              <li>Submit new applications</li>
+              <li>Track your application progress</li>
+              <li>Upload and manage documents</li>
+              <li>Receive important messages</li>
+              <li>Update your profile settings</li>
+            </ul>
+            <div class="welcome-actions">
+              <button class="btn btn-primary" onclick="this.closest('.modal').remove(); window.location.href='apply.html'">
+                Start New Application
+              </button>
+              <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                Explore Dashboard
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    modal.style.display = 'flex';
+  }
+
+  // Update user interface elements
   updateUserInterface() {
-    // Update user name and email
     const userNameEl = document.getElementById('userName');
     const userEmailEl = document.getElementById('userEmail');
-
+    
     if (userNameEl && this.user.name) {
       userNameEl.textContent = this.user.name;
     }
-
+    
     if (userEmailEl && this.user.email) {
       userEmailEl.textContent = this.user.email;
     }
   }
 
-  setupWelcomeExperience() {
-    const welcomeMessageEl = document.getElementById('welcomeMessage');
-    const welcomeSection = document.querySelector('.welcome-section');
-    const dashboardContainer = document.querySelector('.dashboard-container');
-    
-    // Add profile complete class to body/container for styling
-    if (this.userStats.profileComplete) {
-      if (dashboardContainer) {
-        dashboardContainer.classList.add('profile-complete');
-      }
-      document.body.classList.add('profile-complete');
-    }
-    
-    if (this.isNewUser) {
-      // New user experience
-      if (welcomeMessageEl) {
-        const firstName = this.user.name.split(' ')[0];
-        if (this.userStats.profileComplete) {
-          welcomeMessageEl.textContent = `Congratulations, ${firstName}!`;
-        } else {
-          welcomeMessageEl.textContent = `Welcome, ${firstName}!`;
-        }
-      }
-      
-      // Add new user welcome content
-      this.addNewUserWelcome();
-      
-      // Show profile completion prompt (only if not complete)
-      if (!this.userStats.profileComplete) {
-        this.showProfileCompletionPrompt();
-      }
-      
-    } else {
-      // Returning user experience
-      if (welcomeMessageEl) {
-        const firstName = this.user.name.split(' ')[0];
-        const timeOfDay = this.getTimeOfDay();
-        
-        if (this.userStats.profileComplete) {
-          welcomeMessageEl.textContent = `${timeOfDay}, ${firstName}!`;
-        } else {
-          welcomeMessageEl.textContent = `${timeOfDay}, ${firstName}!`;
-        }
-      }
-    }
-  }
-
-  addNewUserWelcome() {
-    const welcomeSection = document.querySelector('.welcome-section');
-    if (!welcomeSection) return;
-    
-    // Update welcome text for new users
-    const welcomeText = welcomeSection.querySelector('.welcome-text p');
-    if (welcomeText) {
-      welcomeText.textContent = "Let's get you started with your first application. Complete your profile for a smoother experience.";
-    }
-    
-    // Add getting started steps
-    const gettingStartedHTML = `
-      <div class="getting-started-section">
-        <h3>🚀 Getting Started</h3>
-        <div class="steps-container">
-          <div class="step-item ${this.userStats.profileComplete ? 'completed' : ''}">
-            <div class="step-number">1</div>
-            <div class="step-content">
-              <h4>Complete Your Profile</h4>
-              <p>Add your personal information for faster processing</p>
-              ${!this.userStats.profileComplete ? '<a href="profile.html" class="step-action">Complete Now</a>' : '<span class="step-done">✓ Completed</span>'}
-            </div>
-          </div>
-          
-          <div class="step-item">
-            <div class="step-number">2</div>
-            <div class="step-content">
-              <h4>Submit Your First Application</h4>
-              <p>Choose from vehicle registration, renewals, or transfers</p>
-              <a href="new-application.html" class="step-action">Start Application</a>
-            </div>
-          </div>
-          
-          <div class="step-item">
-            <div class="step-number">3</div>
-            <div class="step-content">
-              <h4>Track Your Progress</h4>
-              <p>Monitor your application status in real-time</p>
-              <span class="step-info">Available after submission</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-    
-    // Insert after welcome section
-    welcomeSection.insertAdjacentHTML('afterend', gettingStartedHTML);
-  }
-
-  showProfileCompletionPrompt() {
-    if (this.userStats.profileComplete) return;
-    
-    const completionPercentage = this.calculateProfileCompletion();
-    
-    const promptHTML = `
-      <div class="profile-completion-card dashboard-card">
-        <div class="card-header">
-          <h3>Complete Your Profile</h3>
-          <span class="completion-percentage">${completionPercentage}% Complete</span>
-        </div>
-        <div class="card-content">
-          <div class="completion-bar">
-            <div class="completion-progress" style="width: ${completionPercentage}%"></div>
-          </div>
-          <p>Complete your profile to unlock all features and speed up your applications.</p>
-          <div class="missing-fields">
-            ${this.getMissingFieldsHTML()}
-          </div>
-          <a href="profile.html" class="btn btn-primary">
-            <i class="fas fa-user-edit"></i>
-            Complete Profile
-          </a>
-        </div>
-      </div>
-    `;
-    
-    // Insert at the beginning of dashboard content
-    const dashboardContent = document.querySelector('.dashboard-content');
-    const statsGrid = document.querySelector('.stats-grid');
-    
-    if (dashboardContent && statsGrid) {
-      statsGrid.insertAdjacentHTML('beforebegin', promptHTML);
-    }
-  }
-
-  calculateProfileCompletion() {
-    const fields = {
-      name: this.user.name,
-      email: this.user.email,
-      phone: this.user.phone,
-      address: this.user.address,
-      dateOfBirth: this.user.dateOfBirth
-    };
-    
-    const completedFields = Object.values(fields).filter(value => value && value.trim()).length;
-    return Math.round((completedFields / Object.keys(fields).length) * 100);
-  }
-
-  getMissingFieldsHTML() {
-    const missingFields = [];
-    
-    if (!this.user.phone) missingFields.push('Phone Number');
-    if (!this.user.address) missingFields.push('Address');
-    if (!this.user.dateOfBirth) missingFields.push('Date of Birth');
-    
-    if (missingFields.length === 0) return '';
-    
-    return `
-      <div class="missing-fields-list">
-        <strong>Missing:</strong> ${missingFields.join(', ')}
-      </div>
-    `;
-  }
-
-  getTimeOfDay() {
-    const hour = new Date().getHours();
-    
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
-    return 'Good evening';
-  }
-
+  // Load dashboard data
   async loadDashboardData() {
     try {
-      console.log('Loading dashboard data...');
-      
-      if (this.isNewUser) {
-        // New users get clean dashboard
-        this.applications = [];
-        console.log('New user - showing clean dashboard');
-      } else {
-        // Existing users get their data
-        await this.loadApplicationsFromBackend();
-      }
-      
+      // Load recent activities, notifications, etc.
+      await this.loadRecentActivities();
+      await this.loadNotifications();
+      await this.loadQuickStats();
     } catch (error) {
-      console.error('Backend data loading failed:', error);
-      
-      if (!this.isNewUser) {
-        // Only load demo data for existing users
-        this.loadDemoData();
-      }
-    }
-    
-    // Update UI with loaded data
-    this.updateDashboardStats();
-    this.displayRecentApplications();
-  }
-
-  async loadApplicationsFromBackend() {
-    const response = await fetch(`${this.apiBaseUrl}/applications`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${this.token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      this.applications = data.applications || [];
-      console.log('Applications loaded from backend:', this.applications);
-    } else {
-      throw new Error('Failed to load applications from backend');
+      console.error('Failed to load dashboard data:', error);
     }
   }
 
-  loadDemoData() {
-    // Only for existing users - demo applications data
-    this.applications = [
-      {
-        _id: 'APP001',
-        applicationId: 'VR-2024-001',
-        type: 'Vehicle Registration',
-        status: 'pending',
-        createdAt: new Date(Date.now() - 86400000).toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        _id: 'APP002',
-        applicationId: 'DR-2024-002',
-        type: 'Document Renewal',
-        status: 'approved',
-        createdAt: new Date(Date.now() - 172800000).toISOString(),
-        updatedAt: new Date(Date.now() - 43200000).toISOString()
-      }
-    ];
-    
-    console.log('Demo data loaded for existing user:', this.applications);
+  async loadRecentActivities() {
+    try {
+      const response = await ApiService.get('/user/activities');
+      const activities = response.activities || [];
+      this.displayRecentActivities(activities);
+    } catch (error) {
+      console.error('Failed to load recent activities:', error);
+    }
   }
 
-  updateDashboardStats() {
-    const stats = {
-      total: this.applications.length,
-      pending: this.applications.filter(app => app.status === 'pending').length,
-      approved: this.applications.filter(app => app.status === 'approved').length,
-      processing: this.applications.filter(app => app.status === 'processing').length
-    };
+  displayRecentActivities(activities) {
+    const activitiesContainer = document.getElementById('recentActivities');
+    if (!activitiesContainer) return;
 
-    // Update stat cards
-    this.updateElement('totalApplications', stats.total);
-    this.updateElement('pendingApplications', stats.pending);
-    this.updateElement('approvedApplications', stats.approved);
-    this.updateElement('processingApplications', stats.processing);
-
-    // Update messages badge
-    this.updateElement('messagesBadge', this.isNewUser ? 0 : Math.floor(Math.random() * 3));
-
-    console.log('Dashboard stats updated:', stats);
-  }
-
-  displayRecentApplications() {
-    const container = document.getElementById('recentApplications');
-    if (!container) return;
-
-    if (this.applications.length === 0) {
-      container.innerHTML = this.getEmptyApplicationsHTML();
+    if (activities.length === 0) {
+      activitiesContainer.innerHTML = '<p class="no-activities">No recent activities</p>';
       return;
     }
 
-    // Sort by date and take first 5
-    const recentApps = this.applications
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-      .slice(0, 5);
-
-    const applicationsHTML = recentApps.map(app => `
-      <div class="application-item fade-in">
-        <div class="application-info">
-          <h4>${app.type || 'Application'}</h4>
-          <p>ID: ${app.applicationId || app._id}</p>
-          <span class="application-date">${this.formatDate(app.createdAt)}</span>
+    activitiesContainer.innerHTML = activities.slice(0, 5).map(activity => `
+      <div class="activity-item">
+        <div class="activity-icon">
+          <i class="fas fa-${this.getActivityIcon(activity.type)}"></i>
         </div>
-        <span class="status-badge ${app.status}">${app.status}</span>
+        <div class="activity-content">
+          <p class="activity-text">${activity.description}</p>
+          <span class="activity-time">${Utils.formatDate(activity.createdAt)}</span>
+        </div>
       </div>
     `).join('');
-
-    container.innerHTML = applicationsHTML;
   }
 
-  getEmptyApplicationsHTML() {
-    if (this.isNewUser) {
-      return `
-        <div class="empty-state new-user">
-          <div class="welcome-illustration">
-            <i class="fas fa-rocket"></i>
-          </div>
-          <h3>Ready to Get Started?</h3>
-          <p>You haven't submitted any applications yet. Let's create your first one!</p>
-          <div class="empty-actions">
-            <a href="new-application.html" class="btn btn-primary">
-              <i class="fas fa-plus"></i>
-              Create First Application
-            </a>
-            <a href="profile.html" class="btn btn-outline">
-              <i class="fas fa-user"></i>
-              Complete Profile First
-            </a>
-          </div>
-        </div>
-      `;
-    } else {
-      return `
-        <div class="empty-state">
-          <i class="fas fa-file-alt"></i>
-          <h3>No Recent Applications</h3>
-          <p>Your recent applications will appear here</p>
-          <a href="new-application.html" class="btn btn-primary">
-            <i class="fas fa-plus"></i>
-            New Application
-          </a>
-        </div>
-      `;
+  getActivityIcon(type) {
+    const icons = {
+      'application': 'file-alt',
+      'document': 'upload',
+      'message': 'envelope',
+      'profile': 'user',
+      'login': 'sign-in-alt'
+    };
+    return icons[type] || 'info-circle';
+  }
+
+  async loadNotifications() {
+    try {
+      const response = await ApiService.get('/user/notifications');
+      const notifications = response.notifications || [];
+      this.displayNotifications(notifications);
+    } catch (error) {
+      console.error('Failed to load notifications:', error);
     }
   }
 
+  displayNotifications(notifications) {
+    const notificationsContainer = document.getElementById('notifications');
+    if (!notificationsContainer) return;
+
+    const unreadNotifications = notifications.filter(n => !n.read);
+    
+    // Update notification badge
+    const notificationBadge = document.getElementById('notificationBadge');
+    if (notificationBadge) {
+      notificationBadge.textContent = unreadNotifications.length;
+      notificationBadge.style.display = unreadNotifications.length > 0 ? 'block' : 'none';
+    }
+
+    if (notifications.length === 0) {
+      notificationsContainer.innerHTML = '<p class="no-notifications">No notifications</p>';
+      return;
+    }
+
+    notificationsContainer.innerHTML = notifications.slice(0, 5).map(notification => `
+      <div class="notification-item ${notification.read ? '' : 'unread'}">
+        <div class="notification-content">
+          <h5>${notification.title}</h5>
+          <p>${notification.message}</p>
+          <span class="notification-time">${Utils.formatDate(notification.createdAt)}</span>
+        </div>
+        ${!notification.read ? '<div class="unread-indicator"></div>' : ''}
+      </div>
+    `).join('');
+  }
+
+  async loadQuickStats() {
+    try {
+      const response = await ApiService.get('/user/stats');
+      const stats = response.stats || {};
+      this.displayQuickStats(stats);
+    } catch (error) {
+      console.error('Failed to load quick stats:', error);
+    }
+  }
+
+  displayQuickStats(stats) {
+    // Update various stat elements
+    const elements = {
+      'totalDocuments': stats.totalDocuments || 0,
+      'unreadMessages': stats.unreadMessages || 0,
+      'profileCompletion': stats.profileCompletion || 0
+    };
+
+    Object.keys(elements).forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.textContent = elements[id];
+      }
+    });
+  }
+
+  // Event listeners setup
   setupEventListeners() {
-    // Sidebar toggle
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', () => {
-        sidebar.classList.toggle('active');
-        mobileOverlay.classList.toggle('active');
-      });
-    }
-
-        // Sidebar close
-    const sidebarClose = document.getElementById('sidebarClose');
-    if (sidebarClose) {
-      sidebarClose.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        mobileOverlay.classList.remove('active');
-      });
-    }
-
-    // Mobile overlay click
-    if (mobileOverlay) {
-      mobileOverlay.addEventListener('click', () => {
-        sidebar.classList.remove('active');
-        mobileOverlay.classList.remove('active');
-      });
-    }
-
     // User menu toggle
     const userMenuToggle = document.getElementById('userMenuToggle');
     const userDropdown = document.getElementById('userDropdown');
-
+    
     if (userMenuToggle && userDropdown) {
       userMenuToggle.addEventListener('click', (e) => {
         e.stopPropagation();
         userDropdown.classList.toggle('active');
       });
-
+      
       // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
@@ -536,322 +415,380 @@ class PropamitDashboard {
       });
     }
 
-    // Logout buttons
-    const logoutButtons = document.querySelectorAll('#logoutBtn, #headerLogoutBtn');
-    logoutButtons.forEach(btn => {
+    // Logout functionality
+    const logoutBtns = document.querySelectorAll('.logout-btn');
+    logoutBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         this.handleLogout();
       });
     });
 
-    // Application tracking
-    const trackBtn = document.getElementById('trackBtn');
-    const trackingInput = document.getElementById('trackingInput');
-
-    if (trackBtn && trackingInput) {
-      trackBtn.addEventListener('click', () => {
-        this.trackApplication();
+    // Quick action buttons
+    const quickActionBtns = document.querySelectorAll('.quick-action-btn');
+    quickActionBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = btn.dataset.action;
+        this.handleQuickAction(action);
       });
-
-      trackingInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          this.trackApplication();
-        }
-      });
-    }
-
-    // Navigation items active state
-    this.setActiveNavItem();
+    });
   }
 
   setupMobileHandlers() {
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      const sidebar = document.getElementById('sidebar');
-      const mobileOverlay = document.getElementById('mobileOverlay');
-      
-      if (window.innerWidth > 768) {
-        if (sidebar) sidebar.classList.remove('active');
-        if (mobileOverlay) mobileOverlay.classList.remove('active');
-      }
-    });
-
-    // Handle escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const sidebar = document.getElementById('sidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const userDropdown = document.getElementById('userDropdown');
-        
-        if (sidebar && sidebar.classList.contains('active')) {
-          sidebar.classList.remove('active');
-          mobileOverlay.classList.remove('active');
-        }
-        
-        if (userDropdown && userDropdown.classList.contains('active')) {
-          userDropdown.classList.remove('active');
-        }
-      }
-    });
-  }
-
-  setActiveNavItem() {
-    const currentPage = window.location.pathname.split('/').pop() || 'dashboard.html';
-    const navItems = document.querySelectorAll('.nav-item');
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
     
-    navItems.forEach(item => {
-      item.classList.remove('active');
-      if (item.getAttribute('href') === currentPage) {
-        item.classList.add('active');
-      }
-    });
-  }
-
-  async trackApplication() {
-    const trackingInput = document.getElementById('trackingInput');
-    const trackingResult = document.getElementById('trackingResult');
-    const trackingError = document.getElementById('trackingError');
-    
-    if (!trackingInput) return;
-    
-    const applicationId = trackingInput.value.trim();
-    
-    if (!applicationId) {
-      this.showNotification('Please enter an application ID', 'warning');
-      return;
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('active');
+      });
     }
 
-    try {
-      // Hide previous results
-      if (trackingResult) trackingResult.style.display = 'none';
-      if (trackingError) trackingError.style.display = 'none';
-
-      // Try to find in backend first
-      let application = await this.findApplicationInBackend(applicationId);
-      
-      // Fallback to local data
-      if (!application) {
-        application = this.applications.find(app => 
-          app.applicationId === applicationId || app._id === applicationId
-        );
-      }
-
-      if (application) {
-        this.displayTrackingResult(application);
-        this.showNotification('Application found successfully', 'success');
-      } else {
-        this.displayTrackingError();
-        this.showNotification('Application not found', 'error');
-      }
-
-    } catch (error) {
-      console.error('Tracking error:', error);
-      this.displayTrackingError();
-      this.showNotification('Error tracking application', 'error');
+    // Mobile sidebar toggle
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    
+    if (sidebarToggle && sidebar) {
+      sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('mobile-active');
+      });
     }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', (e) => {
+      if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        mobileMenu.classList.remove('active');
+      }
+      
+      if (sidebar && !sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('mobile-active');
+      }
+    });
+
+    // Handle mobile responsive cards
+    this.handleMobileCards();
   }
 
-  async findApplicationInBackend(applicationId) {
-    try {
-      const response = await fetch(`${this.apiBaseUrl}/applications/${applicationId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json'
+  handleMobileCards() {
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768) {
+          // Add mobile interaction for cards
+          card.classList.toggle('mobile-expanded');
         }
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        return data.application;
-      }
-    } catch (error) {
-      console.error('Backend tracking failed:', error);
-    }
-    
-    return null;
+    });
   }
 
-  displayTrackingResult(application) {
-    const trackingResult = document.getElementById('trackingResult');
-    if (!trackingResult) return;
-
-    // Update result fields
-    this.updateElement('resultAppId', application.applicationId || application._id);
-    this.updateElement('resultAppType', application.type || 'N/A');
-    this.updateElement('resultAppStatus', application.status || 'N/A');
-    this.updateElement('resultAppDate', this.formatDate(application.createdAt));
-
-    // Show result
-    trackingResult.style.display = 'block';
-  }
-
-  displayTrackingError() {
-    const trackingError = document.getElementById('trackingError');
-    if (trackingError) {
-      trackingError.style.display = 'block';
+  // Quick action handler
+  handleQuickAction(action) {
+    switch (action) {
+      case 'new-application':
+        window.location.href = 'apply.html';
+        break;
+      case 'upload-document':
+        window.location.href = 'documents.html';
+        break;
+      case 'view-messages':
+        window.location.href = 'messages.html';
+        break;
+      case 'update-profile':
+        window.location.href = 'profile.html';
+        break;
+      case 'view-settings':
+        window.location.href = 'settings.html';
+        break;
+      default:
+        console.log('Unknown quick action:', action);
     }
   }
 
+  // Logout handler
   async handleLogout() {
     try {
+      // Show confirmation dialog
+      const confirmed = await this.showConfirmDialog(
+        'Logout Confirmation',
+        'Are you sure you want to logout?'
+      );
+      
+      if (!confirmed) return;
+
       // Show loading
-      this.showLoading();
-
-      // Try to call backend logout
-      try {
-        await fetch(`${this.apiBaseUrl}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      } catch (error) {
-        console.error('Backend logout failed:', error);
-      }
-
-      // Clear local storage
-      localStorage.clear();
+      this.showNotification('Logging out...', 'info');
       
-      // Show success message
-      this.showNotification('Logged out successfully', 'success');
+      // Call logout API
+      await propamitAPI.logout();
       
-      // Redirect after short delay
-      setTimeout(() => {
-        window.location.href = 'index.html';
-      }, 1000);
-
+      // Redirect to login
+      this.redirectToLogin();
+      
     } catch (error) {
       console.error('Logout error:', error);
-      
-      // Force logout
+      // Force logout even if API call fails
       localStorage.clear();
-      window.location.href = 'index.html';
+      this.redirectToLogin();
     }
   }
 
+  // Utility methods
+  showNotification(message, type = 'info', duration = 5000) {
+    Utils.showNotification(message, type, duration);
+  }
+
+  async showConfirmDialog(title, message) {
+    return new Promise((resolve) => {
+      const modal = document.createElement('div');
+      modal.className = 'modal confirm-modal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>${title}</h3>
+          </div>
+          <div class="modal-body">
+            <p>${message}</p>
+            <div class="modal-actions">
+              <button class="btn btn-secondary cancel-btn">Cancel</button>
+              <button class="btn btn-primary confirm-btn">Confirm</button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(modal);
+      modal.style.display = 'flex';
+      
+      const cancelBtn = modal.querySelector('.cancel-btn');
+      const confirmBtn = modal.querySelector('.confirm-btn');
+      
+      cancelBtn.addEventListener('click', () => {
+        modal.remove();
+        resolve(false);
+      });
+      
+      confirmBtn.addEventListener('click', () => {
+        modal.remove();
+        resolve(true);
+      });
+    });
+  }
+
+  // Error handlers
   redirectToLogin() {
-    console.log('No authentication token, redirecting to login');
     window.location.href = 'login.html';
   }
 
   handleAuthError() {
-    console.error('Authentication error, clearing storage and redirecting');
+    console.error('Authentication error - clearing storage and redirecting');
     localStorage.clear();
-    this.showNotification('Session expired. Please login again.', 'error');
-    
-    setTimeout(() => {
-      window.location.href = 'login.html';
-    }, 2000);
+    this.redirectToLogin();
   }
 
-  // Utility Methods
-  updateElement(id, value) {
-    const element = document.getElementById(id);
-    if (element) {
-      element.textContent = value;
-    }
-  }
-
-  formatDate(dateString) {
-    if (!dateString) return 'N/A';
-    
+  // Refresh dashboard data
+  async refreshDashboard() {
     try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
-      });
+      this.showLoading();
+      await this.loadUserApplications();
+      await this.loadDashboardData();
+      this.showNotification('Dashboard refreshed successfully', 'success');
     } catch (error) {
-      return 'Invalid Date';
+      console.error('Failed to refresh dashboard:', error);
+      this.showNotification('Failed to refresh dashboard', 'error');
+    } finally {
+      this.hideLoading();
     }
   }
 
-  showLoading() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-      loadingOverlay.classList.add('active');
-    }
-  }
+  // Search functionality
+  setupSearchFunctionality() {
+    const searchInput = document.getElementById('dashboardSearch');
+    if (!searchInput) return;
 
-  hideLoading() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-      loadingOverlay.classList.remove('active');
-    }
-  }
-
-  showNotification(message, type = 'info', title = null) {
-    const container = document.getElementById('notificationContainer');
-    if (!container) return;
-
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Get icon based on type
-    const icons = {
-      success: 'fas fa-check-circle',
-      error: 'fas fa-exclamation-circle',
-      warning: 'fas fa-exclamation-triangle',
-      info: 'fas fa-info-circle'
-    };
-
-    notification.innerHTML = `
-      <div class="notification-icon">
-        <i class="${icons[type] || icons.info}"></i>
-      </div>
-      <div class="notification-content">
-        ${title ? `<div class="notification-title">${title}</div>` : ''}
-        <div class="notification-message">${message}</div>
-      </div>
-      <button class="notification-close">
-        <i class="fas fa-times"></i>
-      </button>
-    `;
-
-    // Add to container
-    container.appendChild(notification);
-
-    // Show notification
-    setTimeout(() => {
-      notification.classList.add('show');
-    }, 100);
-
-    // Auto-hide after 5 seconds
-    const autoHideTimer = setTimeout(() => {
-      this.hideNotification(notification);
-    }, 5000);
-
-    // Close button
-    const closeBtn = notification.querySelector('.notification-close');
-    closeBtn.addEventListener('click', () => {
-      clearTimeout(autoHideTimer);
-      this.hideNotification(notification);
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        this.performSearch(e.target.value);
+      }, 300);
     });
-
-    return notification;
   }
 
-  hideNotification(notification) {
-    notification.classList.remove('show');
-    setTimeout(() => {
-      if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
+  performSearch(query) {
+    if (!query.trim()) {
+      this.clearSearchResults();
+      return;
+    }
+
+    // Search through applications
+    const filteredApplications = this.applications.filter(app => 
+      app.type?.toLowerCase().includes(query.toLowerCase()) ||
+      app.trackingNumber?.toLowerCase().includes(query.toLowerCase()) ||
+      app.status?.toLowerCase().includes(query.toLowerCase())
+    );
+
+    this.displaySearchResults(filteredApplications, query);
+  }
+
+  displaySearchResults(results, query) {
+    const searchResultsContainer = document.getElementById('searchResults');
+    if (!searchResultsContainer) return;
+
+    if (results.length === 0) {
+      searchResultsContainer.innerHTML = `
+        <div class="search-no-results">
+          <p>No results found for "${query}"</p>
+        </div>
+      `;
+      return;
+    }
+
+    searchResultsContainer.innerHTML = `
+      <div class="search-results-header">
+        <h4>Search Results (${results.length})</h4>
+        <button class="clear-search-btn" onclick="dashboard.clearSearchResults()">Clear</button>
+      </div>
+      <div class="search-results-list">
+        ${results.map(app => `
+          <div class="search-result-item" onclick="dashboard.trackApplication('${app.id || app._id}')">
+            <div class="result-info">
+              <h5>${app.type || 'Application'}</h5>
+              <p>ID: ${app.trackingNumber || app.id || app._id}</p>
+              <span class="status-badge status-${app.status}">${app.status}</span>
+            </div>
+            <div class="result-date">
+              ${Utils.formatDate(app.submittedAt)}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  clearSearchResults() {
+    const searchInput = document.getElementById('dashboardSearch');
+    const searchResultsContainer = document.getElementById('searchResults');
+    
+    if (searchInput) searchInput.value = '';
+    if (searchResultsContainer) searchResultsContainer.innerHTML = '';
+  }
+
+  // Application status update handler
+  async updateApplicationStatus(applicationId, newStatus) {
+    try {
+      await ApplicationTracker.updateApplicationStatus(applicationId, newStatus);
+      await this.loadUserApplications(); // Refresh applications
+      this.showNotification('Application status updated successfully', 'success');
+    } catch (error) {
+      console.error('Failed to update application status:', error);
+      this.showNotification('Failed to update application status', 'error');
+    }
+  }
+
+  // Export dashboard data
+  async exportDashboardData() {
+    try {
+      const data = {
+        user: this.user,
+        applications: this.applications,
+        stats: this.userStats,
+        exportDate: new Date().toISOString()
+      };
+
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `propamit-dashboard-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      URL.revokeObjectURL(url);
+      this.showNotification('Dashboard data exported successfully', 'success');
+    } catch (error) {
+      console.error('Failed to export dashboard data:', error);
+      this.showNotification('Failed to export dashboard data', 'error');
+    }
+  }
+
+  // Keyboard shortcuts
+  setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      // Ctrl/Cmd + shortcuts
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            e.preventDefault();
+            this.handleQuickAction('new-application');
+            break;
+          case 'u':
+            e.preventDefault();
+            this.handleQuickAction('upload-document');
+            break;
+          case 'm':
+            e.preventDefault();
+            this.handleQuickAction('view-messages');
+            break;
+          case 'r':
+            e.preventDefault();
+            this.refreshDashboard();
+            break;
+        }
       }
-    }, 300);
+      
+      // Escape key to close modals
+      if (e.key === 'Escape') {
+        const modals = document.querySelectorAll('.modal');
+        modals.forEach(modal => modal.remove());
+      }
+    });
+  }
+
+  // Initialize dashboard features
+  initializeFeatures() {
+    this.setupSearchFunctionality();
+    this.setupKeyboardShortcuts();
+    
+    // Auto-refresh every 5 minutes
+    setInterval(() => {
+      this.refreshDashboard();
+    }, 5 * 60 * 1000);
   }
 }
 
 // Initialize dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-  window.propamitDashboard = new PropamitDashboard();
+document.addEventListener('DOMContentLoaded', function() {
+  // Make dashboard globally available
+  window.dashboard = new PropamitDashboard();
+  
+  // Initialize additional features after dashboard is loaded
+  setTimeout(() => {
+    if (window.dashboard) {
+      window.dashboard.initializeFeatures();
+    }
+  }, 1000);
 });
 
-// Export for potential use in other scripts
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = PropamitDashboard;
-}
+// Handle page visibility change to refresh data when user returns
+document.addEventListener('visibilitychange', function() {
+  if (!document.hidden && window.dashboard) {
+    window.dashboard.refreshDashboard();
+  }
+});
+
+// Handle online/offline status
+window.addEventListener('online', function() {
+  if (window.dashboard) {
+    window.dashboard.showNotification('Connection restored', 'success');
+    window.dashboard.refreshDashboard();
+  }
+});
+
+window.addEventListener('offline', function() {
+  if (window.dashboard) {
+    window.dashboard.showNotification('Connection lost. Some features may not work.', 'warning');
+  }
+});

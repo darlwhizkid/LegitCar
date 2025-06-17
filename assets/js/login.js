@@ -2,7 +2,7 @@
 
 // Real API implementation - replace URLs with your actual backend endpoints
 const propamitAPI = {
-  baseURL: 'https://propamit-backend.vercel.app', // Replace with your actual API URL
+  baseURL: API_CONFIG.BASE_URL, // Use centralized config
   
   isAuthenticated: () => {
     const token = localStorage.getItem('userToken');
@@ -44,8 +44,9 @@ const propamitAPI = {
         localStorage.setItem('userToken', data.token);
         localStorage.setItem('userEmail', data.user.email);
         localStorage.setItem('userName', data.user.name);
+        localStorage.setItem('userId', data.user.id || data.user._id);
         
-        // Set token expiry (e.g., 24 hours from now)
+        // Set token expiry (24 hours from now)
         const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
         localStorage.setItem('tokenExpiry', expiry.toString());
       }
@@ -74,18 +75,7 @@ const propamitAPI = {
         throw new Error(data.message || 'Registration failed');
       }
 
-      // Store authentication data
-      if (data.token) {
-        localStorage.setItem('userToken', data.token);
-        localStorage.setItem('userEmail', data.user.email);
-        localStorage.setItem('userName', data.user.name);
-        
-        // Set token expiry
-        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('tokenExpiry', expiry.toString());
-      }
-
-      return { success: true, message: data.message || 'Registration successful', user: data.user };
+      return { success: true, message: data.message || 'Registration successful' };
     } catch (error) {
       console.error('Registration API error:', error);
       throw new Error(error.message || 'Network error occurred');
@@ -138,28 +128,24 @@ const propamitAPI = {
   // Logout function
   logout: async () => {
     try {
-      const token = localStorage.getItem('userToken');
-      
-      if (token) {
-        // Call logout endpoint to invalidate token on server
-        await fetch(`${propamitAPI.baseURL}/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-      }
+      // Call logout endpoint if available
+      await fetch(`${propamitAPI.baseURL}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
     } catch (error) {
       console.error('Logout API error:', error);
     } finally {
-      // Clear local storage regardless of API call success
+      // Always clear local storage
       localStorage.removeItem('userToken');
       localStorage.removeItem('tokenExpiry');
       localStorage.removeItem('userEmail');
       localStorage.removeItem('userName');
-      localStorage.removeItem('userPicture');
-      localStorage.removeItem('loginProvider');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('lastApplicationId');
     }
   }
 };
