@@ -1,156 +1,149 @@
 // Login Page JavaScript - Production Ready
 
-// Check if API_CONFIG is loaded
-if (typeof API_CONFIG === 'undefined') {
-  console.error('API_CONFIG not loaded. Make sure config.js is loaded first.');
+// Wait for API_CONFIG to be loaded
+function waitForConfig() {
+  return new Promise((resolve) => {
+    if (window.API_CONFIG && window.AuthHelper) {
+      resolve();
+    } else {
+      setTimeout(() => waitForConfig().then(resolve), 100);
+    }
+  });
 }
 
-const propamitAPI = {
-  baseURL: API_CONFIG ? API_CONFIG.BASE_URL : 'https://propamit-backend.vercel.app',
-  
-  isAuthenticated: () => {
-    const token = localStorage.getItem('userToken');
-    const expiry = localStorage.getItem('tokenExpiry');
+// Initialize propamitAPI after config is loaded
+let propamitAPI = null;
+
+// Initialize API when config is ready
+waitForConfig().then(() => {
+  propamitAPI = {
+    baseURL: API_CONFIG.BASE_URL,
     
-    if (!token || !expiry) return false;
-    
-    // Check if token is expired
-    if (new Date().getTime() > parseInt(expiry)) {
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('tokenExpiry');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      return false;
-    }
-    
-    return true;
-  },
+    isAuthenticated: () => AuthHelper.isAuthenticated(),
 
-  login: async (credentials) => {
-    try {
-      const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({action: "login", ...credentials})
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
-
-      // Store authentication data
-      if (data.token) {
-        localStorage.setItem('userToken', data.token);
-        localStorage.setItem('userEmail', data.user.email);
-        localStorage.setItem('userName', data.user.name);
+    login: async (credentials) => {
+      try {
+        Utils.showLoading('Signing you in...');
         
-        // Set token expiry (e.g., 24 hours from now)
-        const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
-        localStorage.setItem('tokenExpiry', expiry.toString());
-      }
+        const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({action: "login", ...credentials})
+        });
 
-      return { success: true, message: data.message || 'Login successful', user: data.user };
-    } catch (error) {
-      console.error('Login API error:', error);
-      throw new Error(error.message || 'Network error occurred');
-    }
-  },
+        const data = await response.json();
 
-  register: async (userData) => {
-    try {
-      const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({action: "register", ...userData})
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-      }
-
-      return { success: true, message: data.message || 'Registration successful' };
-    } catch (error) {
-      console.error('Registration API error:', error);
-      throw new Error(error.message || 'Network error occurred');
-    }
-  },
-  forgotPassword: async (email) => {
-    try {
-      const response = await fetch(`${propamitAPI.baseURL}/api/auth`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({action: "forgot-password", email})
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to send reset link');
-      }
-
-      return { success: true, message: data.message || 'Reset link sent successfully' };
-    } catch (error) {
-      console.error('Forgot password API error:', error);
-      throw new Error(error.message || 'Network error occurred');
-    }
-  },
-
-  // Real OAuth implementation
-  socialLogin: async (provider, action = 'login') => {
-    try {
-      // For production, you'll need to implement OAuth flow
-      // This is a placeholder for the OAuth redirect
-      const oauthURL = `${propamitAPI.baseURL}/auth/${provider}?action=${action}&redirect=${encodeURIComponent(window.location.origin + '/auth-callback.html')}`;
-      
-      // Open OAuth popup or redirect
-      window.location.href = oauthURL;
-      
-      // Note: The actual OAuth flow will handle the response
-      // You'll need to create an auth-callback.html page to handle the OAuth response
-      
-    } catch (error) {
-      console.error(`${provider} authentication error:`, error);
-      throw new Error(`${provider} authentication failed`);
-    }
-  },
-
-  // Logout function
-  logout: async () => {
-    try {
-      // Call logout endpoint if available
-      await fetch(`${propamitAPI.baseURL}/api/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`,
-          'Content-Type': 'application/json'
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed');
         }
-      });
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      // Always clear local storage
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('tokenExpiry');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('lastApplicationId');
+
+        // Store authentication data using AuthHelper
+        AuthHelper.setAuth(data);
+        
+        Utils.hideLoading();
+        Utils.showNotification('Login successful! Welcome back.', 'success');
+
+        return { success: true, message: data.message || 'Login successful', user: data.user };
+      } catch (error) {
+        Utils.hideLoading();
+        console.error('Login API error:', error);
+        Utils.showNotification(error.message || 'Login failed. Please try again.', 'error');
+        throw new Error(error.message || 'Network error occurred');
+      }
+    },
+
+    register: async (userData) => {
+      try {
+        Utils.showLoading('Creating your account...');
+        
+        const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({action: "register", ...userData})
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Registration failed');
+        }
+
+        Utils.hideLoading();
+        Utils.showNotification('Account created successfully! Please login to continue.', 'success');
+
+        return { success: true, message: data.message || 'Registration successful' };
+      } catch (error) {
+        Utils.hideLoading();
+        console.error('Registration API error:', error);
+        Utils.showNotification(error.message || 'Registration failed. Please try again.', 'error');
+        throw new Error(error.message || 'Network error occurred');
+      }
+    },
+
+    logout: async () => {
+      try {
+        const token = localStorage.getItem('userToken');
+        if (token) {
+          await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+        
+        Utils.showNotification('Logged out successfully', 'info');
+      } catch (error) {
+        console.error('Logout API error:', error);
+      } finally {
+        // Clear storage using AuthHelper
+        AuthHelper.clearAuth();
+      }
+    },
+
+    resetPassword: async (email) => {
+      try {
+        Utils.showLoading('Sending reset link...');
+        
+        const response = await fetch(`${propamitAPI.baseURL}/api/auth/reset-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to send reset link');
+        }
+
+        Utils.hideLoading();
+        Utils.showNotification('Password reset link sent to your email', 'success');
+
+        return { success: true, message: data.message };
+      } catch (error) {
+        Utils.hideLoading();
+        console.error('Reset password error:', error);
+        Utils.showNotification(error.message || 'Failed to send reset link', 'error');
+        throw error;
+      }
     }
-  }
-};
+  };
+
+  // Make propamitAPI globally available
+  window.propamitAPI = propamitAPI;
+  console.log('Enhanced propamitAPI initialized successfully');
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log("Login script loaded");
