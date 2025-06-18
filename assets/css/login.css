@@ -119,10 +119,9 @@ body {
   margin: 0 auto;
 }
 
-/* Error states */
+/* Error states - minimal styling */
 .form-group input.error {
-  border-color: #f44336;
-  box-shadow: 0 0 0 2px rgba(244, 67, 54, 0.2);
+  border-color: #f44336 !important;
 }
 
 .error-message {
@@ -142,6 +141,33 @@ body {
   cursor: not-allowed;
 }
 
+/* Password toggle - fix positioning */
+.password-input-group {
+  position: relative;
+}
+
+.password-input-group input {
+  padding-right: 45px; /* Make room for toggle button */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 16px;
+  z-index: 10;
+}
+
+.password-toggle:hover {
+  color: #333;
+}
+
 /* Simple notification animation */
 @keyframes slideIn {
   from {
@@ -152,28 +178,6 @@ body {
     transform: translateX(0);
     opacity: 1;
   }
-}
-
-/* Password toggle button */
-.password-input-group {
-  position: relative;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #666;
-  cursor: pointer;
-  padding: 5px;
-  font-size: 14px;
-}
-
-.password-toggle:hover {
-  color: #333;
 }
 
 /* Tab styles */

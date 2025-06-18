@@ -1,7 +1,7 @@
 // Dashboard JavaScript - Propamit with Smart User Experience
 class PropamitDashboard {
   constructor() {
-    this.apiBaseUrl = API_CONFIG.BASE_URL + '/api'; // Use centralized config
+    this.apiBaseUrl = 'https://propamit-backend.vercel.app'; // Use consistent URL
     this.token = localStorage.getItem('userToken');
     this.user = null;
     this.applications = [];
@@ -20,7 +20,7 @@ class PropamitDashboard {
     console.log('Initializing Propamit Dashboard...');
     
     // Check authentication
-    if (!this.token || !propamitAPI.isAuthenticated()) {
+    if (!this.token) {
       this.redirectToLogin();
       return;
     }
@@ -29,7 +29,10 @@ class PropamitDashboard {
       // Show loading
       this.showLoading();
       
-      // Verify token and get user data
+      // Load user data from localStorage first (immediate display)
+      this.loadUserFromStorage();
+      
+      // Verify token and get fresh user data
       await this.verifyAuthentication();
       
       // Determine if user is new
@@ -41,9 +44,6 @@ class PropamitDashboard {
       
       // Load dashboard data based on user status
       await this.loadDashboardData();
-      
-      // Load user applications
-      await this.loadUserApplications();
       
       // Show appropriate welcome experience
       this.setupWelcomeExperience();
@@ -59,23 +59,79 @@ class PropamitDashboard {
     }
   }
 
+  // Add this method to load user data from localStorage immediately
+  loadUserFromStorage() {
+    const userName = localStorage.getItem('userName');
+    const userEmail = localStorage.getItem('userEmail');
+    
+    if (userName && userEmail) {
+      this.user = {
+        name: userName,
+        email: userEmail
+      };
+      
+      // Update UI immediately
+      this.updateUserInterface();
+    }
+  }
+
   async verifyAuthentication() {
     try {
-      const response = await ApiService.get('/auth/me');
-      this.user = response.user;
+      // Try to get fresh user data from API
+      const response = await fetch(`${this.apiBaseUrl}/api/auth/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        // If API call fails, but we have localStorage data, continue
+        if (this.user) {
+          console.log('API call failed, but using localStorage data');
+          return;
+        }
+        throw new Error('Authentication failed');
+      }
+
+      const data = await response.json();
+      
+      // Update user data with fresh API data
+      if (data.user) {
+        this.user = data.user;
+        
+        // Update localStorage with fresh data
+        localStorage.setItem('userName', data.user.name);
+        localStorage.setItem('userEmail', data.user.email);
+        if (data.user.id) {
+          localStorage.setItem('userId', data.user.id);
+        }
+        
+        // Update UI with fresh data
+        this.updateUserInterface();
+      }
       
       // Get user stats from backend
-      if (response.user.stats) {
+      if (data.user && data.user.stats) {
         this.userStats = {
-          loginCount: response.user.stats.loginCount || 0,
-          profileComplete: response.user.stats.profileComplete || false,
-          firstLogin: response.user.stats.firstLogin,
-          lastLogin: response.user.stats.lastLogin
+          loginCount: data.user.stats.loginCount || 0,
+          profileComplete: data.user.stats.profileComplete || false,
+          firstLogin: data.user.stats.firstLogin || null,
+          lastLogin: data.user.stats.lastLogin || null
         };
       }
       
     } catch (error) {
-      console.error('Authentication verification failed:', error);
+      console.error('Verify authentication error:', error);
+      
+      // If we have localStorage data, continue with that
+      if (this.user) {
+        console.log('Using localStorage data due to API error');
+        return;
+      }
+      
+      // Otherwise, redirect to login
       throw error;
     }
   }
@@ -262,16 +318,29 @@ class PropamitDashboard {
 
   // Update user interface elements
   updateUserInterface() {
-    const userNameEl = document.getElementById('userName');
-    const userEmailEl = document.getElementById('userEmail');
+    if (!this.user) return;
     
-    if (userNameEl && this.user.name) {
-      userNameEl.textContent = this.user.name;
+    // Update user info in header
+    const userNameElement = document.getElementById('userName');
+    const userEmailElement = document.getElementById('userEmail');
+    
+    if (userNameElement && this.user.name) {
+      userNameElement.textContent = this.user.name;
     }
     
-    if (userEmailEl && this.user.email) {
-      userEmailEl.textContent = this.user.email;
+    if (userEmailElement && this.user.email) {
+      userEmailElement.textContent = this.user.email;
     }
+    
+    // Update any other user-related elements
+    const welcomeNameElements = document.querySelectorAll('.welcome-name');
+    welcomeNameElements.forEach(element => {
+      if (this.user.name) {
+        element.textContent = this.user.name;
+      }
+    });
+    
+    console.log('User interface updated:', this.user);
   }
 
   // Load dashboard data
