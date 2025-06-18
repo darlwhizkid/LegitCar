@@ -188,26 +188,26 @@ async function handleLogout() {
   }
 }
 
+// Wait for propamitAPI to be available
+function waitForAPI() {
+  return new Promise((resolve) => {
+    if (window.propamitAPI) {
+      resolve();
+    } else {
+      setTimeout(() => waitForAPI().then(resolve), 100);
+    }
+  });
+}
+
 // Update UI based on authentication status
 function updateAuthUI() {
-  let isAuthenticated = false;
-  let user = null;
-  
-  // Check if propamitAPI exists
-  if (typeof propamitAPI !== 'undefined') {
-    isAuthenticated = propamitAPI.isAuthenticated();
-    user = propamitAPI.getCurrentUser ? propamitAPI.getCurrentUser() : null;
-  } else {
-    // Fallback check
-    const token = localStorage.getItem('userToken');
-    isAuthenticated = !!token;
-    if (isAuthenticated) {
-      user = {
-        name: localStorage.getItem('userName') || 'User',
-        email: localStorage.getItem('userEmail')
-      };
-    }
+  if (!window.propamitAPI) {
+    console.warn('propamitAPI not available yet');
+    return;
   }
+
+  let isAuthenticated = propamitAPI.isAuthenticated();
+  let user = propamitAPI.getCurrentUser ? propamitAPI.getCurrentUser() : null;
   
   // Update desktop UI
   if (isAuthenticated && user) {
@@ -254,10 +254,10 @@ function updateAuthUI() {
 
 // Function to check if user is logged in
 function isUserLoggedIn() {
-  if (typeof propamitAPI !== 'undefined') {
-    return propamitAPI.isAuthenticated();
+  if (!window.propamitAPI) {
+    return false;
   }
-  return !!localStorage.getItem('userToken');
+  return propamitAPI.isAuthenticated();
 }
 
 // Function to show login notification

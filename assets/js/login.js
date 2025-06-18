@@ -1,8 +1,12 @@
 // Login Page JavaScript - Production Ready
 
-// Real API implementation - replace URLs with your actual backend endpoints
+// Check if API_CONFIG is loaded
+if (typeof API_CONFIG === 'undefined') {
+  console.error('API_CONFIG not loaded. Make sure config.js is loaded first.');
+}
+
 const propamitAPI = {
-  baseURL: API_CONFIG.BASE_URL, // Use centralized config
+  baseURL: API_CONFIG ? API_CONFIG.BASE_URL : 'https://propamit-backend.vercel.app',
   
   isAuthenticated: () => {
     const token = localStorage.getItem('userToken');
@@ -24,7 +28,7 @@ const propamitAPI = {
 
   login: async (credentials) => {
     try {
-      const response = await fetch(`${propamitAPI.baseURL}/api/auth`, {
+      const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,9 +48,8 @@ const propamitAPI = {
         localStorage.setItem('userToken', data.token);
         localStorage.setItem('userEmail', data.user.email);
         localStorage.setItem('userName', data.user.name);
-        localStorage.setItem('userId', data.user.id || data.user._id);
         
-        // Set token expiry (24 hours from now)
+        // Set token expiry (e.g., 24 hours from now)
         const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
         localStorage.setItem('tokenExpiry', expiry.toString());
       }
@@ -60,7 +63,7 @@ const propamitAPI = {
 
   register: async (userData) => {
     try {
-      const response = await fetch(`${propamitAPI.baseURL}/api/auth`, {
+      const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -81,7 +84,6 @@ const propamitAPI = {
       throw new Error(error.message || 'Network error occurred');
     }
   },
-
   forgotPassword: async (email) => {
     try {
       const response = await fetch(`${propamitAPI.baseURL}/api/auth`, {
