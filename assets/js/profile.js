@@ -62,10 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
   function handleLogout(e) {
     e.preventDefault();
     
-    // Clear authentication data
-    localStorage.removeItem('token');
-    localStorage.removeItem('currentUser');
+    // Clear authentication data - USE CORRECT KEYS
+    localStorage.removeItem('userToken');      // ✅ CORRECT
+    localStorage.removeItem('userEmail');      // ✅ CORRECT  
+    localStorage.removeItem('userName');       // ✅ CORRECT
     localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('tokenExpiry');
+    localStorage.removeItem('lastApplicationId');
     
     // Redirect to homepage
     window.location.href = 'index.html';
