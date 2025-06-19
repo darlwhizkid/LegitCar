@@ -35,12 +35,13 @@ class PropamitDashboard {
       // Verify token and get fresh user data
       await this.verifyAuthentication();
       
-      // Determine if user is new
+      // Determine if user status
       this.checkUserStatus();
       
       // Setup UI
       this.setupEventListeners();
       this.setupMobileHandlers();
+      this.setupLogoutHandlers();
       
       // Load dashboard data based on user status
       await this.loadDashboardData();
@@ -58,7 +59,6 @@ class PropamitDashboard {
       this.handleAuthError();
     }
   }
-
   // Add this method to load user data from localStorage immediately
   loadUserFromStorage() {
     const userName = localStorage.getItem('userName');
@@ -466,34 +466,6 @@ class PropamitDashboard {
 
   // Event listeners setup
   setupEventListeners() {
-    // User menu toggle
-    const userMenuToggle = document.getElementById('userMenuToggle');
-    const userDropdown = document.getElementById('userDropdown');
-    
-    if (userMenuToggle && userDropdown) {
-      userMenuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle('active');
-      });
-      
-      // Close dropdown when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
-          userDropdown.classList.remove('active');
-        }
-      });
-    }
-
-    // FIXED: Logout functionality - Updated selectors to match HTML
-    const logoutBtns = document.querySelectorAll('#logoutBtn, #headerLogoutBtn, .logout-btn, .logout-item');
-    logoutBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        console.log('Logout button clicked'); // Debug log
-        this.handleLogout();
-      });
-    });
-
     // Quick action buttons
     const quickActionBtns = document.querySelectorAll('.quick-action-btn');
     quickActionBtns.forEach(btn => {
@@ -502,7 +474,6 @@ class PropamitDashboard {
         this.handleQuickAction(action);
       });
     });  }
-
   setupMobileHandlers() {
     // Mobile menu toggle
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -539,6 +510,83 @@ class PropamitDashboard {
     this.handleMobileCards();
   }
 
+  setupLogoutHandlers() {
+    // User menu functionality
+    const userMenuToggle = document.getElementById('userMenuToggle');
+    const userDropdown = document.getElementById('userDropdown');
+    
+    if (userMenuToggle && userDropdown) {
+      userMenuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        userDropdown.classList.toggle('active');
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
+          userDropdown.classList.remove('active');
+        }
+      });
+    }
+
+    // Logout functionality - Simple and direct like applications.js
+    const logoutBtn = document.getElementById('logoutBtn');
+    const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+    
+    const handleLogout = (e) => {
+      e.preventDefault();
+      
+      // Clear authentication data
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userName');
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('userId');
+      localStorage.removeItem('tokenExpiry');
+      localStorage.removeItem('lastApplicationId');
+      
+      // Redirect to homepage
+      window.location.href = 'index.html';
+    };
+    
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', handleLogout);
+    }
+    
+    if (headerLogoutBtn) {
+      headerLogoutBtn.addEventListener('click', handleLogout);
+    }
+
+    // Sidebar functionality
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarClose = document.getElementById('sidebarClose');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    
+    if (sidebarToggle && sidebar) {
+      sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.add('active');
+        if (mobileOverlay) {
+          mobileOverlay.classList.add('active');
+        }
+      });
+    }
+    
+    if (sidebarClose && sidebar) {
+      sidebarClose.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        if (mobileOverlay) {
+          mobileOverlay.classList.remove('active');
+        }
+      });
+    }
+    
+    if (mobileOverlay && sidebar) {
+      mobileOverlay.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+        mobileOverlay.classList.remove('active');
+      });
+    }
+  }
   handleMobileCards() {
     const cards = document.querySelectorAll('.dashboard-card');
     cards.forEach(card => {
@@ -573,46 +621,44 @@ class PropamitDashboard {
         console.log('Unknown quick action:', action);
     }
   }
-
-  // Logout handler
-  async handleLogout() {
-    try {
-      // Show confirmation dialog
-      const confirmed = await this.showConfirmDialog(
-        'Logout Confirmation',
-        'Are you sure you want to logout?'
-      );
+    /* Logout handler
+    /*async handleLogout() {
+      try {
+        // Show confirmation dialog
+        const confirmed = await this.showConfirmDialog(
+          'Logout Confirmation',
+          'Are you sure you want to logout?'
+        );
       
-      if (!confirmed) return;
+        if (!confirmed) return;
 
-      // Show loading
-      this.showNotification('Logging out...', 'info');
+        // Show loading
+        this.showNotification('Logging out...', 'info');
       
-      // Call logout API - Check if propamitAPI exists
-      if (window.propamitAPI && typeof window.propamitAPI.logout === 'function') {
-        await window.propamitAPI.logout();
-      } else {
-        console.warn('propamitAPI not available, clearing storage manually');
-        // Manual cleanup if API not available
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('tokenExpiry');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('lastApplicationId');
+        // Call logout API - Check if propamitAPI exists
+        if (window.propamitAPI && typeof window.propamitAPI.logout === 'function') {
+          await window.propamitAPI.logout();
+        } else {
+          console.warn('propamitAPI not available, clearing storage manually');
+          // Manual cleanup if API not available
+          localStorage.removeItem('userToken');
+          localStorage.removeItem('tokenExpiry');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('userName');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('lastApplicationId');
+        }
+      
+        // Redirect to login
+        this.redirectToLogin();
+      
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Force logout even if API call fails
+        localStorage.clear();
+        this.redirectToLogin();
       }
-      
-      // Redirect to login
-      this.redirectToLogin();
-      
-    } catch (error) {
-      console.error('Logout error:', error);
-      // Force logout even if API call fails
-      localStorage.clear();
-      this.redirectToLogin();
-    }
-  }
-  // Utility methods
+    }*/  } */  // Utility methods
   showNotification(message, type = 'info', duration = 5000) {
     Utils.showNotification(message, type, duration);
   }
