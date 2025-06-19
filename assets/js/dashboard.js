@@ -19,35 +19,40 @@ class PropamitDashboard {
   async init() {
     console.log('Initializing Propamit Dashboard...');
     
-    // Check authentication
-    if (!this.token) {
-      this.redirectToLogin();
+    // Authentication check using correct localStorage keys - LIKE APPLICATIONS.JS
+    const token = localStorage.getItem('userToken');
+    const userEmail = localStorage.getItem('userEmail');
+    const userName = localStorage.getItem('userName');
+    
+    if (!token) {
+      console.log('No token found, redirecting to login');
+      window.location.href = 'login.html';
       return;
+    }
+    
+    // Update user info in header - LIKE APPLICATIONS.JS
+    const userNameElement = document.getElementById('userName');
+    const userEmailElement = document.getElementById('userEmail');
+    
+    if (userNameElement && userName) {
+      userNameElement.textContent = userName;
+    }
+    
+    if (userEmailElement && userEmail) {
+      userEmailElement.textContent = userEmail;
     }
 
     try {
       // Show loading
       this.showLoading();
       
-      // Load user data from localStorage first (immediate display)
-      this.loadUserFromStorage();
-      
-      // Verify token and get fresh user data
-      await this.verifyAuthentication();
-      
-      // Determine if user status
-      this.checkUserStatus();
-      
-      // Setup UI
-      this.setupEventListeners();
+      // Setup UI components
+      this.setupUserMenu();
+      this.setupLogout();
       this.setupMobileHandlers();
-      this.setupLogoutHandlers();
       
-      // Load dashboard data based on user status
+      // Load dashboard data
       await this.loadDashboardData();
-      
-      // Show appropriate welcome experience
-      this.setupWelcomeExperience();
       
       // Hide loading
       this.hideLoading();
@@ -57,82 +62,6 @@ class PropamitDashboard {
     } catch (error) {
       console.error('Dashboard initialization failed:', error);
       this.handleAuthError();
-    }
-  }
-  // Add this method to load user data from localStorage immediately
-  loadUserFromStorage() {
-    const userName = localStorage.getItem('userName');
-    const userEmail = localStorage.getItem('userEmail');
-    
-    if (userName && userEmail) {
-      this.user = {
-        name: userName,
-        email: userEmail
-      };
-      
-      // Update UI immediately
-      this.updateUserInterface();
-    }
-  }
-
-  async verifyAuthentication() {
-    try {
-      // Try to get fresh user data from API
-      const response = await fetch(`${this.apiBaseUrl}/api/auth/me`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        // If API call fails, but we have localStorage data, continue
-        if (this.user) {
-          console.log('API call failed, but using localStorage data');
-          return;
-        }
-        throw new Error('Authentication failed');
-      }
-
-      const data = await response.json();
-      
-      // Update user data with fresh API data
-      if (data.user) {
-        this.user = data.user;
-        
-        // Update localStorage with fresh data
-        localStorage.setItem('userName', data.user.name);
-        localStorage.setItem('userEmail', data.user.email);
-        if (data.user.id) {
-          localStorage.setItem('userId', data.user.id);
-        }
-        
-        // Update UI with fresh data
-        this.updateUserInterface();
-      }
-      
-      // Get user stats from backend
-      if (data.user && data.user.stats) {
-        this.userStats = {
-          loginCount: data.user.stats.loginCount || 0,
-          profileComplete: data.user.stats.profileComplete || false,
-          firstLogin: data.user.stats.firstLogin || null,
-          lastLogin: data.user.stats.lastLogin || null
-        };
-      }
-      
-    } catch (error) {
-      console.error('Verify authentication error:', error);
-      
-      // If we have localStorage data, continue with that
-      if (this.user) {
-        console.log('Using localStorage data due to API error');
-        return;
-      }
-      
-      // Otherwise, redirect to login
-      throw error;
     }
   }
 
@@ -165,8 +94,7 @@ class PropamitDashboard {
     this.displayRecentApplications();
   }
 
-  displayRecentApplications() {
-    const recentAppsContainer = document.getElementById('recentApplications');
+  displayRecentApplications() {    const recentAppsContainer = document.getElementById('recentApplications');
     if (!recentAppsContainer) return;
 
     const recentApps = this.applications
@@ -509,58 +437,52 @@ class PropamitDashboard {
     // Handle mobile responsive cards
     this.handleMobileCards();
   }
-
-  setupLogoutHandlers() {
-    // User menu functionality
-    const userMenuToggle = document.getElementById('userMenuToggle');
-    const userDropdown = document.getElementById('userDropdown');
-    
-    if (userMenuToggle && userDropdown) {
-      userMenuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        userDropdown.classList.toggle('active');
-      });
-      
-      document.addEventListener('click', (e) => {
-        if (!userMenuToggle.contains(e.target) && !userDropdown.contains(e.target)) {
-          userDropdown.classList.remove('active');
-        }
-      });
+    setupLogoutHandlers() {
+      this.setupUserMenu();
+      this.setupLogout();
     }
 
-    // SIMPLE Logout functionality - like applications.js
-    const logoutBtn = document.getElementById('logoutBtn');
-    const headerLogoutBtn = document.getElementById('headerLogoutBtn');
+    setupUserMenu() {
+      const userMenuToggle = document.getElementById('userMenuToggle');
+      const userDropdown = document.getElementById('userDropdown');
     
-    const handleLogout = (e) => {
-      e.preventDefault();
-      console.log('Logout clicked'); // Debug log
+      if (userMenuToggle && userDropdown) {
+        userMenuToggle.addEventListener('click', function() {
+          userDropdown.classList.toggle('active');
+        });
       
-      // Clear authentication data
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userEmail');
-      localStorage.removeItem('userName');
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('tokenExpiry');
-      localStorage.removeItem('lastApplicationId');
-      
-      // Redirect to homepage
-      window.location.href = 'index.html';
-    };
-    
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', handleLogout);
-      console.log('Logout button found and listener attached');
-    } else {
-      console.log('Logout button not found');
+        document.addEventListener('click', function(event) {
+          if (!userMenuToggle.contains(event.target) && !userDropdown.contains(event.target)) {
+            userDropdown.classList.remove('active');
+          }
+        });
+      }
     }
+
+    setupLogout() {
+      const logoutBtn = document.getElementById('logoutBtn');
+      const headerLogoutBtn = document.getElementById('headerLogoutBtn');
     
-    if (headerLogoutBtn) {
-      headerLogoutBtn.addEventListener('click', handleLogout);
-      console.log('Header logout button found and listener attached');
-    } else {
-      console.log('Header logout button not found');
+      function handleLogout(e) {
+        e.preventDefault();
+      
+        // Clear authentication data
+        localStorage.removeItem('userToken');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('isAuthenticated');
+      
+        // Redirect to homepage
+        window.location.href = 'index.html';
+      }
+    
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
+      }
+    
+      if (headerLogoutBtn) {
+        headerLogoutBtn.addEventListener('click', handleLogout);
+      }
     }
   }  handleMobileCards() {
     const cards = document.querySelectorAll('.dashboard-card');
