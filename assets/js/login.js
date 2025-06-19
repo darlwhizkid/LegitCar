@@ -1,4 +1,4 @@
-// Login Page JavaScript - Production Ready
+// Login Page JavaScript - Production Ready with Fixed Password Toggle
 
 // Wait for API_CONFIG to be loaded
 function waitForConfig() {
@@ -213,8 +213,16 @@ function initializeLoginPage() {
     clearErrors();
   }
 
-  // FIXED Password toggle functionality
+  // FIXED Password toggle functionality - Single implementation
   function initializePasswordToggles() {
+    // Remove any existing password toggles to avoid duplicates
+    document.querySelectorAll('.password-toggle').forEach(toggle => {
+      // Clone to remove all existing event listeners
+      const newToggle = toggle.cloneNode(true);
+      toggle.parentNode.replaceChild(newToggle, toggle);
+    });
+
+    // Get fresh references to password toggles
     const passwordToggles = document.querySelectorAll('.password-toggle');
     
     passwordToggles.forEach(toggle => {
@@ -224,6 +232,8 @@ function initializeLoginPage() {
         
         // Find the password input in the same container
         const container = this.closest('.password-input-group');
+        if (!container) return;
+        
         const passwordInput = container.querySelector('input[type="password"], input[type="text"]');
         const icon = this.querySelector('i');
         
@@ -241,14 +251,13 @@ function initializeLoginPage() {
           }
         }
       });
-      
-      // Set initial aria-label
-      toggle.setAttribute('aria-label', 'Show password');
     });
   }
 
-  // Initialize password toggles
-  initializePasswordToggles();
+  // Initialize password toggles after DOM is ready
+  setTimeout(() => {
+    initializePasswordToggles();
+  }, 100);
 
   // Terms checkbox functionality
   if (agreeTerms && registerSubmitBtn) {
@@ -483,6 +492,7 @@ function clearErrors() {
     field.classList.remove('error');
   });
 }
+
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -507,17 +517,17 @@ function showNotification(message, type = 'info') {
     
     notification.style.cssText = `
       position: fixed;
-      top: 24px;
-      right: 24px;
+      top: 20px;
+      right: 20px;
       background: ${colors[type] || colors.info};
       color: white;
-      padding: 16px 20px;
-      border-radius: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
       box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
       z-index: 10000;
-      max-width: 400px;
+      max-width: 350px;
       font-family: 'Inter', sans-serif;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
       animation: slideInRight 0.3s ease-out;
     `;
