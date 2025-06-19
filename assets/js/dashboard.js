@@ -528,12 +528,13 @@ class PropamitDashboard {
       });
     }
 
-    // Logout functionality - Simple and direct like applications.js
+    // SIMPLE Logout functionality - like applications.js
     const logoutBtn = document.getElementById('logoutBtn');
     const headerLogoutBtn = document.getElementById('headerLogoutBtn');
     
     const handleLogout = (e) => {
       e.preventDefault();
+      console.log('Logout clicked'); // Debug log
       
       // Clear authentication data
       localStorage.removeItem('userToken');
@@ -550,44 +551,18 @@ class PropamitDashboard {
     
     if (logoutBtn) {
       logoutBtn.addEventListener('click', handleLogout);
+      console.log('Logout button found and listener attached');
+    } else {
+      console.log('Logout button not found');
     }
     
     if (headerLogoutBtn) {
       headerLogoutBtn.addEventListener('click', handleLogout);
+      console.log('Header logout button found and listener attached');
+    } else {
+      console.log('Header logout button not found');
     }
-
-    // Sidebar functionality
-    const sidebarToggle = document.getElementById('sidebarToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarClose = document.getElementById('sidebarClose');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    
-    if (sidebarToggle && sidebar) {
-      sidebarToggle.addEventListener('click', function() {
-        sidebar.classList.add('active');
-        if (mobileOverlay) {
-          mobileOverlay.classList.add('active');
-        }
-      });
-    }
-    
-    if (sidebarClose && sidebar) {
-      sidebarClose.addEventListener('click', function() {
-        sidebar.classList.remove('active');
-        if (mobileOverlay) {
-          mobileOverlay.classList.remove('active');
-        }
-      });
-    }
-    
-    if (mobileOverlay && sidebar) {
-      mobileOverlay.addEventListener('click', function() {
-        sidebar.classList.remove('active');
-        mobileOverlay.classList.remove('active');
-      });
-    }
-  }
-  handleMobileCards() {
+  }  handleMobileCards() {
     const cards = document.querySelectorAll('.dashboard-card');
     cards.forEach(card => {
       card.addEventListener('click', (e) => {
@@ -621,7 +596,7 @@ class PropamitDashboard {
         console.log('Unknown quick action:', action);
     }
   }
-    /* Logout handler
+    /* Logout handler */
     /*async handleLogout() {
       try {
         // Show confirmation dialog
@@ -658,7 +633,7 @@ class PropamitDashboard {
         localStorage.clear();
         this.redirectToLogin();
       }
-    }*/  } */  // Utility methods
+    }*/    }*/  } */  // Utility methods
   showNotification(message, type = 'info', duration = 5000) {
     Utils.showNotification(message, type, duration);
   }

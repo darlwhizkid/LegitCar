@@ -18,7 +18,17 @@ body {
   min-height: 100vh;
 }
 
-/* Sidebar */
+/* Fix the main content margin and sidebar positioning */
+.main-content {
+  flex: 1;
+  margin-left: 280px; /* Ensure this matches sidebar width */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: margin-left 0.3s ease; /* Add smooth transition */
+}
+
+/* Ensure sidebar doesn't overlap content */
 .sidebar {
   width: 280px;
   background: #ffffff;
@@ -33,6 +43,26 @@ body {
   transition: transform 0.3s ease;
 }
 
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    z-index: 1001; /* Higher z-index for mobile */
+  }
+  
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  
+  .main-content {
+    margin-left: 0; /* No margin on mobile */
+  }
+  
+  .mobile-overlay {
+    z-index: 1000; /* Below sidebar but above content */
+  }
+}
+
 .sidebar-header {
   padding: 24px 20px;
   border-bottom: 1px solid #e2e8f0;
@@ -45,9 +75,7 @@ body {
   display: flex;
   align-items: center;
   padding: 0;
-}
-
-.logo-img {
+}.logo-img {
   height: 40px;
   width: auto;
   max-width: 200px;
