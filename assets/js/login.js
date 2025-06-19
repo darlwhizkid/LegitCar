@@ -181,9 +181,6 @@ function initializeLoginPage() {
   const forgotPasswordLink = document.getElementById('forgotPasswordLink');
   const backToLoginBtn = document.getElementById('backToLoginBtn');
   
-  // Password toggle buttons
-  const passwordToggles = document.querySelectorAll('.password-toggle');
-  
   // Terms checkbox
   const agreeTerms = document.getElementById('agreeTerms');
 
@@ -216,29 +213,42 @@ function initializeLoginPage() {
     clearErrors();
   }
 
-  // Password toggle functionality
-  passwordToggles.forEach(toggle => {
-    toggle.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-      
-      // Find the password input in the same container
-      const passwordInput = this.parentElement.querySelector('input[type="password"], input[type="text"]');
-      const icon = this.querySelector('i');
-      
-      if (passwordInput && icon) {
-        if (passwordInput.type === 'password') {
-          passwordInput.type = 'text';
-          icon.classList.remove('fa-eye');
-          icon.classList.add('fa-eye-slash');
-        } else {
-          passwordInput.type = 'password';
-          icon.classList.remove('fa-eye-slash');
-          icon.classList.add('fa-eye');
+  // FIXED Password toggle functionality
+  function initializePasswordToggles() {
+    const passwordToggles = document.querySelectorAll('.password-toggle');
+    
+    passwordToggles.forEach(toggle => {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Find the password input in the same container
+        const container = this.closest('.password-input-group');
+        const passwordInput = container.querySelector('input[type="password"], input[type="text"]');
+        const icon = this.querySelector('i');
+        
+        if (passwordInput && icon) {
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+            this.setAttribute('aria-label', 'Hide password');
+          } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+            this.setAttribute('aria-label', 'Show password');
+          }
         }
-      }
+      });
+      
+      // Set initial aria-label
+      toggle.setAttribute('aria-label', 'Show password');
     });
-  });
+  }
+
+  // Initialize password toggles
+  initializePasswordToggles();
 
   // Terms checkbox functionality
   if (agreeTerms && registerSubmitBtn) {
@@ -473,7 +483,6 @@ function clearErrors() {
     field.classList.remove('error');
   });
 }
-
 function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -490,33 +499,39 @@ function showNotification(message, type = 'info') {
     notification.textContent = message;
     
     const colors = {
-      success: '#4caf50',
-      error: '#f44336',
-      warning: '#ff9800',
-      info: '#2196f3'
+      success: '#10b981',
+      error: '#ef4444',
+      warning: '#f59e0b',
+      info: '#06b6d4'
     };
     
     notification.style.cssText = `
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 24px;
+      right: 24px;
       background: ${colors[type] || colors.info};
       color: white;
-      padding: 15px 20px;
-      border-radius: 5px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      padding: 16px 20px;
+      border-radius: 12px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
       z-index: 10000;
       max-width: 400px;
-      font-family: 'Poppins', sans-serif;
+      font-family: 'Inter', sans-serif;
       font-size: 14px;
-      animation: slideIn 0.3s ease-out;
+      font-weight: 500;
+      animation: slideInRight 0.3s ease-out;
     `;
     
     document.body.appendChild(notification);
     
     setTimeout(() => {
       if (notification.parentElement) {
-        notification.remove();
+        notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 300);
       }
     }, 5000);
   }
