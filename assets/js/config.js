@@ -656,7 +656,21 @@ const AuthHelper = {
 };
 
 // Make everything globally available
-window.API_CONFIG = API_CONFIG;
+window.API_CONFIG = {
+  BASE_URL: 'https://propamit-backend.vercel.app',
+  ENDPOINTS: {
+    LOGIN: '/api/auth',
+    REGISTER: '/api/auth',
+    LOGOUT: '/api/auth/logout',
+    PROFILE: '/api/user/profile',
+    APPLICATIONS: '/api/applications',
+    DOCUMENTS: '/api/documents',
+    MESSAGES: '/api/messages',
+    UPLOAD: '/api/upload',
+    TRACK_APPLICATION: '/api/applications/track'
+  }
+};
+
 window.ApiService = ApiService;
 window.ApplicationTracker = ApplicationTracker;
 window.DocumentService = DocumentService;
@@ -677,6 +691,5 @@ if (typeof module !== 'undefined' && module.exports) {
   };
 }
 
-console.log('Enhanced API_CONFIG loaded successfully');
-console.log('Base URL:', API_CONFIG.BASE_URL);
+console.log('API Config loaded:', window.API_CONFIG);
 console.log('Available services: ApiService, ApplicationTracker, DocumentService, MessageService, Utils, AuthHelper');

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test Backend Endpoints</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .success {
+        color: green;
+      }
+      .error {
+        color: red;
+      }
+      .info {
+        color: blue;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Testing Propamit Backend</h1>
+    <div id="results"></div>
+
+    <script>
+      async function testBackend() {
+        const results = document.getElementById("results");
+        const baseUrl = "https://propamit-backend.vercel.app";
+
+        results.innerHTML = '<p class="info">Testing backend endpoints...</p>';
+
+        // Test basic connection
+        try {
+          const response = await fetch(baseUrl);
+          results.innerHTML += `<p class="success">✅ Backend is online: ${response.status}</p>`;
+        } catch (error) {
+          results.innerHTML += `<p class="error">❌ Backend offline: ${error.message}</p>`;
+          return;
+        }
+
+        // Test existing endpoints
+        const endpoints = [
+          "/api/auth",
+          "/api/dashboard",
+          "/api/upload",
+          "/api/user-data",
+        ];
+
+        for (const endpoint of endpoints) {
+          try {
+            const response = await fetch(baseUrl + endpoint);
+            if (response.status === 404) {
+              results.innerHTML += `<p class="error">❌ ${endpoint} - NOT FOUND</p>`;
+            } else if (response.status === 401) {
+              results.innerHTML += `<p class="info">🔒 ${endpoint} - EXISTS but needs auth (${response.status})</p>`;
+            } else if (response.status < 500) {
+              results.innerHTML += `<p class="success">✅ ${endpoint} - EXISTS (${response.status})</p>`;
+            } else {
+              results.innerHTML += `<p class="error">⚠️ ${endpoint} - SERVER ERROR (${response.status})</p>`;
+            }
+          } catch (error) {
+            results.innerHTML += `<p class="error">❌ ${endpoint} - NETWORK ERROR</p>`;
+          }
+        }
+
+        // Test admin login specifically
+        results.innerHTML += "<br><h3>Testing Admin Login:</h3>";
+        try {
+          const loginResponse = await fetch(baseUrl + "/api/auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              action: "admin-login",
+              email: "darlingtonodom@gmail.com",
+              password: "Coldwizkid",
+            }),
+          });
+
+          const loginData = await loginResponse.json();
+
+          if (loginResponse.ok) {
+            results.innerHTML += `<p class="success">✅ Admin login works! Token received.</p>`;
+          } else {
+            results.innerHTML += `<p class="error">❌ Admin login failed: ${loginData.message}</p>`;
+          }
+        } catch (error) {
+          results.innerHTML += `<p class="error">❌ Admin login error: ${error.message}</p>`;
+        }
+      }
+
+      // Run test when page loads
+      testBackend();
+    </script>
+  </body>
+</html>
