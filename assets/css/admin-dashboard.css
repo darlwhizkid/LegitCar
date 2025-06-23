@@ -862,3 +862,30 @@ body {
     display: block !important;
   }
 }
+
+/* Fix logo sizing */
+.admin-logo img {
+  height: 40px !important;
+  max-width: 150px !important;
+  object-fit: contain !important;
+}
+
+/* Fix sidebar for mobile */
+.sidebar {
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.sidebar.active {
+  transform: translateX(0);
+}
+
+/* Fix hamburger button */
+.sidebar-toggle {
+  display: block !important;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 10px;
+}

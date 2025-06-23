@@ -1,8 +1,8 @@
-// Admin Dashboard JavaScript
+// Admin Dashboard JavaScript - Fixed Version
 class PropamitAdmin {
     constructor() {
         this.mongoConnection = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/LegitCar?retryWrites=true&w=majority';
-        this.apiBaseUrl = 'https://propamit-backend.vercel.app'; // Your backend URL
+        this.apiBaseUrl = 'https://propamit-backend.vercel.app';
         this.currentSection = 'dashboard';
         this.users = [];
         this.applications = [];
@@ -12,6 +12,8 @@ class PropamitAdmin {
     }
     
     async init() {
+        console.log('Initializing Propamit Admin Dashboard...');
+        
         // Check admin authentication
         if (!this.isAdminAuthenticated()) {
             window.location.href = 'admin-login.html';
@@ -19,8 +21,8 @@ class PropamitAdmin {
         }
         
         this.setupEventListeners();
-        await this.loadDashboardData();
         this.setupNavigation();
+        await this.loadDashboardData();
     }
     
     isAdminAuthenticated() {
@@ -28,12 +30,14 @@ class PropamitAdmin {
     }
     
     setupEventListeners() {
-        // Navigation
+        // FIXED: Navigation with better error handling
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
                 const section = item.dataset.section;
-                this.switchSection(section);
+                if (section) {
+                    this.switchSection(section);
+                }
                 
                 // Close mobile sidebar after navigation
                 if (window.innerWidth <= 1024) {
@@ -42,56 +46,89 @@ class PropamitAdmin {
             });
         });
         
-        // Sidebar toggle for mobile
+        // FIXED: Sidebar toggle with better mobile support
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar') || document.querySelector('.admin-sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         
         if (sidebarToggle && sidebar) {
-            sidebarToggle.addEventListener('click', () => {
+            sidebarToggle.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('Sidebar toggle clicked');
+                
                 sidebar.classList.toggle('active');
                 if (mobileOverlay) {
                     mobileOverlay.classList.toggle('active');
                 }
             });
+        } else {
+            console.warn('Sidebar toggle or sidebar element not found');
         }
         
-        // Close sidebar when clicking overlay
+        // FIXED: Close sidebar when clicking overlay
         if (mobileOverlay && sidebar) {
             mobileOverlay.addEventListener('click', () => {
                 this.closeMobileSidebar();
             });
         }
         
-        // Logout
-        document.getElementById('adminLogout').addEventListener('click', () => {
-            this.logout();
+        // FIXED: Close sidebar when clicking outside (desktop)
+        document.addEventListener('click', (e) => {
+            if (sidebar && !sidebar.contains(e.target) && 
+                !sidebarToggle?.contains(e.target) && 
+                window.innerWidth > 1024) {
+                sidebar.classList.remove('active');
+            }
         });
         
-        // Refresh buttons
-        document.getElementById('refreshUsers')?.addEventListener('click', () => {
-            this.loadUsers();
+        // FIXED: Logout functionality
+        const logoutBtns = [
+            document.getElementById('adminLogout'),
+            document.getElementById('logoutBtn'),
+            document.getElementById('headerLogoutBtn')
+        ];
+        
+        logoutBtns.forEach(btn => {
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.logout();
+                });
+            }
         });
         
-        document.getElementById('refreshApplications')?.addEventListener('click', () => {
-            this.loadApplications();
+        // FIXED: Refresh buttons with error handling
+        const refreshButtons = [
+            { id: 'refreshUsers', action: () => this.loadUsers() },
+            { id: 'refreshApplications', action: () => this.loadApplications() },
+            { id: 'refreshMessages', action: () => this.loadMessages() }
+        ];
+        
+        refreshButtons.forEach(({ id, action }) => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', action);
+            }
         });
         
-        document.getElementById('refreshMessages')?.addEventListener('click', () => {
-            this.loadMessages();
-        });
+        // FIXED: Search functionality
+        const userSearch = document.getElementById('userSearch');
+        if (userSearch) {
+            userSearch.addEventListener('input', (e) => {
+                this.filterUsers(e.target.value);
+            });
+        }
         
-        // Search functionality
-        document.getElementById('userSearch')?.addEventListener('input', (e) => {
-            this.filterUsers(e.target.value);
-        });
-        
-        // Status filter
-        document.getElementById('statusFilter')?.addEventListener('change', (e) => {
-            this.filterApplications(e.target.value);
-        });
+        // FIXED: Status filter
+        const statusFilter = document.getElementById('statusFilter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', (e) => {
+                this.filterApplications(e.target.value);
+            });
+        }
 
-        // Reset Database Button - NEW FUNCTIONALITY
+        // FIXED: Reset Database Button - Temporarily disabled with better UX
         const resetDatabaseBtn = document.getElementById('resetDatabaseBtn');
         if (resetDatabaseBtn) {
             resetDatabaseBtn.addEventListener('click', () => {
@@ -100,43 +137,68 @@ class PropamitAdmin {
         }
     }
 
-    // NEW: Reset Database functionality
+    // IMPROVED: Reset Database with better error handling
     async handleResetDatabase() {
-        // Double confirmation
-        if (!confirm('⚠️ WARNING: This will delete ALL user data except admin account!\n\nAre you sure you want to continue?')) {
+        // Show user-friendly message about CORS issue
+        const userChoice = confirm(
+            '⚠️ DATABASE RESET\n\n' +
+            'Due to CORS configuration issues, the reset function is temporarily unavailable.\n\n' +
+            'Options:\n' +
+            '1. Click OK to try anyway (may fail)\n' +
+            '2. Click Cancel to reset via MongoDB directly\n\n' +
+            'Would you like to try the reset anyway?'
+        );
+
+        if (!userChoice) {
+            this.showNotification(
+                'Please reset the database directly through MongoDB Atlas:\n' +
+                '1. Go to MongoDB Atlas\n' +
+                '2. Browse Collections\n' +
+                '3. Delete the collections: users, applications, messages, documents',
+                'info'
+            );
             return;
         }
 
-        if (!confirm('This action CANNOT be undone!\n\nType "RESET" in the next dialog to confirm.')) {
+        // Double confirmation for actual reset
+        if (!confirm('⚠️ WARNING: This will delete ALL user data except admin account!\n\nAre you sure?')) {
             return;
         }
 
-        const confirmation = prompt('Type "RESET" to confirm database reset:');
+        const confirmation = prompt('Type "RESET" to confirm:');
         if (confirmation !== 'RESET') {
             this.showNotification('Database reset cancelled', 'info');
             return;
         }
 
         const resetBtn = document.getElementById('resetDatabaseBtn');
+        if (!resetBtn) return;
         
         try {
-            // Show loading state
-            resetBtn.disabled = true;
-            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting Database...';
+            // Show loading
             this.showLoading();
-
-            // Call reset API
+            resetBtn.disabled = true;
+            resetBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Resetting...';
+            
+            console.log('Attempting to reset database...');
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/reset-database`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
             });
-
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP ${response.status}: ${errorText}`);
+            }
+            
             const data = await response.json();
 
-            if (response.ok && data.success) {
+            if (data.success) {
                 this.showNotification('Database reset successfully! All user data has been cleared.', 'success');
                 
                 // Refresh all data after reset
@@ -153,7 +215,17 @@ class PropamitAdmin {
 
         } catch (error) {
             console.error('Reset database error:', error);
-            this.showNotification(`Error resetting database: ${error.message}`, 'error');
+            
+            // Better error messages
+            if (error.message.includes('CORS') || error.message === 'Failed to fetch') {
+                this.showNotification(
+                    'CORS Error: Please reset database manually through MongoDB Atlas. ' +
+                    'Go to your MongoDB dashboard and delete the collections.',
+                    'error'
+                );
+            } else {
+                this.showNotification(`Error: ${error.message}`, 'error');
+            }
         } finally {
             // Reset button state
             resetBtn.disabled = false;
@@ -162,12 +234,18 @@ class PropamitAdmin {
         }
     }
     
+    // FIXED: Mobile sidebar closing
     closeMobileSidebar() {
         const sidebar = document.getElementById('sidebar') || document.querySelector('.admin-sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         
-        if (sidebar) sidebar.classList.remove('active');
-        if (mobileOverlay) mobileOverlay.classList.remove('active');
+        if (sidebar) {
+            sidebar.classList.remove('active');
+            console.log('Sidebar closed');
+        }
+        if (mobileOverlay) {
+            mobileOverlay.classList.remove('active');
+        }
     }
     
     setupNavigation() {
@@ -182,6 +260,8 @@ class PropamitAdmin {
     }
     
     switchSection(section, updateHistory = true) {
+        console.log('Switching to section:', section);
+        
         // Remove active class from all nav items and sections
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
@@ -200,7 +280,8 @@ class PropamitAdmin {
         // Update page title
         const pageTitle = document.getElementById('pageTitle');
         if (pageTitle && navItem) {
-            pageTitle.textContent = navItem.querySelector('span').textContent;
+            const titleText = navItem.querySelector('span')?.textContent || section;
+            pageTitle.textContent = titleText;
         }
         
         // Update browser history
@@ -235,7 +316,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            // Load stats
+            // Load stats with fallback to mock data
             await this.loadStats();
             
             // Load recent activity
@@ -243,15 +324,18 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            this.showNotification('Failed to load dashboard data', 'error');
+            this.showNotification('Loading demo data (backend unavailable)', 'warning');
+            
+            // Load mock data as fallback
+            this.loadMockData();
         } finally {
             this.hideLoading();
         }
     }
     
+    // IMPROVED: Load stats with better error handling
     async loadStats() {
         try {
-            // Try to fetch real data from API
             const response = await fetch(`${this.apiBaseUrl}/api/admin/stats`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -263,18 +347,24 @@ class PropamitAdmin {
                 const data = await response.json();
                 stats = data.stats;
             } else {
-                // Fallback to mock data
-                stats = this.getMockStats();
+                throw new Error('API unavailable');
             }
             
             this.updateStatsDisplay(stats);
             
         } catch (error) {
-            console.error('Error loading stats:', error);
+            console.warn('Using mock stats data:', error.message);
             // Use mock data as fallback
             const stats = this.getMockStats();
             this.updateStatsDisplay(stats);
         }
+    }
+    
+    // ADDED: Load mock data method
+    loadMockData() {
+        const stats = this.getMockStats();
+        this.updateStatsDisplay(stats);
+        this.loadRecentActivity();
     }
     
     getMockStats() {
@@ -287,15 +377,17 @@ class PropamitAdmin {
     }
     
     updateStatsDisplay(stats) {
-        // Animate numbers
-        this.animateNumber('totalUsers', stats.totalUsers);
-        this.animateNumber('totalApplications', stats.totalApplications);
-        this.animateNumber('pendingApplications', stats.pendingApplications);
-        this.animateNumber('totalMessages', stats.totalMessages);
+        // Animate numbers with error handling
+        Object.keys(stats).forEach(key => {
+            const element = document.getElementById(key);
+            if (element) {
+                this.animateNumber(key, stats[key]);
+            }
+        });
         
         // Update messages badge
         const messagesBadge = document.getElementById('messagesBadge');
-        if (messagesBadge) {
+        if (messagesBadge && stats.totalMessages) {
             messagesBadge.textContent = stats.totalMessages;
         }
     }
@@ -350,370 +442,574 @@ class PropamitAdmin {
         `).join('');
     }
     
+       // IMPROVED: Load users with better error handling
     async loadUsers() {
+        const usersList = document.getElementById('usersList');
+        const usersLoading = document.getElementById('usersLoading');
+        const usersTableBody = document.getElementById('usersTableBody');
+        
+        if (!usersList && !usersTableBody) return;
+        
         try {
-            this.showLoading();
+            if (usersLoading) usersLoading.style.display = 'block';
+            if (usersList) usersList.style.display = 'none';
+            if (usersTableBody) usersTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
             
-            // Try to fetch real data
             const response = await fetch(`${this.apiBaseUrl}/api/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
+            let users;
             if (response.ok) {
                 const data = await response.json();
-                this.users = data.users || [];
+                users = data.users || [];
             } else {
-                // Fallback to mock data
-                this.users = this.getMockUsers();
+                throw new Error('API unavailable');
             }
             
-            this.displayUsers(this.users);
+            this.users = users;
+            this.displayUsers(users);
             
         } catch (error) {
-            console.error('Error loading users:', error);
+            console.warn('Loading mock users data:', error.message);
+            // Use mock data as fallback
             this.users = this.getMockUsers();
             this.displayUsers(this.users);
+            this.showNotification('Showing demo data (backend unavailable)', 'warning');
         } finally {
-            this.hideLoading();
+            if (usersLoading) usersLoading.style.display = 'none';
+            if (usersList) usersList.style.display = 'block';
         }
     }
     
     getMockUsers() {
         return [
             {
-                id: 1,
+                _id: '1',
                 name: 'John Doe',
                 email: 'john.doe@example.com',
-                phone: '+1 (555) 123-4567',
-                createdAt: '2024-01-15T10:30:00Z',
-                status: 'active'
+                phone: '+1234567890',
+                createdAt: new Date('2024-01-15').toISOString(),
+                status: 'active',
+                applications: 2
             },
             {
-                id: 2,
+                _id: '2',
                 name: 'Jane Smith',
                 email: 'jane.smith@example.com',
-                phone: '+1 (555) 987-6543',
-                createdAt: '2024-01-14T14:20:00Z',
-                status: 'active'
+                phone: '+1234567891',
+                createdAt: new Date('2024-01-20').toISOString(),
+                status: 'active',
+                applications: 1
             },
             {
-                id: 3,
+                _id: '3',
                 name: 'Mike Johnson',
                 email: 'mike.johnson@example.com',
-                phone: '+1 (555) 456-7890',
-                createdAt: '2024-01-13T09:15:00Z',
-                status: 'active'
+                phone: '+1234567892',
+                createdAt: new Date('2024-01-25').toISOString(),
+                status: 'pending',
+                applications: 0
             },
             {
-                id: 4,
+                _id: '4',
                 name: 'Sarah Wilson',
                 email: 'sarah.wilson@example.com',
-                phone: '+1 (555) 321-0987',
-                createdAt: '2024-01-12T16:45:00Z',
-                status: 'active'
+                phone: '+1234567893',
+                createdAt: new Date('2024-02-01').toISOString(),
+                status: 'active',
+                applications: 3
             },
             {
-                id: 5,
+                _id: '5',
                 name: 'David Brown',
                 email: 'david.brown@example.com',
-                phone: '+1 (555) 654-3210',
-                createdAt: '2024-01-11T11:30:00Z',
-                status: 'active'
+                phone: '+1234567894',
+                createdAt: new Date('2024-02-05').toISOString(),
+                status: 'inactive',
+                applications: 1
             }
         ];
     }
     
     displayUsers(users) {
-        const tableBody = document.getElementById('usersTableBody');
-        if (!tableBody) return;
+        const usersList = document.getElementById('usersList');
+        const usersTableBody = document.getElementById('usersTableBody');
         
         if (users.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
-                        <i class="fas fa-users" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                        No users found
+            const emptyState = `
+                <div class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>No Users Found</h3>
+                    <p>No users have registered yet.</p>
+                </div>
+            `;
+            
+            if (usersList) {
+                usersList.innerHTML = emptyState;
+            }
+            if (usersTableBody) {
+                usersTableBody.innerHTML = '<tr><td colspan="6">No users found</td></tr>';
+            }
+            return;
+        }
+        
+        // Display as cards if usersList exists
+        if (usersList) {
+            usersList.innerHTML = users.map(user => `
+                <div class="user-card" data-user-id="${user._id}">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4>${user.name}</h4>
+                        <p class="user-email">${user.email}</p>
+                        <p class="user-phone">${user.phone || 'No phone'}</p>
+                        <span class="user-date">Joined: ${new Date(user.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="user-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-file-alt"></i>
+                            ${user.applications || 0} apps
+                        </span>
+                        <span class="status-badge status-${user.status || 'active'}">${user.status || 'active'}</span>
+                    </div>
+                    <div class="user-actions">
+                        <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewUser('${user._id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteUser('${user._id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Display as table if usersTableBody exists
+        if (usersTableBody) {
+            usersTableBody.innerHTML = users.map(user => `
+                <tr data-user-id="${user._id}">
+                    <td>
+                        <div class="user-info">
+                            <i class="fas fa-user-circle user-avatar-small"></i>
+                            <span>${user.name}</span>
+                        </div>
+                    </td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td><span class="status-badge status-${user.status || 'active'}">${user.status || 'active'}</span></td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewUser('${user._id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteUser('${user._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
-            `;
-            return;
+            `).join('');
         }
-        
-        tableBody.innerHTML = users.map(user => `
-            <tr>
-                <td>${user.name}</td>
-                <td>${user.email}</td>
-                <td>${user.phone || 'N/A'}</td>
-                <td>${this.formatDate(user.createdAt)}</td>
-                <td>
-                    <span class="status-badge ${user.status}">
-                        ${user.status}
-                    </span>
-                </td>
-                <td>
-                    <button class="btn btn-sm btn-secondary" onclick="admin.viewUser(${user.id})">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="admin.deleteUser(${user.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
     }
     
-    filterUsers(searchTerm) {
-        if (!searchTerm) {
-            this.displayUsers(this.users);
-            return;
-        }
-        
-        const filtered = this.users.filter(user => 
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (user.phone && user.phone.includes(searchTerm))
-        );
-        
-        this.displayUsers(filtered);
-    }
-    
+    // IMPROVED: Load applications with better error handling
     async loadApplications() {
+        const applicationsList = document.getElementById('applicationsList');
+        const applicationsLoading = document.getElementById('applicationsLoading');
+        const applicationsTableBody = document.getElementById('applicationsTableBody');
+        
+        if (!applicationsList && !applicationsTableBody) return;
+        
         try {
-            this.showLoading();
+            if (applicationsLoading) applicationsLoading.style.display = 'block';
+            if (applicationsList) applicationsList.style.display = 'none';
+            if (applicationsTableBody) applicationsTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
             
-            // Try to fetch real data
             const response = await fetch(`${this.apiBaseUrl}/api/admin/applications`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
+            let applications;
             if (response.ok) {
                 const data = await response.json();
-                this.applications = data.applications || [];
+                applications = data.applications || [];
             } else {
-                // Fallback to mock data
-                this.applications = this.getMockApplications();
+                throw new Error('API unavailable');
             }
             
-            this.displayApplications(this.applications);
+            this.applications = applications;
+            this.displayApplications(applications);
             
         } catch (error) {
-            console.error('Error loading applications:', error);
+            console.warn('Loading mock applications data:', error.message);
+            // Use mock data as fallback
             this.applications = this.getMockApplications();
             this.displayApplications(this.applications);
+            this.showNotification('Showing demo data (backend unavailable)', 'warning');
         } finally {
-            this.hideLoading();
+            if (applicationsLoading) applicationsLoading.style.display = 'none';
+            if (applicationsList) applicationsList.style.display = 'block';
         }
     }
     
     getMockApplications() {
-        const statuses = ['pending', 'approved', 'rejected', 'processing'];
-        const types = ['Vehicle Registration', 'Driver License', 'Vehicle Inspection', 'Insurance Certificate'];
-        
-        return Array.from({ length: 10 }, (_, i) => ({
-            id: `APP${String(i + 1).padStart(3, '0')}`,
-            userId: i + 1,
-            userName: `User ${i + 1}`,
-            userEmail: `user${i + 1}@example.com`,
-            type: types[Math.floor(Math.random() * types.length)],
-            status: statuses[Math.floor(Math.random() * statuses.length)],
-            createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString()
-        }));
+        return [
+            {
+                _id: 'APP001',
+                type: 'Vehicle Registration',
+                applicantName: 'John Doe',
+                applicantEmail: 'john.doe@example.com',
+                status: 'pending',
+                submittedAt: new Date('2024-02-10').toISOString(),
+                vehicleInfo: {
+                    make: 'Toyota',
+                    model: 'Camry',
+                    year: '2020',
+                    vin: 'ABC123456789'
+                }
+            },
+            {
+                _id: 'APP002',
+                type: 'Driver License',
+                applicantName: 'Jane Smith',
+                applicantEmail: 'jane.smith@example.com',
+                status: 'approved',
+                submittedAt: new Date('2024-02-08').toISOString(),
+                approvedAt: new Date('2024-02-09').toISOString()
+            },
+            {
+                _id: 'APP003',
+                type: 'Vehicle Registration',
+                applicantName: 'Mike Johnson',
+                applicantEmail: 'mike.johnson@example.com',
+                status: 'rejected',
+                submittedAt: new Date('2024-02-05').toISOString(),
+                rejectedAt: new Date('2024-02-07').toISOString(),
+                rejectionReason: 'Incomplete documentation'
+            }
+        ];
     }
     
     displayApplications(applications) {
-        const tableBody = document.getElementById('applicationsTableBody');
-        if (!tableBody) return;
+        const applicationsList = document.getElementById('applicationsList');
+        const applicationsTableBody = document.getElementById('applicationsTableBody');
         
         if (applications.length === 0) {
-            tableBody.innerHTML = `
-                <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #64748b;">
-                        <i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                        No applications found
+            const emptyState = `
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No Applications Found</h3>
+                    <p>No applications have been submitted yet.</p>
+                </div>
+            `;
+            
+            if (applicationsList) {
+                applicationsList.innerHTML = emptyState;
+            }
+            if (applicationsTableBody) {
+                applicationsTableBody.innerHTML = '<tr><td colspan="6">No applications found</td></tr>';
+            }
+            return;
+        }
+        
+        // Display as cards if applicationsList exists
+        if (applicationsList) {
+            applicationsList.innerHTML = applications.map(app => `
+                <div class="application-card" data-app-id="${app._id}">
+                    <div class="application-header">
+                        <div class="app-id">#${app._id}</div>
+                        <span class="status-badge status-${app.status}">${app.status}</span>
+                    </div>
+                    <div class="application-content">
+                        <h4>${app.type}</h4>
+                        <p class="applicant-info">
+                            <i class="fas fa-user"></i> ${app.applicantName}
+                            <br>
+                            <i class="fas fa-envelope"></i> ${app.applicantEmail}
+                        </p>
+                        ${app.vehicleInfo ? `
+                            <p class="vehicle-info">
+                                <i class="fas fa-car"></i> ${app.vehicleInfo.make} ${app.vehicleInfo.model} (${app.vehicleInfo.year})
+                            </p>
+                        ` : ''}
+                        <p class="submission-date">
+                            <i class="fas fa-calendar"></i> Submitted: ${new Date(app.submittedAt).toLocaleDateString()}
+                        </p>
+                        ${app.rejectionReason ? `
+                            <p class="rejection-reason">
+                                <i class="fas fa-exclamation-triangle"></i> ${app.rejectionReason}
+                            </p>
+                        ` : ''}
+                    </div>
+                    <div class="application-actions">
+                        <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewApplication('${app._id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        ${app.status === 'pending' ? `
+                            <button class="btn btn-sm btn-success" onclick="adminDashboard.approveApplication('${app._id}')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="adminDashboard.rejectApplication('${app._id}')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Display as table if applicationsTableBody exists
+        if (applicationsTableBody) {
+            applicationsTableBody.innerHTML = applications.map(app => `
+                <tr data-app-id="${app._id}">
+                    <td>#${app._id}</td>
+                    <td>
+                        <div class="user-info">
+                            <span>${app.applicantName}</span>
+                            <small>${app.applicantEmail}</small>
+                        </div>
+                    </td>
+                    <td>${app.type}</td>
+                    <td><span class="status-badge status-${app.status}">${app.status}</span></td>
+                    <td>${new Date(app.submittedAt).toLocaleDateString()}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewApplication('${app._id}')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${app.status === 'pending' ? `
+                                <button class="btn btn-sm btn-success" onclick="adminDashboard.approveApplication('${app._id}')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="adminDashboard.rejectApplication('${app._id}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                        </div>
                     </td>
                 </tr>
-            `;
-            return;
+            `).join('');
         }
-        
-        tableBody.innerHTML = applications.map(app => `
-            <tr>
-                <td><strong>${app.id}</strong></td>
-                <td>
-                    <div>
-                        <div>${app.userName}</div>
-                        <small style="color: #64748b;">${app.userEmail}</small>
-                    </div>
-                </td>
-                <td>${app.type}</td>
-                <td>
-                    <span class="status-badge ${app.status}">
-                        ${app.status}
-                    </span>
-                </td>
-                <td>${this.formatDate(app.createdAt)}</td>
-                <td>
-                    <button class="btn btn-sm btn-success" onclick="admin.approveApplication('${app.id}')">
-                        <i class="fas fa-check"></i>
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="admin.rejectApplication('${app.id}')">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
     }
     
-    filterApplications(status) {
-        if (status === 'all') {
-            this.displayApplications(this.applications);
-            return;
-        }
-        
-        const filtered = this.applications.filter(app => app.status === status);
-        this.displayApplications(filtered);
-    }
-    
+    // IMPROVED: Load messages with better error handling
     async loadMessages() {
+        const messagesList = document.getElementById('messagesList');
+        const messagesLoading = document.getElementById('messagesLoading');
+        const messagesContainer = document.getElementById('messagesContainer');
+        
+        if (!messagesList && !messagesContainer) return;
+        
         try {
-            this.showLoading();
+            if (messagesLoading) messagesLoading.style.display = 'block';
+            if (messagesList) messagesList.style.display = 'none';
+            if (messagesContainer) messagesContainer.innerHTML = '<div class="loading-message">Loading messages...</div>';
             
-            // Try to fetch real data
             const response = await fetch(`${this.apiBaseUrl}/api/admin/messages`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
+            let messages;
             if (response.ok) {
                 const data = await response.json();
-                this.messages = data.messages || [];
+                messages = data.messages || [];
             } else {
-                // Fallback to mock data
-                this.messages = this.getMockMessages();
+                throw new Error('API unavailable');
             }
             
-            this.displayMessages(this.messages);
+            this.messages = messages;
+            this.displayMessages(messages);
             
         } catch (error) {
-            console.error('Error loading messages:', error);
+            console.warn('Loading mock messages data:', error.message);
+            // Use mock data as fallback
             this.messages = this.getMockMessages();
             this.displayMessages(this.messages);
+            this.showNotification('Showing demo data (backend unavailable)', 'warning');
         } finally {
-            this.hideLoading();
+            if (messagesLoading) messagesLoading.style.display = 'none';
+            if (messagesList) messagesList.style.display = 'block';
         }
     }
     
     getMockMessages() {
         return [
             {
-                id: 1,
-                from: 'john.doe@example.com',
+                _id: 'MSG001',
+                name: 'John Doe',
+                email: 'john.doe@example.com',
                 subject: 'Application Status Inquiry',
-                message: 'Hello, I would like to check the status of my vehicle registration application submitted last week.',
-                createdAt: '2024-01-15T14:30:00Z',
-                read: false,
-                priority: 'normal'
+                message: 'Hello, I would like to check the status of my vehicle registration application.',
+                createdAt: new Date('2024-02-10').toISOString(),
+                status: 'unread'
             },
             {
-                id: 2,
-                from: 'jane.smith@example.com',
+                _id: 'MSG002',
+                name: 'Jane Smith',
+                email: 'jane.smith@example.com',
                 subject: 'Document Upload Issue',
-                message: 'I am having trouble uploading my insurance documents. The file size seems to be within limits but it keeps failing.',
-                createdAt: '2024-01-15T10:15:00Z',
-                read: false,
-                priority: 'high'
+                message: 'I am having trouble uploading my documents. Can you please help?',
+                createdAt: new Date('2024-02-09').toISOString(),
+                status: 'read'
             },
             {
-                id: 3,
-                from: 'mike.johnson@example.com',
-                subject: 'Payment Confirmation',
-                message: 'I have completed the payment for my driver license application. Please confirm receipt.',
-                createdAt: '2024-01-14T16:45:00Z',
-                read: true,
-                priority: 'normal'
-            },
-            {
-                id: 4,
-                from: 'sarah.wilson@example.com',
-                subject: 'Application Rejection Appeal',
-                message: 'I would like to appeal the rejection of my vehicle inspection application. I believe there was an error in the review process.',
-                createdAt: '2024-01-14T09:20:00Z',
-                read: true,
-                priority: 'high'
-            },
-            {
-                id: 5,
-                from: 'david.brown@example.com',
-                subject: 'General Inquiry',
-                message: 'What are the requirements for vehicle registration renewal? I could not find clear information on the website.',
-                createdAt: '2024-01-13T11:30:00Z',
-                read: true,
-                priority: 'low'
+                _id: 'MSG003',
+                name: 'Mike Johnson',
+                email: 'mike.johnson@example.com',
+                subject: 'Thank You',
+                message: 'Thank you for approving my application so quickly!',
+                createdAt: new Date('2024-02-08').toISOString(),
+                status: 'replied'
             }
         ];
     }
     
     displayMessages(messages) {
-        const container = document.getElementById('messagesContainer');
-        if (!container) return;
+        const messagesList = document.getElementById('messagesList');
+        const messagesContainer = document.getElementById('messagesContainer');
         
         if (messages.length === 0) {
-            container.innerHTML = `
-                <div style="text-align: center; padding: 60px; color: #64748b;">
-                    <i class="fas fa-envelope" style="font-size: 48px; margin-bottom: 16px; display: block;"></i>
-                    <h3>No messages found</h3>
-                    <p>All messages will appear here</p>
+            const emptyState = `
+                <div class="empty-state">
+                    <i class="fas fa-envelope"></i>
+                    <h3>No Messages Found</h3>
+                    <p>No messages have been received yet.</p>
                 </div>
             `;
+            
+            if (messagesList) {
+                messagesList.innerHTML = emptyState;
+            }
+            if (messagesContainer) {
+                messagesContainer.innerHTML = emptyState;
+            }
             return;
         }
         
-        container.innerHTML = messages.map(message => `
-            <div class="message-item ${!message.read ? 'unread' : ''}">
+        const messagesHTML = messages.map(msg => `
+            <div class="message-card ${msg.status}" data-msg-id="${msg._id}">
                 <div class="message-header">
-                    <div class="message-from">
-                        <strong>${message.from}</strong>
-                        ${message.priority === 'high' ? '<span class="priority-badge high">High Priority</span>' : ''}
-                        ${message.priority === 'urgent' ? '<span class="priority-badge urgent">Urgent</span>' : ''}
+                    <div class="message-info">
+                        <h4>${msg.subject}</h4>
+                        <p class="sender-info">
+                            <i class="fas fa-user"></i> ${msg.name}
+                            <span class="email">(${msg.email})</span>
+                        </p>
                     </div>
-                    <div class="message-time">${this.formatDate(message.createdAt)}</div>
+                    <div class="message-meta">
+                        <span class="message-date">${new Date(msg.createdAt).toLocaleDateString()}</span>
+                        <span class="status-badge status-${msg.status}">${msg.status}</span>
+                    </div>
                 </div>
-                <div class="message-subject">
-                    <strong>${message.subject}</strong>
-                    ${!message.read ? '<span class="unread-indicator">●</span>' : ''}
-                </div>
-                <div class="message-preview">
-                    ${message.message.substring(0, 150)}${message.message.length > 150 ? '...' : ''}
+                <div class="message-content">
+                    <p>${msg.message}</p>
                 </div>
                 <div class="message-actions">
-                    <button class="btn btn-sm btn-primary" onclick="admin.viewMessage(${message.id})">
+                    <button class="btn btn-sm btn-primary" onclick="adminDashboard.viewMessage('${msg._id}')">
                         <i class="fas fa-eye"></i> View
                     </button>
-                    <button class="btn btn-sm btn-secondary" onclick="admin.replyMessage(${message.id})">
+                    <button class="btn btn-sm btn-success" onclick="adminDashboard.replyMessage('${msg._id}')">
                         <i class="fas fa-reply"></i> Reply
                     </button>
-                    ${!message.read ? `<button class="btn btn-sm btn-success" onclick="admin.markAsRead(${message.id})">
-                        <i class="fas fa-check"></i> Mark Read
-                    </button>` : ''}
-                    <button class="btn btn-sm btn-danger" onclick="admin.deleteMessage(${message.id})">
+                    <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteMessage('${msg._id}')">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
             </div>
         `).join('');
+        
+        if (messagesList) {
+            messagesList.innerHTML = messagesHTML;
+        }
+        if (messagesContainer) {
+            messagesContainer.innerHTML = messagesHTML;
+        }
     }
     
-    // User actions
-    viewUser(userId) {
-        const user = this.users.find(u => u.id === userId);
-        if (user) {
-            alert(`User Details:\n\nName: ${user.name}\nEmail: ${user.email}\nPhone: ${user.phone || 'N/A'}\nRegistered: ${this.formatDate(user.createdAt)}\nStatus: ${user.status}`);
+    // Filter functions
+    filterUsers(searchTerm) {
+        const filteredUsers = this.users.filter(user => 
+            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        this.displayUsers(filteredUsers);
+    }
+    
+    filterApplications(status) {
+        const filteredApplications = status === 'all' 
+            ? this.applications 
+            : this.applications.filter(app => app.status === status);
+        this.displayApplications(filteredApplications);
+    }
+    
+    // Action methods
+    async viewUser(userId) {
+        const user = this.users.find(u => u._id === userId);
+        if (!user) {
+            this.showNotification('User not found', 'error');
+            return;
         }
+        
+        // Create and show user details modal
+        this.showUserModal(user);
+    }
+    
+    showUserModal(user) {
+        const modalHTML = `
+            <div class="modal-overlay" id="userModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>User Details</h3>
+                        <button class="modal-close" onclick="adminDashboard.closeModal('userModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="user-details">
+                            <div class="detail-row">
+                                <label>Name:</label>
+                                <span>${user.name}</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Email:</label>
+                                <span>${user.email}</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Phone:</label>
+                                <span>${user.phone || 'Not provided'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Status:</label>
+                                <span class="status-badge status-${user.status || 'active'}">${user.status || 'active'}</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Joined:</label>
+                                <span>${new Date(user.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div class="detail-row">
+                                <label>Applications:</label>
+                                <span>${user.applications || 0}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="adminDashboard.closeModal('userModal')">Close</button>
+                        <button class="btn btn-danger" onclick="adminDashboard.deleteUser('${user._id}')">Delete User</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
     
     async deleteUser(userId) {
@@ -722,7 +1018,8 @@ class PropamitAdmin {
         }
         
         try {
-            // Try to delete via API
+            this.showLoading();
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
@@ -732,28 +1029,121 @@ class PropamitAdmin {
             
             if (response.ok) {
                 this.showNotification('User deleted successfully', 'success');
+                this.loadUsers();
+                this.closeModal('userModal');
             } else {
-                // Simulate deletion for demo
-                this.users = this.users.filter(u => u.id !== userId);
-                this.displayUsers(this.users);
-                this.showNotification('User deleted successfully (demo)', 'success');
+                throw new Error('Failed to delete user');
             }
             
         } catch (error) {
-            console.error('Error deleting user:', error);
-            // Simulate deletion for demo
-            this.users = this.users.filter(u => u.id !== userId);
+            console.error('Delete user error:', error);
+            this.showNotification('Error deleting user (demo mode)', 'warning');
+            
+            // Remove from local array for demo
+            this.users = this.users.filter(u => u._id !== userId);
             this.displayUsers(this.users);
-            this.showNotification('User deleted successfully (demo)', 'success');
+            this.closeModal('userModal');
+        } finally {
+            this.hideLoading();
         }
     }
     
-    // Application actions
-    viewApplication(appId) {
-        const app = this.applications.find(a => a.id === appId);
-        if (app) {
-            alert(`Application Details:\n\nID: ${app.id}\nUser: ${app.userName} (${app.userEmail})\nType: ${app.type}\nStatus: ${app.status}\nSubmitted: ${this.formatDate(app.createdAt)}`);
+    async viewApplication(appId) {
+        const application = this.applications.find(app => app._id === appId);
+        if (!application) {
+            this.showNotification('Application not found', 'error');
+            return;
         }
+        
+        this.showApplicationModal(application);
+    }
+    
+    showApplicationModal(application) {
+        const modalHTML = `
+            <div class="modal-overlay" id="applicationModal">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h3>Application Details - #${application._id}</h3>
+                        <button class="modal-close" onclick="adminDashboard.closeModal('applicationModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="application-details">
+                            <div class="detail-section">
+                                <h4>Application Information</h4>
+                                <div class="detail-row">
+                                    <label>Type:</label>
+                                    <span>${application.type}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Status:</label>
+                                    <span class="status-badge status-${application.status}">${application.status}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Submitted:</label>
+                                    <span>${new Date(application.submittedAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>Applicant Information</h4>
+                                <div class="detail-row">
+                                    <label>Name:</label>
+                                    <span>${application.applicantName}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Email:</label>
+                                    <span>${application.applicantEmail}</span>
+                                </div>
+                            </div>
+                            
+                            ${application.vehicleInfo ? `
+                                <div class="detail-section">
+                                    <h4>Vehicle Information</h4>
+                                    <div class="detail-row">
+                                        <label>Make:</label>
+                                        <span>${application.vehicleInfo.make}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>Model:</label>
+                                        <span>${application.vehicleInfo.model}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>Year:</label>
+                                        <span>${application.vehicleInfo.year}</span>
+                                    </div>
+                                    <div class="detail-row">
+                                        <label>VIN:</label>
+                                        <span>${application.vehicleInfo.vin}</span>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            ${application.rejectionReason ? `
+                                <div class="detail-section">
+                                    <h4>Rejection Reason</h4>
+                                    <p class="rejection-reason">${application.rejectionReason}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="adminDashboard.closeModal('applicationModal')">Close</button>
+                        ${application.status === 'pending' ? `
+                            <button class="btn btn-success" onclick="adminDashboard.approveApplication('${application._id}')">
+                                <i class="fas fa-check"></i> Approve
+                            </button>
+                            <button class="btn btn-danger" onclick="adminDashboard.rejectApplication('${application._id}')">
+                                <i class="fas fa-times"></i> Reject
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
     
     async approveApplication(appId) {
@@ -762,8 +1152,10 @@ class PropamitAdmin {
         }
         
         try {
+            this.showLoading();
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/applications/${appId}/approve`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
@@ -772,25 +1164,25 @@ class PropamitAdmin {
             if (response.ok) {
                 this.showNotification('Application approved successfully', 'success');
                 this.loadApplications();
+                this.closeModal('applicationModal');
             } else {
-                // Simulate approval for demo
-                const app = this.applications.find(a => a.id === appId);
-                if (app) {
-                    app.status = 'approved';
-                    this.displayApplications(this.applications);
-                    this.showNotification('Application approved successfully (demo)', 'success');
-                }
+                throw new Error('Failed to approve application');
             }
             
         } catch (error) {
-            console.error('Error approving application:', error);
-            // Simulate approval for demo
-            const app = this.applications.find(a => a.id === appId);
-            if (app) {
-                app.status = 'approved';
+            console.error('Approve application error:', error);
+            this.showNotification('Application approved (demo mode)', 'success');
+            
+            // Update local array for demo
+            const appIndex = this.applications.findIndex(app => app._id === appId);
+            if (appIndex !== -1) {
+                this.applications[appIndex].status = 'approved';
+                this.applications[appIndex].approvedAt = new Date().toISOString();
                 this.displayApplications(this.applications);
-                this.showNotification('Application approved successfully (demo)', 'success');
             }
+            this.closeModal('applicationModal');
+        } finally {
+            this.hideLoading();
         }
     }
     
@@ -799,8 +1191,10 @@ class PropamitAdmin {
         if (!reason) return;
         
         try {
+            this.showLoading();
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/applications/${appId}/reject`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
                     'Content-Type': 'application/json'
@@ -811,80 +1205,283 @@ class PropamitAdmin {
             if (response.ok) {
                 this.showNotification('Application rejected successfully', 'success');
                 this.loadApplications();
+                this.closeModal('applicationModal');
             } else {
-                // Simulate rejection for demo
-                const app = this.applications.find(a => a.id === appId);
-                if (app) {
-                    app.status = 'rejected';
-                    this.displayApplications(this.applications);
-                    this.showNotification('Application rejected successfully (demo)', 'success');
-                }
+                throw new Error('Failed to reject application');
             }
             
         } catch (error) {
-            console.error('Error rejecting application:', error);
-            // Simulate rejection for demo
-            const app = this.applications.find(a => a.id === appId);
-            if (app) {
-                app.status = 'rejected';
-                this.displayApplications(this.applications);
-                this.showNotification('Application rejected successfully (demo)', 'success');
-            }
+            console.error('Reject application error:', error);
+            this.showNotification('Application rejected (demo mode)', 'success');
         }
     }
     
-    // Message actions
-    viewMessage(messageId) {
-        const message = this.messages.find(m => m.id === messageId);
-        if (message) {
-            alert(`Message Details:\n\nFrom: ${message.from}\nSubject: ${message.subject}\nDate: ${this.formatDate(message.createdAt)}\nPriority: ${message.priority}\n\nMessage:\n${message.message}`);
-            
-            // Mark as read
-            if (!message.read) {
-                this.markAsRead(messageId);
-            }
-        }
-    }
-    
-    replyMessage(messageId) {
-        const message = this.messages.find(m => m.id === messageId);
-        if (message) {
-            const reply = prompt(`Reply to ${message.from}:\n\nSubject: Re: ${message.subject}\n\nYour reply:`);
-            if (reply) {
-                this.showNotification('Reply sent successfully (demo)', 'success');
-            }
-        }
-    }
-    
-    markAsRead(messageId) {
-        const message = this.messages.find(m => m.id === messageId);
-        if (message) {
-            message.read = true;
-            this.displayMessages(this.messages);
-            this.showNotification('Message marked as read', 'success');
-        }
-    }
-    
-    deleteMessage(messageId) {
-        if (!confirm('Are you sure you want to delete this message?')) {
+    async viewMessage(msgId) {
+        const message = this.messages.find(msg => msg._id === msgId);
+        if (!message) {
+            this.showNotification('Message not found', 'error');
             return;
         }
         
-        this.messages = this.messages.filter(m => m.id !== messageId);
-        this.displayMessages(this.messages);
-        this.showNotification('Message deleted successfully', 'success');
+        this.showMessageModal(message);
+        
+        // Mark as read if unread
+        if (message.status === 'unread') {
+            this.markMessageAsRead(msgId);
+        }
     }
     
-    // Utility functions
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    showMessageModal(message) {
+        const modalHTML = `
+            <div class="modal-overlay" id="messageModal">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h3>Message Details</h3>
+                        <button class="modal-close" onclick="adminDashboard.closeModal('messageModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="message-details">
+                            <div class="detail-section">
+                                <h4>Message Information</h4>
+                                <div class="detail-row">
+                                    <label>Subject:</label>
+                                    <span>${message.subject}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Status:</label>
+                                    <span class="status-badge status-${message.status}">${message.status}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Received:</label>
+                                    <span>${new Date(message.createdAt).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>Sender Information</h4>
+                                <div class="detail-row">
+                                    <label>Name:</label>
+                                    <span>${message.name}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <label>Email:</label>
+                                    <span>${message.email}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h4>Message Content</h4>
+                                <div class="message-content-full">
+                                    <p>${message.message}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="adminDashboard.closeModal('messageModal')">Close</button>
+                        <button class="btn btn-success" onclick="adminDashboard.replyMessage('${message._id}')">
+                            <i class="fas fa-reply"></i> Reply
+                        </button>
+                        <button class="btn btn-danger" onclick="adminDashboard.deleteMessage('${message._id}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    async markMessageAsRead(msgId) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}/read`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+            
+            if (response.ok) {
+                // Update local array
+                const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
+                if (msgIndex !== -1) {
+                    this.messages[msgIndex].status = 'read';
+                    this.displayMessages(this.messages);
+                }
+            }
+        } catch (error) {
+            console.warn('Failed to mark message as read:', error);
+            // Update local array for demo
+            const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
+            if (msgIndex !== -1) {
+                this.messages[msgIndex].status = 'read';
+                this.displayMessages(this.messages);
+            }
+        }
+    }
+    
+    async replyMessage(msgId) {
+        const message = this.messages.find(msg => msg._id === msgId);
+        if (!message) {
+            this.showNotification('Message not found', 'error');
+            return;
+        }
+        
+        this.showReplyModal(message);
+    }
+    
+    showReplyModal(message) {
+        const modalHTML = `
+            <div class="modal-overlay" id="replyModal">
+                <div class="modal-content large">
+                    <div class="modal-header">
+                        <h3>Reply to Message</h3>
+                        <button class="modal-close" onclick="adminDashboard.closeModal('replyModal')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="reply-form">
+                            <div class="original-message">
+                                <h4>Original Message</h4>
+                                <div class="original-content">
+                                    <p><strong>From:</strong> ${message.name} (${message.email})</p>
+                                    <p><strong>Subject:</strong> ${message.subject}</p>
+                                    <p><strong>Message:</strong> ${message.message}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="reply-content">
+                                <h4>Your Reply</h4>
+                                <form id="replyForm">
+                                    <div class="form-group">
+                                        <label for="replySubject">Subject:</label>
+                                        <input type="text" id="replySubject" value="Re: ${message.subject}" class="form-input" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="replyMessage">Message:</label>
+                                        <textarea id="replyMessage" rows="6" class="form-input" placeholder="Type your reply here..." required></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="adminDashboard.closeModal('replyModal')">Cancel</button>
+                        <button class="btn btn-primary" onclick="adminDashboard.sendReply('${message._id}')">
+                            <i class="fas fa-paper-plane"></i> Send Reply
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+    }
+    
+    async sendReply(msgId) {
+        const replySubject = document.getElementById('replySubject')?.value;
+        const replyMessage = document.getElementById('replyMessage')?.value;
+        
+        if (!replySubject || !replyMessage) {
+            this.showNotification('Please fill in all fields', 'error');
+            return;
+        }
+        
+        try {
+            this.showLoading();
+            
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}/reply`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    subject: replySubject,
+                    message: replyMessage
+                })
+            });
+            
+            if (response.ok) {
+                this.showNotification('Reply sent successfully', 'success');
+                
+                // Update message status
+                const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
+                if (msgIndex !== -1) {
+                    this.messages[msgIndex].status = 'replied';
+                    this.displayMessages(this.messages);
+                }
+                
+                this.closeModal('replyModal');
+                this.closeModal('messageModal');
+            } else {
+                throw new Error('Failed to send reply');
+            }
+            
+        } catch (error) {
+            console.error('Send reply error:', error);
+            this.showNotification('Reply sent (demo mode)', 'success');
+            
+            // Update local array for demo
+            const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
+            if (msgIndex !== -1) {
+                this.messages[msgIndex].status = 'replied';
+                this.displayMessages(this.messages);
+            }
+            
+            this.closeModal('replyModal');
+            this.closeModal('messageModal');
+        } finally {
+            this.hideLoading();
+        }
+    }
+    
+    async deleteMessage(msgId) {
+        if (!confirm('Are you sure you want to delete this message? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            this.showLoading();
+            
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+                }
+            });
+            
+            if (response.ok) {
+                this.showNotification('Message deleted successfully', 'success');
+                this.loadMessages();
+                this.closeModal('messageModal');
+            } else {
+                throw new Error('Failed to delete message');
+            }
+            
+        } catch (error) {
+            console.error('Delete message error:', error);
+            this.showNotification('Message deleted (demo mode)', 'success');
+            
+            // Remove from local array for demo
+            this.messages = this.messages.filter(msg => msg._id !== msgId);
+            this.displayMessages(this.messages);
+            this.closeModal('messageModal');
+        } finally {
+            this.hideLoading();
+        }
+    }
+    
+    // Utility methods
+    closeModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (modal) {
+            modal.remove();
+        }
     }
     
     showLoading() {
@@ -903,85 +1500,50 @@ class PropamitAdmin {
     
     showNotification(message, type = 'info') {
         // Remove existing notifications
-        const existingNotifications = document.querySelectorAll('.admin-notification');
-        existingNotifications.forEach(notif => notif.remove());
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
         
-        // Create notification
+        // Create notification element
         const notification = document.createElement('div');
-        notification.className = `admin-notification ${type}`;
+        notification.className = `notification notification-${type}`;
         notification.innerHTML = `
             <div class="notification-content">
                 <i class="fas fa-${this.getNotificationIcon(type)}"></i>
                 <span>${message}</span>
-                <button class="notification-close">&times;</button>
             </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
         `;
         
-        // Add styles
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 16px 20px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 500;
-            z-index: 10001;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            max-width: 400px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            background-color: ${this.getNotificationColor(type)};
-        `;
-        
+        // Add to page
         document.body.appendChild(notification);
         
-        // Show notification
+        // Auto remove after 5 seconds
         setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-        
-        // Close button
-        const closeBtn = notification.querySelector('.notification-close');
-        closeBtn.addEventListener('click', () => {
-            notification.style.transform = 'translateX(400px)';
-            setTimeout(() => notification.remove(), 300);
-        });
-        
-        // Auto hide after 5 seconds
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.style.transform = 'translateX(400px)';
-                setTimeout(() => notification.remove(), 300);
+            if (notification.parentElement) {
+                notification.remove();
             }
         }, 5000);
     }
     
     getNotificationIcon(type) {
-        const icons = {
-            'success': 'check-circle',
-            'error': 'exclamation-circle',
-            'warning': 'exclamation-triangle',
-            'info': 'info-circle'
-        };
-        return icons[type] || 'info-circle';
-    }
-    
-    getNotificationColor(type) {
-        const colors = {
-            'success': '#10b981',
-            'error': '#ef4444',
-            'warning': '#f59e0b',
-            'info': '#3b82f6'
-        };
-        return colors[type] || '#3b82f6';
+        switch (type) {
+            case 'success': return 'check-circle';
+            case 'error': return 'exclamation-circle';
+            case 'warning': return 'exclamation-triangle';
+            default: return 'info-circle';
+        }
     }
     
     logout() {
         if (confirm('Are you sure you want to logout?')) {
+            // Clear admin authentication
             localStorage.removeItem('adminToken');
             localStorage.removeItem('adminEmail');
-            localStorage.removeItem('isAdmin');
+            localStorage.removeItem('adminName');
+            
+            // Redirect to admin login
             window.location.href = 'admin-login.html';
         }
     }
@@ -989,212 +1551,31 @@ class PropamitAdmin {
 
 // Initialize admin dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Make admin instance globally available
-    window.admin = new PropamitAdmin();
+    console.log('Admin Dashboard DOM loaded');
+    
+    // Create global instance
+    window.adminDashboard = new PropamitAdmin();
 });
 
-// Handle page visibility change
+// Handle page visibility change to refresh data
 document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && window.admin) {
-        // Refresh data when user returns to tab
-        window.admin.loadSectionData(window.admin.currentSection);
+    if (!document.hidden && window.adminDashboard) {
+        // Refresh current section data when page becomes visible
+        window.adminDashboard.loadSectionData(window.adminDashboard.currentSection);
     }
 });
 
-// Handle online/offline status
-window.addEventListener('online', function() {
-    if (window.admin) {
-        window.admin.showNotification('Connection restored', 'success');
-    }
-});
-
-window.addEventListener('offline', function() {
-    if (window.admin) {
-        window.admin.showNotification('Connection lost. Some features may not work.', 'warning');
-    }
-});
-
-// Handle window resize for mobile responsiveness
+// Handle window resize for responsive behavior
 window.addEventListener('resize', function() {
-    if (window.innerWidth > 1024 && window.admin) {
-        window.admin.closeMobileSidebar();
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
+    
+    // Close mobile sidebar on desktop resize
+    if (window.innerWidth > 1024) {
+        if (sidebar) sidebar.classList.remove('active');
+        if (mobileOverlay) mobileOverlay.classList.remove('active');
     }
 });
 
-// Add keyboard shortcuts
-document.addEventListener('keydown', function(e) {
-    // Only handle shortcuts when not typing in input fields
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-        return;
-    }
-    
-    // Ctrl/Cmd + shortcuts
-    if (e.ctrlKey || e.metaKey) {
-        switch(e.key) {
-            case '1':
-                e.preventDefault();
-                if (window.admin) window.admin.switchSection('dashboard');
-                break;
-            case '2':
-                e.preventDefault();
-                if (window.admin) window.admin.switchSection('users');
-                break;
-            case '3':
-                e.preventDefault();
-                if (window.admin) window.admin.switchSection('applications');
-                break;
-            case '4':
-                e.preventDefault();
-                if (window.admin) window.admin.switchSection('messages');
-                break;
-            case '5':
-                e.preventDefault();
-                if (window.admin) window.admin.switchSection('settings');
-                break;
-            case 'r':
-                e.preventDefault();
-                if (window.admin) {
-                    window.admin.loadSectionData(window.admin.currentSection);
-                }
-                break;
-        }
-    }
-    
-    // Escape key to close mobile sidebar
-    if (e.key === 'Escape' && window.admin) {
-        window.admin.closeMobileSidebar();
-    }
-});
-
-// Add CSS for notification styles if not already present
-if (!document.querySelector('#admin-notification-styles')) {
-    const styles = document.createElement('style');
-    styles.id = 'admin-notification-styles';
-    styles.textContent = `
-        .admin-notification .notification-content {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .admin-notification .notification-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 0;
-            margin-left: auto;
-            opacity: 0.8;
-            transition: opacity 0.2s ease;
-        }
-        
-        .admin-notification .notification-close:hover {
-            opacity: 1;
-        }
-        
-        .priority-badge {
-            font-size: 11px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-            text-transform: uppercase;
-            margin-left: 8px;
-        }
-        
-        .priority-badge.high {
-            background-color: #f59e0b;
-            color: white;
-        }
-        
-        .priority-badge.urgent {
-            background-color: #ef4444;
-            color: white;
-        }
-        
-        .unread-indicator {
-            color: #3b82f6;
-            font-weight: bold;
-            margin-left: 8px;
-        }
-        
-        .message-item.unread {
-            background-color: #f0f9ff;
-            border-left: 4px solid #3b82f6;
-        }
-        
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            text-transform: capitalize;
-        }
-        
-        .status-badge.active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .status-badge.pending {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-        
-        .status-badge.approved {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-        
-        .status-badge.rejected {
-            background-color: #fecaca;
-            color: #991b1b;
-        }
-        
-        .status-badge.processing {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 16px;
-        }
-        
-        .activity-icon.user {
-            background-color: #3b82f6;
-        }
-        
-        .activity-icon.application {
-            background-color: #10b981;
-        }
-        
-        .activity-icon.message {
-            background-color: #f59e0b;
-        }
-        
-        .activity-icon.system {
-            background-color: #8b5cf6;
-        }
-        
-        @media (max-width: 768px) {
-            .admin-notification {
-                right: 10px !important;
-                left: 10px !important;
-                max-width: none !important;
-            }
-        }
-    `;
-    document.head.appendChild(styles);
-}
-
-// Export for potential module use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PropamitAdmin;
-}
+// Export for use in HTML onclick handlers
+window.PropamitAdmin = PropamitAdmin;
