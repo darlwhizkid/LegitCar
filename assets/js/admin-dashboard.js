@@ -30,7 +30,7 @@ class PropamitAdmin {
     }
     
     setupEventListeners() {
-        // FIXED: Navigation with better error handling
+        // Navigation with better error handling
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -51,34 +51,44 @@ class PropamitAdmin {
         const sidebar = document.getElementById('sidebar') || document.querySelector('.admin-sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         
-        if (sidebarToggle && sidebar) {
+        if (sidebarToggle) {
             sidebarToggle.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Sidebar toggle clicked');
                 
-                sidebar.classList.toggle('active');
-                if (mobileOverlay) {
-                    mobileOverlay.classList.toggle('active');
+                if (sidebar) {
+                    const isActive = sidebar.classList.contains('active');
+                    
+                    if (isActive) {
+                        sidebar.classList.remove('active');
+                        if (mobileOverlay) mobileOverlay.classList.remove('active');
+                    } else {
+                        sidebar.classList.add('active');
+                        if (mobileOverlay) mobileOverlay.classList.add('active');
+                    }
+                    
+                    console.log('Sidebar toggled:', !isActive ? 'opened' : 'closed');
                 }
             });
         } else {
-            console.warn('Sidebar toggle or sidebar element not found');
+            console.warn('Sidebar toggle button not found');
         }
         
-        // FIXED: Close sidebar when clicking overlay
-        if (mobileOverlay && sidebar) {
+        // Close sidebar when clicking overlay
+        if (mobileOverlay) {
             mobileOverlay.addEventListener('click', () => {
                 this.closeMobileSidebar();
             });
         }
         
-        // FIXED: Close sidebar when clicking outside (desktop)
+        // Close sidebar when clicking outside (mobile only)
         document.addEventListener('click', (e) => {
-            if (sidebar && !sidebar.contains(e.target) && 
+            if (window.innerWidth <= 1024 && sidebar && 
+                !sidebar.contains(e.target) && 
                 !sidebarToggle?.contains(e.target) && 
-                window.innerWidth > 1024) {
-                sidebar.classList.remove('active');
+                sidebar.classList.contains('active')) {
+                this.closeMobileSidebar();
             }
         });
         
@@ -333,30 +343,93 @@ class PropamitAdmin {
         }
     }
     
-    // IMPROVED: Load stats with better error handling
+    // IMPROVED: Load real stats from MongoDB
     async loadStats() {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/stats`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
-                }
-            });
+            console.log('Loading real stats from MongoDB...');
             
-            let stats;
-            if (response.ok) {
-                const data = await response.json();
-                stats = data.stats;
-            } else {
-                throw new Error('API unavailable');
+            // Try multiple endpoints for better data
+            const endpoints = [
+                '/api/admin/stats',
+                '/api/admin/dashboard-stats',
+                '/api/stats'
+            ];
+            
+            let stats = null;
+            
+            for (const endpoint of endpoints) {
+                try {
+                    const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        stats = data.stats || data;
+                        console.log('Real stats loaded:', stats);
+                        break;
+                    }
+                } catch (error) {
+                    console.warn(`Failed to load from ${endpoint}:`, error.message);
+                    continue;
+                }
+            }
+            
+            // If no real data, try direct MongoDB query
+            if (!stats) {
+                stats = await this.getDirectMongoStats();
+            }
+            
+            // Fallback to mock data if all else fails
+            if (!stats) {
+                console.warn('Using mock stats data - API unavailable');
+                stats = this.getMockStats();
+                this.showNotification('Using demo data - backend unavailable', 'warning');
             }
             
             this.updateStatsDisplay(stats);
             
         } catch (error) {
-            console.warn('Using mock stats data:', error.message);
-            // Use mock data as fallback
+            console.error('Error loading stats:', error);
             const stats = this.getMockStats();
             this.updateStatsDisplay(stats);
+            this.showNotification('Using demo data due to connection error', 'warning');
+        }
+    }
+    
+    // NEW: Direct MongoDB stats query
+    async getDirectMongoStats() {
+        try {
+            console.log('Attempting direct MongoDB connection...');
+            
+            // This would require a backend endpoint that directly queries MongoDB
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/direct-stats`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mongoUri: this.mongoConnection,
+                    database: 'LegitCar'
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Direct MongoDB stats:', data);
+                return data.stats;
+            }
+            
+            return null;
+        } catch (error) {
+            console.warn('Direct MongoDB query failed:', error);
+            return null;
         }
     }
     
@@ -367,12 +440,19 @@ class PropamitAdmin {
         this.loadRecentActivity();
     }
     
+    // IMPROVED: More realistic mock data
     getMockStats() {
+        // Generate more realistic numbers
+        const baseUsers = 15;
+        const baseApps = 8;
+        const basePending = 3;
+        const baseMessages = 5;
+        
         return {
-            totalUsers: Math.floor(Math.random() * 100) + 25,
-            totalApplications: Math.floor(Math.random() * 200) + 50,
-            pendingApplications: Math.floor(Math.random() * 30) + 10,
-            totalMessages: Math.floor(Math.random() * 50) + 15
+            totalUsers: baseUsers + Math.floor(Math.random() * 10),
+            totalApplications: baseApps + Math.floor(Math.random() * 15),
+            pendingApplications: basePending + Math.floor(Math.random() * 5),
+            totalMessages: baseMessages + Math.floor(Math.random() * 8)
         };
     }
     
@@ -1554,28 +1634,4 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Admin Dashboard DOM loaded');
     
     // Create global instance
-    window.adminDashboard = new PropamitAdmin();
-});
-
-// Handle page visibility change to refresh data
-document.addEventListener('visibilitychange', function() {
-    if (!document.hidden && window.adminDashboard) {
-        // Refresh current section data when page becomes visible
-        window.adminDashboard.loadSectionData(window.adminDashboard.currentSection);
-    }
-});
-
-// Handle window resize for responsive behavior
-window.addEventListener('resize', function() {
-    const sidebar = document.getElementById('sidebar');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    
-    // Close mobile sidebar on desktop resize
-    if (window.innerWidth > 1024) {
-        if (sidebar) sidebar.classList.remove('active');
-        if (mobileOverlay) mobileOverlay.classList.remove('active');
-    }
-});
-
-// Export for use in HTML onclick handlers
-window.PropamitAdmin = PropamitAdmin;
+    window.adminDashboard = new PropamitAdmin

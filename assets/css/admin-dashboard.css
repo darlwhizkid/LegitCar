@@ -228,8 +228,9 @@ body {
   align-items: center;
 }
 
+/* Sidebar Toggle - FIXED */
 .sidebar-toggle {
-  display: none;
+  display: none; /* Hidden on desktop by default */
   background: none;
   border: none;
   font-size: 20px;
@@ -238,10 +239,44 @@ body {
   margin-right: 16px;
   padding: 8px;
   border-radius: 6px;
+  transition: background-color 0.2s ease;
 }
 
 .sidebar-toggle:hover {
   background: var(--gray-100);
+}
+
+.sidebar-toggle:focus {
+  outline: none;
+  background: var(--gray-200);
+}
+
+/* Show hamburger only on mobile/tablet */
+@media (max-width: 1024px) {
+  .sidebar-toggle {
+    display: block !important;
+  }
+  
+  .admin-sidebar {
+    transform: translateX(-100%);
+  }
+  
+  .admin-sidebar.active {
+    transform: translateX(0);
+  }
+  
+  .admin-main {
+    margin-left: 0;
+  }
+}
+
+/* Mobile specific */
+@media (max-width: 768px) {
+  .sidebar-toggle {
+    display: block !important;
+    font-size: 18px;
+    padding: 6px;
+  }
 }
 
 #pageTitle {
