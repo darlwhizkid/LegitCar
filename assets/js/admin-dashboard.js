@@ -384,7 +384,15 @@ class PropamitAdmin {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // If API fails, show zeros instead of error
+                const emptyStats = {
+                    totalUsers: 0,
+                    totalApplications: 0,
+                    pendingApplications: 0,
+                    totalMessages: 0
+                };
+                this.updateStatsDisplay(emptyStats);
+                return;
             }
             
             const data = await response.json();
@@ -395,7 +403,14 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading stats:', error);
-            this.showNotification('Error loading statistics', 'error');
+            // Show zeros instead of error
+            const emptyStats = {
+                totalUsers: 0,
+                totalApplications: 0,
+                pendingApplications: 0,
+                totalMessages: 0
+            };
+            this.updateStatsDisplay(emptyStats);
         }
     }
     
@@ -451,7 +466,9 @@ class PropamitAdmin {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // If API fails, show empty state instead of error
+                this.displayRecentActivity([]);
+                return;
             }
             
             const data = await response.json();
@@ -461,7 +478,8 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading recent activity:', error);
-            this.showNotification('Error loading recent activity', 'error');
+            // Show empty state instead of error message
+            this.displayRecentActivity([]);
         }
     }
     
@@ -515,7 +533,10 @@ class PropamitAdmin {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // If API fails, show empty state
+                this.users = [];
+                this.displayUsers([]);
+                return;
             }
             
             const data = await response.json();
@@ -526,21 +547,9 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading users:', error);
-            this.showNotification('Error loading users', 'error');
-            
-            // Show error state
-            if (usersTableBody) {
-                usersTableBody.innerHTML = '<tr><td colspan="6">Error loading users</td></tr>';
-            }
-            if (usersList) {
-                usersList.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Error Loading Users</h3>
-                        <p>Unable to load users data.</p>
-                    </div>
-                `;
-            }
+            // Show empty state instead of error
+            this.users = [];
+            this.displayUsers([]);
         } finally {
             if (usersLoading) usersLoading.style.display = 'none';
             if (usersList) usersList.style.display = 'block';
@@ -650,7 +659,10 @@ class PropamitAdmin {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // If API fails, show empty state
+                this.applications = [];
+                this.displayApplications([]);
+                return;
             }
             
             const data = await response.json();
@@ -661,21 +673,9 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading applications:', error);
-            this.showNotification('Error loading applications', 'error');
-            
-            // Show error state
-            if (applicationsTableBody) {
-                applicationsTableBody.innerHTML = '<tr><td colspan="6">Error loading applications</td></tr>';
-            }
-            if (applicationsList) {
-                applicationsList.innerHTML = `
-                    <div class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Error Loading Applications</h3>
-                        <p>Unable to load applications data.</p>
-                    </div>
-                `;
-            }
+            // Show empty state instead of error
+            this.applications = [];
+            this.displayApplications([]);
         } finally {
             if (applicationsLoading) applicationsLoading.style.display = 'none';
             if (applicationsList) applicationsList.style.display = 'block';
@@ -805,7 +805,10 @@ class PropamitAdmin {
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                // If API fails, show empty state
+                this.messages = [];
+                this.displayMessages([]);
+                return;
             }
             
             const data = await response.json();
@@ -816,23 +819,9 @@ class PropamitAdmin {
             
         } catch (error) {
             console.error('Error loading messages:', error);
-            this.showNotification('Error loading messages', 'error');
-            
-            // Show error state
-            const errorState = `
-                <div class="error-state">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h3>Error Loading Messages</h3>
-                    <p>Unable to load messages data.</p>
-                </div>
-            `;
-            
-            if (messagesList) {
-                messagesList.innerHTML = errorState;
-            }
-            if (messagesContainer) {
-                messagesContainer.innerHTML = errorState;
-            }
+            // Show empty state instead of error
+            this.messages = [];
+            this.displayMessages([]);
         } finally {
             if (messagesLoading) messagesLoading.style.display = 'none';
             if (messagesList) messagesList.style.display = 'block';
