@@ -20,6 +20,7 @@ class PropamitAdmin {
             return;
         }
         
+        this.debugElements();
         this.setupEventListeners();
         this.setupNavigation();
         await this.loadDashboardData();
@@ -28,13 +29,23 @@ class PropamitAdmin {
     isAdminAuthenticated() {
         return localStorage.getItem('adminToken') !== null;
     }
-    
     setupEventListeners() {
-        // Navigation with better error handling
-        document.querySelectorAll('.nav-item').forEach(item => {
+        console.log('Setting up event listeners...');
+        
+        // Navigation with proper event handling
+        const navItems = document.querySelectorAll('.nav-item');
+        console.log('Found nav items:', navItems.length);
+        
+        navItems.forEach((item, index) => {
+            console.log(`Setting up nav item ${index}:`, item.dataset.section);
+            
             item.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                
                 const section = item.dataset.section;
+                console.log('Nav item clicked:', section);
+                
                 if (section) {
                     this.switchSection(section);
                 }
@@ -46,69 +57,61 @@ class PropamitAdmin {
             });
         });
         
-        // FIXED: Sidebar toggle with better mobile support
+        // Sidebar toggle
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar') || document.querySelector('.admin-sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
         
-        if (sidebarToggle) {
+        console.log('Sidebar elements:', { sidebarToggle, sidebar, mobileOverlay });
+        
+        if (sidebarToggle && sidebar) {
             sidebarToggle.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 console.log('Sidebar toggle clicked');
                 
-                if (sidebar) {
-                    const isActive = sidebar.classList.contains('active');
-                    
-                    if (isActive) {
-                        sidebar.classList.remove('active');
-                        if (mobileOverlay) mobileOverlay.classList.remove('active');
-                    } else {
-                        sidebar.classList.add('active');
-                        if (mobileOverlay) mobileOverlay.classList.add('active');
-                    }
-                    
-                    console.log('Sidebar toggled:', !isActive ? 'opened' : 'closed');
+                const isActive = sidebar.classList.contains('active');
+                
+                if (isActive) {
+                    sidebar.classList.remove('active');
+                    if (mobileOverlay) mobileOverlay.classList.remove('active');
+                    console.log('Sidebar closed');
+                } else {
+                    sidebar.classList.add('active');
+                    if (mobileOverlay) mobileOverlay.classList.add('active');
+                    console.log('Sidebar opened');
                 }
             });
-        } else {
-            console.warn('Sidebar toggle button not found');
         }
         
         // Close sidebar when clicking overlay
-        if (mobileOverlay) {
+        if (mobileOverlay && sidebar) {
             mobileOverlay.addEventListener('click', () => {
+                console.log('Overlay clicked - closing sidebar');
                 this.closeMobileSidebar();
             });
         }
-        
-        // Close sidebar when clicking outside (mobile only)
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 1024 && sidebar && 
-                !sidebar.contains(e.target) && 
-                !sidebarToggle?.contains(e.target) && 
-                sidebar.classList.contains('active')) {
-                this.closeMobileSidebar();
-            }
-        });
-        
-        // FIXED: Logout functionality
-        const logoutBtns = [
-            document.getElementById('adminLogout'),
-            document.getElementById('logoutBtn'),
-            document.getElementById('headerLogoutBtn')
+        // Logout functionality - Multiple selectors
+        const logoutSelectors = [
+            '#adminLogout',
+            '#logoutBtn', 
+            '#headerLogoutBtn',
+            '.admin-logout-btn'
         ];
         
-        logoutBtns.forEach(btn => {
-            if (btn) {
-                btn.addEventListener('click', (e) => {
+        logoutSelectors.forEach(selector => {
+            const logoutBtn = document.querySelector(selector);
+            if (logoutBtn) {
+                console.log('Setting up logout for:', selector);
+                logoutBtn.addEventListener('click', (e) => {
                     e.preventDefault();
+                    console.log('Logout clicked');
                     this.logout();
                 });
             }
         });
         
-        // FIXED: Refresh buttons with error handling
+        // Refresh buttons
         const refreshButtons = [
             { id: 'refreshUsers', action: () => this.loadUsers() },
             { id: 'refreshApplications', action: () => this.loadApplications() },
@@ -118,11 +121,15 @@ class PropamitAdmin {
         refreshButtons.forEach(({ id, action }) => {
             const btn = document.getElementById(id);
             if (btn) {
-                btn.addEventListener('click', action);
+                console.log('Setting up refresh button:', id);
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    action();
+                });
             }
         });
         
-        // FIXED: Search functionality
+        // Search functionality
         const userSearch = document.getElementById('userSearch');
         if (userSearch) {
             userSearch.addEventListener('input', (e) => {
@@ -130,7 +137,7 @@ class PropamitAdmin {
             });
         }
         
-        // FIXED: Status filter
+        // Status filter
         const statusFilter = document.getElementById('statusFilter');
         if (statusFilter) {
             statusFilter.addEventListener('change', (e) => {
@@ -138,16 +145,28 @@ class PropamitAdmin {
             });
         }
 
-        // FIXED: Reset Database Button - Temporarily disabled with better UX
+        // Reset Database Button
         const resetDatabaseBtn = document.getElementById('resetDatabaseBtn');
         if (resetDatabaseBtn) {
             resetDatabaseBtn.addEventListener('click', () => {
                 this.handleResetDatabase();
             });
         }
+        
+        console.log('Event listeners setup complete');
     }
-
-    // IMPROVED: Reset Database with better error handling
+    // Debug elements method
+    debugElements() {
+        console.log('=== DEBUG INFO ===');
+        console.log('Nav items:', document.querySelectorAll('.nav-item').length);
+        console.log('Sections:', document.querySelectorAll('.admin-section').length);
+        console.log('Sidebar toggle:', document.getElementById('sidebarToggle'));
+        console.log('Logout buttons:', document.querySelectorAll('#adminLogout, .admin-logout-btn').length);
+        console.log('Window width:', window.innerWidth);
+        console.log('==================');
+    }
+    
+    // Reset Database with better error handling
     async handleResetDatabase() {
         // Show user-friendly message about CORS issue
         const userChoice = confirm(
@@ -243,8 +262,7 @@ class PropamitAdmin {
             this.hideLoading();
         }
     }
-    
-    // FIXED: Mobile sidebar closing
+    // Mobile sidebar closing
     closeMobileSidebar() {
         const sidebar = document.getElementById('sidebar') || document.querySelector('.admin-sidebar');
         const mobileOverlay = document.getElementById('mobileOverlay');
@@ -284,14 +302,26 @@ class PropamitAdmin {
         const navItem = document.querySelector(`[data-section="${section}"]`);
         const sectionElement = document.getElementById(`${section}-section`);
         
-        if (navItem) navItem.classList.add('active');
-        if (sectionElement) sectionElement.classList.add('active');
+        console.log('Found elements:', { navItem, sectionElement });
+        
+        if (navItem) {
+            navItem.classList.add('active');
+            console.log('Nav item activated');
+        }
+        
+        if (sectionElement) {
+            sectionElement.classList.add('active');
+            console.log('Section activated');
+        } else {
+            console.error('Section element not found:', `${section}-section`);
+        }
         
         // Update page title
         const pageTitle = document.getElementById('pageTitle');
         if (pageTitle && navItem) {
             const titleText = navItem.querySelector('span')?.textContent || section;
             pageTitle.textContent = titleText;
+            console.log('Page title updated:', titleText);
         }
         
         // Update browser history
@@ -321,139 +351,52 @@ class PropamitAdmin {
                 break;
         }
     }
-    
     async loadDashboardData() {
         try {
             this.showLoading();
             
-            // Load stats with fallback to mock data
+            // Load stats from real API
             await this.loadStats();
             
-            // Load recent activity
-            this.loadRecentActivity();
+            // Load recent activity from real API
+            await this.loadRecentActivity();
             
         } catch (error) {
             console.error('Error loading dashboard data:', error);
-            this.showNotification('Loading demo data (backend unavailable)', 'warning');
-            
-            // Load mock data as fallback
-            this.loadMockData();
+            this.showNotification('Error loading dashboard data', 'error');
         } finally {
             this.hideLoading();
         }
     }
     
-    // IMPROVED: Load real stats from MongoDB
+    // Load real stats from API
     async loadStats() {
         try {
-            console.log('Loading real stats from MongoDB...');
+            console.log('Loading real stats from API...');
             
-            // Try multiple endpoints for better data
-            const endpoints = [
-                '/api/admin/stats',
-                '/api/admin/dashboard-stats',
-                '/api/stats'
-            ];
-            
-            let stats = null;
-            
-            for (const endpoint of endpoints) {
-                try {
-                    const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        stats = data.stats || data;
-                        console.log('Real stats loaded:', stats);
-                        break;
-                    }
-                } catch (error) {
-                    console.warn(`Failed to load from ${endpoint}:`, error.message);
-                    continue;
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/stats`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
-            // If no real data, try direct MongoDB query
-            if (!stats) {
-                stats = await this.getDirectMongoStats();
-            }
-            
-            // Fallback to mock data if all else fails
-            if (!stats) {
-                console.warn('Using mock stats data - API unavailable');
-                stats = this.getMockStats();
-                this.showNotification('Using demo data - backend unavailable', 'warning');
-            }
+            const data = await response.json();
+            const stats = data.stats || data;
+            console.log('Real stats loaded:', stats);
             
             this.updateStatsDisplay(stats);
             
         } catch (error) {
             console.error('Error loading stats:', error);
-            const stats = this.getMockStats();
-            this.updateStatsDisplay(stats);
-            this.showNotification('Using demo data due to connection error', 'warning');
+            this.showNotification('Error loading statistics', 'error');
         }
-    }
-    
-    // NEW: Direct MongoDB stats query
-    async getDirectMongoStats() {
-        try {
-            console.log('Attempting direct MongoDB connection...');
-            
-            // This would require a backend endpoint that directly queries MongoDB
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/direct-stats`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    mongoUri: this.mongoConnection,
-                    database: 'LegitCar'
-                })
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                console.log('Direct MongoDB stats:', data);
-                return data.stats;
-            }
-            
-            return null;
-        } catch (error) {
-            console.warn('Direct MongoDB query failed:', error);
-            return null;
-        }
-    }
-    
-    // ADDED: Load mock data method
-    loadMockData() {
-        const stats = this.getMockStats();
-        this.updateStatsDisplay(stats);
-        this.loadRecentActivity();
-    }
-    
-    // IMPROVED: More realistic mock data
-    getMockStats() {
-        // Generate more realistic numbers
-        const baseUsers = 15;
-        const baseApps = 8;
-        const basePending = 3;
-        const baseMessages = 5;
-        
-        return {
-            totalUsers: baseUsers + Math.floor(Math.random() * 10),
-            totalApplications: baseApps + Math.floor(Math.random() * 15),
-            pendingApplications: basePending + Math.floor(Math.random() * 5),
-            totalMessages: baseMessages + Math.floor(Math.random() * 8)
-        };
     }
     
     updateStatsDisplay(stats) {
@@ -494,20 +437,48 @@ class PropamitAdmin {
         
         requestAnimationFrame(updateNumber);
     }
+    async loadRecentActivity() {
+        try {
+            console.log('Loading recent activity from API...');
+            
+            const response = await fetch(`${this.apiBaseUrl}/api/admin/recent-activity`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            const activities = data.activities || [];
+            
+            this.displayRecentActivity(activities);
+            
+        } catch (error) {
+            console.error('Error loading recent activity:', error);
+            this.showNotification('Error loading recent activity', 'error');
+        }
+    }
     
-    loadRecentActivity() {
+    displayRecentActivity(activities) {
         const activityContainer = document.getElementById('recentActivity');
         if (!activityContainer) return;
         
-        // Mock activity data
-        const activities = [
-            { type: 'user', message: 'New user registered: john.doe@example.com', time: '2 minutes ago', icon: 'user-plus' },
-            { type: 'application', message: 'Application #APP001 submitted by Jane Smith', time: '15 minutes ago', icon: 'file-alt' },
-            { type: 'message', message: 'New support message from Mike Johnson', time: '1 hour ago', icon: 'envelope' },
-            { type: 'application', message: 'Application #APP002 approved', time: '2 hours ago', icon: 'check-circle' },
-            { type: 'user', message: 'User profile updated: sarah@example.com', time: '3 hours ago', icon: 'user-edit' },
-            { type: 'system', message: 'System backup completed successfully', time: '4 hours ago', icon: 'server' }
-        ];
+        if (activities.length === 0) {
+            activityContainer.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-clock"></i>
+                    <h3>No Recent Activity</h3>
+                    <p>No recent activity to display.</p>
+                </div>
+            `;
+            return;
+        }
         
         activityContainer.innerHTML = activities.map(activity => `
             <div class="activity-item">
@@ -522,7 +493,7 @@ class PropamitAdmin {
         `).join('');
     }
     
-       // IMPROVED: Load users with better error handling
+    // Load users with real data only
     async loadUsers() {
         const usersList = document.getElementById('usersList');
         const usersLoading = document.getElementById('usersLoading');
@@ -535,85 +506,46 @@ class PropamitAdmin {
             if (usersList) usersList.style.display = 'none';
             if (usersTableBody) usersTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
             
+            console.log('Loading users from API...');
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
-            let users;
-            if (response.ok) {
-                const data = await response.json();
-                users = data.users || [];
-            } else {
-                throw new Error('API unavailable');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            const data = await response.json();
+            const users = data.users || [];
             
             this.users = users;
             this.displayUsers(users);
             
         } catch (error) {
-            console.warn('Loading mock users data:', error.message);
-            // Use mock data as fallback
-            this.users = this.getMockUsers();
-            this.displayUsers(this.users);
-            this.showNotification('Showing demo data (backend unavailable)', 'warning');
+            console.error('Error loading users:', error);
+            this.showNotification('Error loading users', 'error');
+            
+            // Show error state
+            if (usersTableBody) {
+                usersTableBody.innerHTML = '<tr><td colspan="6">Error loading users</td></tr>';
+            }
+            if (usersList) {
+                usersList.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Users</h3>
+                        <p>Unable to load users data.</p>
+                    </div>
+                `;
+            }
         } finally {
             if (usersLoading) usersLoading.style.display = 'none';
             if (usersList) usersList.style.display = 'block';
         }
     }
-    
-    getMockUsers() {
-        return [
-            {
-                _id: '1',
-                name: 'John Doe',
-                email: 'john.doe@example.com',
-                phone: '+1234567890',
-                createdAt: new Date('2024-01-15').toISOString(),
-                status: 'active',
-                applications: 2
-            },
-            {
-                _id: '2',
-                name: 'Jane Smith',
-                email: 'jane.smith@example.com',
-                phone: '+1234567891',
-                createdAt: new Date('2024-01-20').toISOString(),
-                status: 'active',
-                applications: 1
-            },
-            {
-                _id: '3',
-                name: 'Mike Johnson',
-                email: 'mike.johnson@example.com',
-                phone: '+1234567892',
-                createdAt: new Date('2024-01-25').toISOString(),
-                status: 'pending',
-                applications: 0
-            },
-            {
-                _id: '4',
-                name: 'Sarah Wilson',
-                email: 'sarah.wilson@example.com',
-                phone: '+1234567893',
-                createdAt: new Date('2024-02-01').toISOString(),
-                status: 'active',
-                applications: 3
-            },
-            {
-                _id: '5',
-                name: 'David Brown',
-                email: 'david.brown@example.com',
-                phone: '+1234567894',
-                createdAt: new Date('2024-02-05').toISOString(),
-                status: 'inactive',
-                applications: 1
-            }
-        ];
-    }
-    
     displayUsers(users) {
         const usersList = document.getElementById('usersList');
         const usersTableBody = document.getElementById('usersTableBody');
@@ -696,8 +628,7 @@ class PropamitAdmin {
             `).join('');
         }
     }
-    
-    // IMPROVED: Load applications with better error handling
+    // Load applications with real data only
     async loadApplications() {
         const applicationsList = document.getElementById('applicationsList');
         const applicationsLoading = document.getElementById('applicationsLoading');
@@ -710,71 +641,45 @@ class PropamitAdmin {
             if (applicationsList) applicationsList.style.display = 'none';
             if (applicationsTableBody) applicationsTableBody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
             
+            console.log('Loading applications from API...');
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/applications`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
-            let applications;
-            if (response.ok) {
-                const data = await response.json();
-                applications = data.applications || [];
-            } else {
-                throw new Error('API unavailable');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            const data = await response.json();
+            const applications = data.applications || [];
             
             this.applications = applications;
             this.displayApplications(applications);
             
         } catch (error) {
-            console.warn('Loading mock applications data:', error.message);
-            // Use mock data as fallback
-            this.applications = this.getMockApplications();
-            this.displayApplications(this.applications);
-            this.showNotification('Showing demo data (backend unavailable)', 'warning');
+            console.error('Error loading applications:', error);
+            this.showNotification('Error loading applications', 'error');
+            
+            // Show error state
+            if (applicationsTableBody) {
+                applicationsTableBody.innerHTML = '<tr><td colspan="6">Error loading applications</td></tr>';
+            }
+            if (applicationsList) {
+                applicationsList.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Applications</h3>
+                        <p>Unable to load applications data.</p>
+                    </div>
+                `;
+            }
         } finally {
             if (applicationsLoading) applicationsLoading.style.display = 'none';
             if (applicationsList) applicationsList.style.display = 'block';
         }
-    }
-    
-    getMockApplications() {
-        return [
-            {
-                _id: 'APP001',
-                type: 'Vehicle Registration',
-                applicantName: 'John Doe',
-                applicantEmail: 'john.doe@example.com',
-                status: 'pending',
-                submittedAt: new Date('2024-02-10').toISOString(),
-                vehicleInfo: {
-                    make: 'Toyota',
-                    model: 'Camry',
-                    year: '2020',
-                    vin: 'ABC123456789'
-                }
-            },
-            {
-                _id: 'APP002',
-                type: 'Driver License',
-                applicantName: 'Jane Smith',
-                applicantEmail: 'jane.smith@example.com',
-                status: 'approved',
-                submittedAt: new Date('2024-02-08').toISOString(),
-                approvedAt: new Date('2024-02-09').toISOString()
-            },
-            {
-                _id: 'APP003',
-                type: 'Vehicle Registration',
-                applicantName: 'Mike Johnson',
-                applicantEmail: 'mike.johnson@example.com',
-                status: 'rejected',
-                submittedAt: new Date('2024-02-05').toISOString(),
-                rejectedAt: new Date('2024-02-07').toISOString(),
-                rejectionReason: 'Incomplete documentation'
-            }
-        ];
     }
     
     displayApplications(applications) {
@@ -878,8 +783,7 @@ class PropamitAdmin {
             `).join('');
         }
     }
-    
-    // IMPROVED: Load messages with better error handling
+    // Load messages with real data only
     async loadMessages() {
         const messagesList = document.getElementById('messagesList');
         const messagesLoading = document.getElementById('messagesLoading');
@@ -892,65 +796,47 @@ class PropamitAdmin {
             if (messagesList) messagesList.style.display = 'none';
             if (messagesContainer) messagesContainer.innerHTML = '<div class="loading-message">Loading messages...</div>';
             
+            console.log('Loading messages from API...');
+            
             const response = await fetch(`${this.apiBaseUrl}/api/admin/messages`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
             });
             
-            let messages;
-            if (response.ok) {
-                const data = await response.json();
-                messages = data.messages || [];
-            } else {
-                throw new Error('API unavailable');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            const data = await response.json();
+            const messages = data.messages || [];
             
             this.messages = messages;
             this.displayMessages(messages);
             
         } catch (error) {
-            console.warn('Loading mock messages data:', error.message);
-            // Use mock data as fallback
-            this.messages = this.getMockMessages();
-            this.displayMessages(this.messages);
-            this.showNotification('Showing demo data (backend unavailable)', 'warning');
+            console.error('Error loading messages:', error);
+            this.showNotification('Error loading messages', 'error');
+            
+            // Show error state
+            const errorState = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Error Loading Messages</h3>
+                    <p>Unable to load messages data.</p>
+                </div>
+            `;
+            
+            if (messagesList) {
+                messagesList.innerHTML = errorState;
+            }
+            if (messagesContainer) {
+                messagesContainer.innerHTML = errorState;
+            }
         } finally {
             if (messagesLoading) messagesLoading.style.display = 'none';
             if (messagesList) messagesList.style.display = 'block';
         }
-    }
-    
-    getMockMessages() {
-        return [
-            {
-                _id: 'MSG001',
-                name: 'John Doe',
-                email: 'john.doe@example.com',
-                subject: 'Application Status Inquiry',
-                message: 'Hello, I would like to check the status of my vehicle registration application.',
-                createdAt: new Date('2024-02-10').toISOString(),
-                status: 'unread'
-            },
-            {
-                _id: 'MSG002',
-                name: 'Jane Smith',
-                email: 'jane.smith@example.com',
-                subject: 'Document Upload Issue',
-                message: 'I am having trouble uploading my documents. Can you please help?',
-                createdAt: new Date('2024-02-09').toISOString(),
-                status: 'read'
-            },
-            {
-                _id: 'MSG003',
-                name: 'Mike Johnson',
-                email: 'mike.johnson@example.com',
-                subject: 'Thank You',
-                message: 'Thank you for approving my application so quickly!',
-                createdAt: new Date('2024-02-08').toISOString(),
-                status: 'replied'
-            }
-        ];
     }
     
     displayMessages(messages) {
@@ -1014,23 +900,6 @@ class PropamitAdmin {
             messagesContainer.innerHTML = messagesHTML;
         }
     }
-    
-    // Filter functions
-    filterUsers(searchTerm) {
-        const filteredUsers = this.users.filter(user => 
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        this.displayUsers(filteredUsers);
-    }
-    
-    filterApplications(status) {
-        const filteredApplications = status === 'all' 
-            ? this.applications 
-            : this.applications.filter(app => app.status === status);
-        this.displayApplications(filteredApplications);
-    }
-    
     // Action methods
     async viewUser(userId) {
         const user = this.users.find(u => u._id === userId);
@@ -1107,27 +976,21 @@ class PropamitAdmin {
                 }
             });
             
-            if (response.ok) {
-                this.showNotification('User deleted successfully', 'success');
-                this.loadUsers();
-                this.closeModal('userModal');
-            } else {
-                throw new Error('Failed to delete user');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            this.showNotification('User deleted successfully', 'success');
+            this.loadUsers();
+            this.closeModal('userModal');
             
         } catch (error) {
             console.error('Delete user error:', error);
-            this.showNotification('Error deleting user (demo mode)', 'warning');
-            
-            // Remove from local array for demo
-            this.users = this.users.filter(u => u._id !== userId);
-            this.displayUsers(this.users);
-            this.closeModal('userModal');
+            this.showNotification('Error deleting user', 'error');
         } finally {
             this.hideLoading();
         }
     }
-    
     async viewApplication(appId) {
         const application = this.applications.find(app => app._id === appId);
         if (!application) {
@@ -1241,26 +1104,17 @@ class PropamitAdmin {
                 }
             });
             
-            if (response.ok) {
-                this.showNotification('Application approved successfully', 'success');
-                this.loadApplications();
-                this.closeModal('applicationModal');
-            } else {
-                throw new Error('Failed to approve application');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            this.showNotification('Application approved successfully', 'success');
+            this.loadApplications();
+            this.closeModal('applicationModal');
             
         } catch (error) {
             console.error('Approve application error:', error);
-            this.showNotification('Application approved (demo mode)', 'success');
-            
-            // Update local array for demo
-            const appIndex = this.applications.findIndex(app => app._id === appId);
-            if (appIndex !== -1) {
-                this.applications[appIndex].status = 'approved';
-                this.applications[appIndex].approvedAt = new Date().toISOString();
-                this.displayApplications(this.applications);
-            }
-            this.closeModal('applicationModal');
+            this.showNotification('Error approving application', 'error');
         } finally {
             this.hideLoading();
         }
@@ -1282,20 +1136,21 @@ class PropamitAdmin {
                 body: JSON.stringify({ reason })
             });
             
-            if (response.ok) {
-                this.showNotification('Application rejected successfully', 'success');
-                this.loadApplications();
-                this.closeModal('applicationModal');
-            } else {
-                throw new Error('Failed to reject application');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            this.showNotification('Application rejected successfully', 'success');
+            this.loadApplications();
+            this.closeModal('applicationModal');
             
         } catch (error) {
             console.error('Reject application error:', error);
-            this.showNotification('Application rejected (demo mode)', 'success');
+            this.showNotification('Error rejecting application', 'error');
+        } finally {
+            this.hideLoading();
         }
     }
-    
     async viewMessage(msgId) {
         const message = this.messages.find(msg => msg._id === msgId);
         if (!message) {
@@ -1394,12 +1249,6 @@ class PropamitAdmin {
             }
         } catch (error) {
             console.warn('Failed to mark message as read:', error);
-            // Update local array for demo
-            const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
-            if (msgIndex !== -1) {
-                this.messages[msgIndex].status = 'read';
-                this.displayMessages(this.messages);
-            }
         }
     }
     
@@ -1461,7 +1310,6 @@ class PropamitAdmin {
         
         document.body.insertAdjacentHTML('beforeend', modalHTML);
     }
-    
     async sendReply(msgId) {
         const replySubject = document.getElementById('replySubject')?.value;
         const replyMessage = document.getElementById('replyMessage')?.value;
@@ -1486,27 +1334,13 @@ class PropamitAdmin {
                 })
             });
             
-            if (response.ok) {
-                this.showNotification('Reply sent successfully', 'success');
-                
-                // Update message status
-                const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
-                if (msgIndex !== -1) {
-                    this.messages[msgIndex].status = 'replied';
-                    this.displayMessages(this.messages);
-                }
-                
-                this.closeModal('replyModal');
-                this.closeModal('messageModal');
-            } else {
-                throw new Error('Failed to send reply');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             
-        } catch (error) {
-            console.error('Send reply error:', error);
-            this.showNotification('Reply sent (demo mode)', 'success');
+            this.showNotification('Reply sent successfully', 'success');
             
-            // Update local array for demo
+            // Update message status
             const msgIndex = this.messages.findIndex(msg => msg._id === msgId);
             if (msgIndex !== -1) {
                 this.messages[msgIndex].status = 'replied';
@@ -1515,6 +1349,10 @@ class PropamitAdmin {
             
             this.closeModal('replyModal');
             this.closeModal('messageModal');
+            
+        } catch (error) {
+            console.error('Send reply error:', error);
+            this.showNotification('Error sending reply', 'error');
         } finally {
             this.hideLoading();
         }
@@ -1535,27 +1373,21 @@ class PropamitAdmin {
                 }
             });
             
-            if (response.ok) {
-                this.showNotification('Message deleted successfully', 'success');
-                this.loadMessages();
-                this.closeModal('messageModal');
-            } else {
-                throw new Error('Failed to delete message');
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            
+            this.showNotification('Message deleted successfully', 'success');
+            this.loadMessages();
+            this.closeModal('messageModal');
             
         } catch (error) {
             console.error('Delete message error:', error);
-            this.showNotification('Message deleted (demo mode)', 'success');
-            
-            // Remove from local array for demo
-            this.messages = this.messages.filter(msg => msg._id !== msgId);
-            this.displayMessages(this.messages);
-            this.closeModal('messageModal');
+            this.showNotification('Error deleting message', 'error');
         } finally {
             this.hideLoading();
         }
     }
-    
     // Utility methods
     closeModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -1608,30 +1440,38 @@ class PropamitAdmin {
     }
     
     getNotificationIcon(type) {
-        switch (type) {
-            case 'success': return 'check-circle';
-            case 'error': return 'exclamation-circle';
-            case 'warning': return 'exclamation-triangle';
-            default: return 'info-circle';
-        }
+        const icons = {
+            'success': 'check-circle',
+            'error': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        return icons[type] || 'info-circle';
     }
     
     logout() {
         if (confirm('Are you sure you want to logout?')) {
-            // Clear admin authentication
             localStorage.removeItem('adminToken');
-            localStorage.removeItem('adminEmail');
-            localStorage.removeItem('adminName');
-            
-            // Redirect to admin login
+            localStorage.removeItem('adminData');
             window.location.href = 'admin-login.html';
         }
     }
 }
 
-// Initialize admin dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Admin Dashboard DOM loaded');
+// Initialize the admin dashboard
+let adminDashboard;
+
+document.addEventListener('DOMContentLoaded', () => {
+    adminDashboard = new PropamitAdmin();
+});
+
+// Handle window resize for responsive behavior
+window.addEventListener('resize', () => {
+    const sidebar = document.getElementById('sidebar');
+    const mobileOverlay = document.getElementById('mobileOverlay');
     
-    // Create global instance
-    window.adminDashboard = new PropamitAdmin
+    if (window.innerWidth > 1024) {
+        if (sidebar) sidebar.classList.remove('active');
+        if (mobileOverlay) mobileOverlay.classList.remove('active');
+    }
+});
