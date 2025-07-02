@@ -8,14 +8,14 @@ const router = express.Router();
 const JWT_SECRET = 'd36c4c41931944345e889feb5eea3368295724d177768d32a358188aba21f02f';
 
 // MongoDB connection
-const MONGODB_URI = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/LegitCar?retryWrites=true&w=majority';
+const MONGODB_URI = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/propamit?retryWrites=true&w=majority';
 let db;
 
 // Connect to MongoDB
 MongoClient.connect(MONGODB_URI, { useUnifiedTopology: true })
     .then(client => {
         console.log('Admin routes connected to MongoDB');
-        db = client.db('LegitCar');
+        db = client.db('propamit');
     })
     .catch(error => console.error('MongoDB connection error:', error));
 

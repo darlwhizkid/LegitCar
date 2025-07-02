@@ -1,7 +1,7 @@
 // Admin Dashboard JavaScript - Fixed Version
 class PropamitAdmin {
     constructor() {
-        this.mongoConnection = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/LegitCar?retryWrites=true&w=majority';
+        this.mongoConnection = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/propamit?retryWrites=true&w=majority';
         this.apiBaseUrl = 'https://propamit-backend.vercel.app';
         this.currentSection = 'dashboard';
         this.users = [];

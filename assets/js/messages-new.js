@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     {
       id: 1,
       subject: 'Application Status Update',
-      sender: 'LegitCar Support',
+      sender: 'Propamit Support',
       content: 'Your vehicle registration application (APP-123456) has been approved. You can now proceed to the next step.',
       date: '2023-06-15',
       isRead: false,
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
     },
     {
       id: 2,
-      subject: 'Welcome to LegitCar',
-      sender: 'LegitCar Team',
-      content: 'Thank you for registering with LegitCar. We are excited to have you on board. This platform will help you manage all your vehicle-related applications and documentation.',
+      subject: 'Welcome to Propamit',
+      sender: 'Propamit Team',
+      content: 'Thank you for registering with Propamit. We are excited to have you on board. This platform will help you manage all your vehicle-related applications and documentation.',
       date: '2023-06-10',
       isRead: true,
       isImportant: false,
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
     {
       id: 5,
       subject: 'System Maintenance Notice',
-      sender: 'LegitCar Admin',
+      sender: 'Propamit Admin',
       content: 'Our system will be undergoing maintenance on June 20, 2023, from 2:00 AM to 5:00 AM. During this time, the platform may be temporarily unavailable.',
       date: '2023-06-05',
       isRead: true,

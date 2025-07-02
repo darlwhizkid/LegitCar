@@ -1,4 +1,4 @@
-// Real API Configuration for LegitCar
+// Real API Configuration for Propamit
 const API_BASE_URL = 'https://propamit-backend.vercel.app';
 
 // Real API implementation
