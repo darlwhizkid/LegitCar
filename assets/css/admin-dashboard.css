@@ -984,14 +984,16 @@ body {
   transform: translateX(0);
 }
 
-/* Fix hamburger button */
-.sidebar-toggle {
-  display: block !important;
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-  padding: 10px;
+/* Fix hamburger button - mobile only */
+@media (max-width: 1024px) {
+  .sidebar-toggle {
+    display: block !important;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+  }
 }
 /* Notification Styles */
 .notification {
