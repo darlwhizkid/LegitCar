@@ -2,7 +2,7 @@
 class PropamitAdmin {
     constructor() {
         this.mongoConnection = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/propamit?retryWrites=true&w=majority';
-        this.apiBaseUrl = 'https://propamit-backend.vercel.app';
+        this.apiBaseUrl = 'http://localhost:3000';
         this.currentSection = 'dashboard';
         this.users = [];
         this.applications = [];
@@ -211,7 +211,7 @@ class PropamitAdmin {
             
             console.log('Attempting to reset database...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/reset-database`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/reset-database`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -374,7 +374,7 @@ class PropamitAdmin {
         try {
             console.log('Loading real stats from API...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/stats`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/stats`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -456,7 +456,7 @@ class PropamitAdmin {
         try {
             console.log('Loading recent activity from API...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/recent-activity`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/recent-activity`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -526,7 +526,7 @@ class PropamitAdmin {
             
             console.log('Loading users from API...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/users`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/users`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
@@ -652,7 +652,7 @@ class PropamitAdmin {
             
             console.log('Loading applications from API...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/applications`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/applications`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
@@ -798,7 +798,7 @@ class PropamitAdmin {
             
             console.log('Loading messages from API...');
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/messages`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
                 }
@@ -958,7 +958,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/users/${userId}`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/users/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -1086,7 +1086,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/applications/${appId}/approve`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/applications/${appId}/approve`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -1116,7 +1116,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/applications/${appId}/reject`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/applications/${appId}/reject`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -1221,7 +1221,7 @@ class PropamitAdmin {
     
     async markMessageAsRead(msgId) {
         try {
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}/read`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/messages/${msgId}/read`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
@@ -1311,7 +1311,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}/reply`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/messages/${msgId}/reply`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`,
@@ -1355,7 +1355,7 @@ class PropamitAdmin {
         try {
             this.showLoading();
             
-            const response = await fetch(`${this.apiBaseUrl}/api/admin/messages/${msgId}`, {
+            const response = await fetch(`${this.apiBaseUrl}/api/v1/admin/messages/${msgId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('adminToken')}`

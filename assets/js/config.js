@@ -1,11 +1,10 @@
 // API Configuration for Propamit
 const API_CONFIG = {
-  BASE_URL: window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000' 
-    : 'https://propamit-backend.vercel.app',
+  BASE_URL: 'http://localhost:3000',
+
   ENDPOINTS: {
-    LOGIN: '/api/auth',
-    REGISTER: '/api/auth',
+    LOGIN: '/api/v1/auth/login',
+    REGISTER: '/api/v1/auth/register',
     LOGOUT: '/api/auth/logout',
     PROFILE: '/api/user/profile',
     APPLICATIONS: '/api/applications',
@@ -657,10 +656,10 @@ const AuthHelper = {
 
 // Make everything globally available
 window.API_CONFIG = {
-  BASE_URL: 'https://propamit-backend.vercel.app',
+  BASE_URL: 'http://localhost:3000',
   ENDPOINTS: {
-    LOGIN: '/api/auth',
-    REGISTER: '/api/auth',
+    LOGIN: '/api/v1/auth/login',
+    REGISTER: '/api/v1/auth/register',
     LOGOUT: '/api/auth/logout',
     PROFILE: '/api/user/profile',
     APPLICATIONS: '/api/applications',

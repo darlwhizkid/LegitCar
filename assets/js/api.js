@@ -1,5 +1,5 @@
 // Real API Configuration for Propamit
-const API_BASE_URL = 'https://propamit-backend.vercel.app';
+const API_BASE_URL = 'http://localhost:3000';
 
 // Real API implementation
 window.propamitAPI = {
@@ -23,13 +23,12 @@ window.propamitAPI = {
 
   register: async (userData) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'register',
           name: userData.name,
           email: userData.email,
           password: userData.password,
@@ -56,13 +55,12 @@ window.propamitAPI = {
 
   login: async (credentials) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          action: 'login',
           email: credentials.email,
           password: credentials.password
         })

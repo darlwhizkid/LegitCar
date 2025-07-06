@@ -80,7 +80,7 @@ waitForConfig().then(() => {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          body: JSON.stringify({action: "register", ...userData})
+          body: JSON.stringify(userData)
         });
 
         const data = await response.json();

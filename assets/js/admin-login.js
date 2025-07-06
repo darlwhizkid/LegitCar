@@ -78,7 +78,8 @@ document.addEventListener('DOMContentLoaded', function() {
 async function authenticateAdmin(email, password) {
     try {
         // Try to authenticate with your backend first
-        const response = await fetch('https://propamit-backend.vercel.app/api/admin/login', {
+        const response = await fetch('https://propamit-backend.vercel.app/api/v1/admin/login', {
+
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
