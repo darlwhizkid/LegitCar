@@ -2,7 +2,7 @@
 class PropamitAdmin {
     constructor() {
         this.mongoConnection = 'mongodb+srv://darlingtonodom:Coldwizkid@clusterd.bytfl.mongodb.net/propamit?retryWrites=true&w=majority';
-        this.apiBaseUrl = 'http://localhost:3000';
+        this.apiBaseUrl = 'https://propamit-backend.vercel.app';
         this.currentSection = 'dashboard';
         this.users = [];
         this.applications = [];
