@@ -381,7 +381,7 @@ function initializeLoginPage() {
         });
         
         if (result.success) {
-          showNotification('Account created successfully! Please login to continue.', 'success');
+          try { showNotification('Account created successfully! Please login to continue.', 'success'); } catch(e) { console.log('Notification failed but registration succeeded'); }
           setTimeout(() => {
             switchTab('login');
             // Pre-fill email in login form
