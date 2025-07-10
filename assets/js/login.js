@@ -293,7 +293,7 @@ function initializeLoginPage() {
         loginSubmitBtn.disabled = true;
         loginSubmitBtn.textContent = 'Signing in...';
         
-        const result = await propamitAPI.login({ email, password });
+        if (!propamitAPI) { throw new Error("API not ready, please try again"); } const result = await propamitAPI.login({ email, password });
         
         if (result.success) {
           showNotification('Login successful! Redirecting...', 'success');
@@ -373,7 +373,7 @@ function initializeLoginPage() {
         registerSubmitBtn.disabled = true;
         registerSubmitBtn.textContent = 'Creating Account...';
         
-        const result = await propamitAPI.register({
+        if (!propamitAPI) { throw new Error("API not ready, please try again"); } const result = await propamitAPI.register({
           name,
           email,
           password,
