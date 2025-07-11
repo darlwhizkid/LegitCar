@@ -18,197 +18,229 @@ let propamitAPI = null;
 waitForConfig().then(() => {
   propamitAPI = {
     baseURL: API_CONFIG.BASE_URL,
-    
+
     isAuthenticated: () => {
-      const token = localStorage.getItem('userToken');
-      const expiry = localStorage.getItem('tokenExpiry');
-      
+      const token = localStorage.getItem("userToken");
+      const expiry = localStorage.getItem("tokenExpiry");
+
       if (!token || !expiry) return false;
-      
+
       // Check if token is expired
       if (new Date().getTime() > parseInt(expiry)) {
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('tokenExpiry');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("tokenExpiry");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
         return false;
       }
-      
+
       return true;
     },
 
     login: async (credentials) => {
       try {
-        const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({action: "login", ...credentials})
-        });
+        const response = await fetch(
+          `${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGIN}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ action: "login", ...credentials }),
+          }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Login failed');
+          throw new Error(data.message || "Login failed");
         }
 
         // Store authentication data
         if (data.token) {
-          localStorage.setItem('userToken', data.token);
-          localStorage.setItem('userEmail', data.user.email);
-          localStorage.setItem('userName', data.user.name);
-          
+          localStorage.setItem("userToken", data.token);
+          localStorage.setItem("userEmail", data.user.email);
+          localStorage.setItem("userName", data.user.name);
+
           // Set token expiry (e.g., 24 hours from now)
-          const expiry = new Date().getTime() + (24 * 60 * 60 * 1000);
-          localStorage.setItem('tokenExpiry', expiry.toString());
+          const expiry = new Date().getTime() + 24 * 60 * 60 * 1000;
+          localStorage.setItem("tokenExpiry", expiry.toString());
         }
 
-        return { success: true, message: data.message || 'Login successful', user: data.user };
+        return {
+          success: true,
+          message: data.message || "Login successful",
+          user: data.user,
+        };
       } catch (error) {
-        console.error('Login API error:', error);
-        throw new Error(error.message || 'Network error occurred');
+        console.error("Login API error:", error);
+        throw new Error(error.message || "Network error occurred");
       }
     },
 
     register: async (userData) => {
       try {
-        const response = await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.REGISTER}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify(userData)
-        });
+        console.log("Attempting registration with data:", userData);
+
+        const response = await fetch(
+          `${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.REGISTER}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ action: "register", ...userData }),
+          }
+        );
+
+        console.log("Registration response status:", response.status);
 
         const data = await response.json();
+        console.log("Registration response data:", data);
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Registration failed');
+        if (
+          response.ok &&
+          (data.success ||
+            data.message === "User registered successfully" ||
+            data.user)
+        ) {
+          console.log("Registration successful");
+          return {
+            success: true,
+            message: data.message || "Registration successful",
+          };
         }
 
-        return { success: true, message: data.message || 'Registration successful' };
+        
+        throw new Error(data.message || data.error || "Registration failed");
       } catch (error) {
-        console.error('Registration API error:', error);
-        throw new Error(error.message || 'Network error occurred');
+        console.error("Registration API error:", error);
+        throw new Error(error.message || "Network error occurred");
       }
     },
 
     logout: async () => {
       try {
-        const token = localStorage.getItem('userToken');
+        const token = localStorage.getItem("userToken");
         if (token) {
           await fetch(`${propamitAPI.baseURL}${API_CONFIG.ENDPOINTS.LOGOUT}`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           });
         }
       } catch (error) {
-        console.error('Logout API error:', error);
+        console.error("Logout API error:", error);
       } finally {
         // Clear storage regardless of API call success
-        localStorage.removeItem('userToken');
-        localStorage.removeItem('tokenExpiry');
-        localStorage.removeItem('userEmail');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('lastApplicationId');
+        localStorage.removeItem("userToken");
+        localStorage.removeItem("tokenExpiry");
+        localStorage.removeItem("userEmail");
+        localStorage.removeItem("userName");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("lastApplicationId");
       }
     },
 
     resetPassword: async (email) => {
       try {
-        const response = await fetch(`${propamitAPI.baseURL}/api/auth/reset-password`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({ email })
-        });
+        const response = await fetch(
+          `${propamitAPI.baseURL}/api/auth/reset-password`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ email }),
+          }
+        );
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.message || 'Failed to send reset link');
+          throw new Error(data.message || "Failed to send reset link");
         }
 
         return { success: true, message: data.message };
       } catch (error) {
-        console.error('Reset password error:', error);
+        console.error("Reset password error:", error);
         throw error;
       }
-    }
+    },
   };
 
   // Make propamitAPI globally available
   window.propamitAPI = propamitAPI;
-  console.log('propamitAPI initialized successfully');
-  
+  console.log("propamitAPI initialized successfully");
+
   // Initialize the login page functionality after API is ready
   initializeLoginPage();
 });
 
 // Login page functionality
 function initializeLoginPage() {
-  console.log('Initializing login page...');
-  
+  console.log("Initializing login page...");
+
   // Check if already authenticated
   if (propamitAPI && propamitAPI.isAuthenticated()) {
-    console.log('User already authenticated, redirecting to dashboard');
-    window.location.href = 'dashboard.html';
+    console.log("User already authenticated, redirecting to dashboard");
+    window.location.href = "dashboard.html";
     return;
   }
 
   // DOM Elements
-  const loginTabBtn = document.getElementById('loginTabBtn');
-  const registerTabBtn = document.getElementById('registerTabBtn');
-  const loginForm = document.getElementById('loginForm');
-  const registerForm = document.getElementById('registerForm');
-  const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-  
+  const loginTabBtn = document.getElementById("loginTabBtn");
+  const registerTabBtn = document.getElementById("registerTabBtn");
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
+  const forgotPasswordForm = document.getElementById("forgotPasswordForm");
+
   // Form submit buttons
-  const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-  const registerSubmitBtn = document.getElementById('registerSubmitBtn');
-  const resetSubmitBtn = document.getElementById('resetSubmitBtn');
-  
+  const loginSubmitBtn = document.getElementById("loginSubmitBtn");
+  const registerSubmitBtn = document.getElementById("registerSubmitBtn");
+  const resetSubmitBtn = document.getElementById("resetSubmitBtn");
+
   // Links
-  const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-  const backToLoginBtn = document.getElementById('backToLoginBtn');
-  
+  const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+  const backToLoginBtn = document.getElementById("backToLoginBtn");
+
   // Terms checkbox
-  const agreeTerms = document.getElementById('agreeTerms');
+  const agreeTerms = document.getElementById("agreeTerms");
 
   // Tab switching functionality
   if (loginTabBtn && registerTabBtn) {
-    loginTabBtn.addEventListener('click', () => {
-      switchTab('login');
+    loginTabBtn.addEventListener("click", () => {
+      switchTab("login");
     });
 
-    registerTabBtn.addEventListener('click', () => {
-      switchTab('register');
+    registerTabBtn.addEventListener("click", () => {
+      switchTab("register");
     });
   }
 
   // Switch tab function
   function switchTab(tab) {
     // Remove active classes
-    document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-    
-    if (tab === 'login') {
-      loginTabBtn.classList.add('active');
-      loginForm.classList.add('active');
-    } else if (tab === 'register') {
-      registerTabBtn.classList.add('active');
-      registerForm.classList.add('active');
+    document
+      .querySelectorAll(".auth-tab")
+      .forEach((btn) => btn.classList.remove("active"));
+    document
+      .querySelectorAll(".auth-form")
+      .forEach((form) => form.classList.remove("active"));
+
+    if (tab === "login") {
+      loginTabBtn.classList.add("active");
+      loginForm.classList.add("active");
+    } else if (tab === "register") {
+      registerTabBtn.classList.add("active");
+      registerForm.classList.add("active");
     }
-    
+
     // Clear any error messages
     clearErrors();
   }
@@ -216,38 +248,40 @@ function initializeLoginPage() {
   // FIXED Password toggle functionality - Single implementation
   function initializePasswordToggles() {
     // Remove any existing password toggles to avoid duplicates
-    document.querySelectorAll('.password-toggle').forEach(toggle => {
+    document.querySelectorAll(".password-toggle").forEach((toggle) => {
       // Clone to remove all existing event listeners
       const newToggle = toggle.cloneNode(true);
       toggle.parentNode.replaceChild(newToggle, toggle);
     });
 
     // Get fresh references to password toggles
-    const passwordToggles = document.querySelectorAll('.password-toggle');
-    
-    passwordToggles.forEach(toggle => {
-      toggle.addEventListener('click', function(e) {
+    const passwordToggles = document.querySelectorAll(".password-toggle");
+
+    passwordToggles.forEach((toggle) => {
+      toggle.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Find the password input in the same container
-        const container = this.closest('.password-input-group');
+        const container = this.closest(".password-input-group");
         if (!container) return;
-        
-        const passwordInput = container.querySelector('input[type="password"], input[type="text"]');
-        const icon = this.querySelector('i');
-        
+
+        const passwordInput = container.querySelector(
+          'input[type="password"], input[type="text"]'
+        );
+        const icon = this.querySelector("i");
+
         if (passwordInput && icon) {
-          if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-            this.setAttribute('aria-label', 'Hide password');
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+            this.setAttribute("aria-label", "Hide password");
           } else {
-            passwordInput.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-            this.setAttribute('aria-label', 'Show password');
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+            this.setAttribute("aria-label", "Show password");
           }
         }
       });
@@ -261,235 +295,252 @@ function initializeLoginPage() {
 
   // Terms checkbox functionality
   if (agreeTerms && registerSubmitBtn) {
-    agreeTerms.addEventListener('change', function() {
+    agreeTerms.addEventListener("change", function () {
       registerSubmitBtn.disabled = !this.checked;
     });
   }
 
   // Login form submission
   if (loginSubmitBtn) {
-    loginSubmitBtn.addEventListener('click', async function(e) {
+    loginSubmitBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      
+
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
       // Clear previous errors
       clearErrors();
-      
+
       // Validate inputs
       if (!email || !password) {
-        showError('loginEmail', 'Please fill in all fields');
+        showError("loginEmail", "Please fill in all fields");
         return;
       }
-      
+
       if (!isValidEmail(email)) {
-        showError('loginEmail', 'Please enter a valid email address');
+        showError("loginEmail", "Please enter a valid email address");
         return;
       }
-      
+
       try {
         // Show loading state
         loginSubmitBtn.disabled = true;
-        loginSubmitBtn.textContent = 'Signing in...';
-        
-        if (!propamitAPI) { throw new Error("API not ready, please try again"); } const result = await propamitAPI.login({ email, password });
-        
+        loginSubmitBtn.textContent = "Signing in...";
+
+        if (!propamitAPI) {
+          throw new Error("API not ready, please try again");
+        }
+        const result = await propamitAPI.login({ email, password });
+
         if (result.success) {
-          showNotification('Login successful! Redirecting...', 'success');
+          showNotification("Login successful! Redirecting...", "success");
           setTimeout(() => {
-            window.location.href = 'dashboard.html';
+            window.location.href = "dashboard.html";
           }, 1500);
         }
       } catch (error) {
-        showError('loginPassword', error.message);
-        showNotification(error.message, 'error');
+        showError("loginPassword", error.message);
+        showNotification(error.message, "error");
       } finally {
         // Reset button state
         loginSubmitBtn.disabled = false;
-        loginSubmitBtn.textContent = 'Login';
+        loginSubmitBtn.textContent = "Login";
       }
     });
   }
 
   // Register form submission
   if (registerSubmitBtn) {
-    registerSubmitBtn.addEventListener('click', async function(e) {
+    registerSubmitBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      
-      const name = document.getElementById('registerName').value.trim();
-      const email = document.getElementById('registerEmail').value.trim();
-      const password = document.getElementById('registerPassword').value;
-      const confirmPassword = document.getElementById('confirmPassword').value;
-      const phone = document.getElementById('registerPhone').value.trim();
-      const agreed = document.getElementById('agreeTerms').checked;
-      
+
+      const name = document.getElementById("registerName").value.trim();
+      const email = document.getElementById("registerEmail").value.trim();
+      const password = document.getElementById("registerPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const phone = document.getElementById("registerPhone").value.trim();
+      const agreed = document.getElementById("agreeTerms").checked;
+
       // Clear previous errors
       clearErrors();
-      
+
       // Validate inputs
       let hasError = false;
-      
+
       if (!name) {
-        showError('registerName', 'Full name is required');
+        showError("registerName", "Full name is required");
         hasError = true;
       }
-      
+
       if (!email) {
-        showError('registerEmail', 'Email is required');
+        showError("registerEmail", "Email is required");
         hasError = true;
       } else if (!isValidEmail(email)) {
-        showError('registerEmail', 'Please enter a valid email address');
+        showError("registerEmail", "Please enter a valid email address");
         hasError = true;
       }
-      
+
       if (!password) {
-        showError('registerPassword', 'Password is required');
+        showError("registerPassword", "Password is required");
         hasError = true;
       } else if (password.length < 6) {
-        showError('registerPassword', 'Password must be at least 6 characters');
+        showError("registerPassword", "Password must be at least 6 characters");
         hasError = true;
       }
-      
+
       if (password !== confirmPassword) {
-        showError('confirmPassword', 'Passwords do not match');
+        showError("confirmPassword", "Passwords do not match");
         hasError = true;
       }
-      
+
       if (!phone) {
-        showError('registerPhone', 'Phone number is required');
+        showError("registerPhone", "Phone number is required");
         hasError = true;
       }
-      
+
       if (!agreed) {
-        showError('agreeTerms', 'You must agree to the terms and conditions');
+        showError("agreeTerms", "You must agree to the terms and conditions");
         hasError = true;
       }
-      
+
       if (hasError) return;
-      
+
       try {
         // Show loading state
         registerSubmitBtn.disabled = true;
-        registerSubmitBtn.textContent = 'Creating Account...';
-        
-        if (!propamitAPI) { throw new Error("API not ready, please try again"); } const result = await propamitAPI.register({
+        registerSubmitBtn.textContent = "Creating Account...";
+
+        if (!propamitAPI) {
+          throw new Error("API not ready, please try again");
+        }
+        const result = await propamitAPI.register({
           name,
           email,
           password,
-          phone
+          phone,
         });
-        
+
         if (result.success) {
-          try { showNotification('Account created successfully! Please login to continue.', 'success'); } catch(e) { console.log('Notification failed but registration succeeded'); }
+          try {
+            showNotification(
+              "Account created successfully! Please login to continue.",
+              "success"
+            );
+          } catch (e) {
+            console.log("Notification failed but registration succeeded");
+          }
           setTimeout(() => {
-            switchTab('login');
+            switchTab("login");
             // Pre-fill email in login form
-            document.getElementById('loginEmail').value = email;
+            document.getElementById("loginEmail").value = email;
           }, 2000);
         }
       } catch (error) {
-        showError('registerEmail', error.message);
-        showNotification(error.message, 'error');
+        console.error("Registration failed", error);
+        showNotification(error.message||'Registration failed. Please try again.', 'error');
       } finally {
         // Reset button state
         registerSubmitBtn.disabled = false;
-        registerSubmitBtn.textContent = 'Register';
+        registerSubmitBtn.textContent = "Register";
       }
     });
   }
 
   // Forgot password functionality
   if (forgotPasswordLink) {
-    forgotPasswordLink.addEventListener('click', function(e) {
+    forgotPasswordLink.addEventListener("click", function (e) {
       e.preventDefault();
-      
+
       // Hide other forms
-      document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
-      forgotPasswordForm.classList.add('active');
+      document
+        .querySelectorAll(".auth-form")
+        .forEach((form) => form.classList.remove("active"));
+      forgotPasswordForm.classList.add("active");
     });
   }
 
   if (backToLoginBtn) {
-    backToLoginBtn.addEventListener('click', function(e) {
+    backToLoginBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      switchTab('login');
+      switchTab("login");
     });
   }
 
   // Reset password form submission
   if (resetSubmitBtn) {
-    resetSubmitBtn.addEventListener('click', async function(e) {
+    resetSubmitBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      
-      const email = document.getElementById('resetEmail').value.trim();
-      
+
+      const email = document.getElementById("resetEmail").value.trim();
+
       clearErrors();
-      
+
       if (!email) {
-        showError('resetEmail', 'Email is required');
+        showError("resetEmail", "Email is required");
         return;
       }
-      
+
       if (!isValidEmail(email)) {
-        showError('resetEmail', 'Please enter a valid email address');
+        showError("resetEmail", "Please enter a valid email address");
         return;
       }
-      
+
       try {
         resetSubmitBtn.disabled = true;
-        resetSubmitBtn.textContent = 'Sending...';
-        
+        resetSubmitBtn.textContent = "Sending...";
+
         const result = await propamitAPI.resetPassword(email);
-        
+
         if (result.success) {
-          showNotification('Password reset link sent to your email', 'success');
+          showNotification("Password reset link sent to your email", "success");
           setTimeout(() => {
-            switchTab('login');
+            switchTab("login");
           }, 2000);
         }
       } catch (error) {
-        showError('resetEmail', error.message);
-        showNotification(error.message, 'error');
+        showError("resetEmail", error.message);
+        showNotification(error.message, "error");
       } finally {
         resetSubmitBtn.disabled = false;
-        resetSubmitBtn.textContent = 'Send Reset Link';
+        resetSubmitBtn.textContent = "Send Reset Link";
       }
     });
   }
 
   // Social login buttons (placeholder functionality)
-  const socialButtons = document.querySelectorAll('.social-button');
-  socialButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const provider = this.classList.contains('google') ? 'Google' : 'Facebook';
-      showNotification(`${provider} login will be available soon`, 'info');
+  const socialButtons = document.querySelectorAll(".social-button");
+  socialButtons.forEach((button) => {
+    button.addEventListener("click", function () {
+      const provider = this.classList.contains("google")
+        ? "Google"
+        : "Facebook";
+      showNotification(`${provider} login will be available soon`, "info");
     });
   });
 
-  console.log('Login page initialized successfully');
+  console.log("Login page initialized successfully");
 }
 
 // Helper functions
 function showError(fieldId, message) {
   const field = document.getElementById(fieldId);
   if (field) {
-    const errorElement = field.parentElement.querySelector('.error-message');
+    const errorElement = field.parentElement.querySelector(".error-message");
     if (errorElement) {
       errorElement.textContent = message;
-      errorElement.style.display = 'block';
+      errorElement.style.display = "block";
     }
-    field.classList.add('error');
+    field.classList.add("error");
   }
 }
 
 function clearErrors() {
-  document.querySelectorAll('.error-message').forEach(error => {
-    error.textContent = '';
-    error.style.display = 'none';
+  document.querySelectorAll(".error-message").forEach((error) => {
+    error.textContent = "";
+    error.style.display = "none";
   });
-  document.querySelectorAll('.error').forEach(field => {
-    field.classList.remove('error');
+  document.querySelectorAll(".error").forEach((field) => {
+    field.classList.remove("error");
   });
 }
 
@@ -498,23 +549,23 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 
-function showNotification(message, type = 'info') {
+function showNotification(message, type = "info") {
   // Use Utils if available, otherwise create simple notification
   if (window.Utils && window.Utils.showNotification) {
     window.Utils.showNotification(message, type);
   } else {
     // Simple fallback notification
-    const notification = document.createElement('div');
+    const notification = document.createElement("div");
     notification.className = `simple-notification notification-${type}`;
     notification.textContent = message;
-    
+
     const colors = {
-      success: '#10b981',
-      error: '#ef4444',
-      warning: '#f59e0b',
-      info: '#06b6d4'
+      success: "#10b981",
+      error: "#ef4444",
+      warning: "#f59e0b",
+      info: "#06b6d4",
     };
-    
+
     notification.style.cssText = `
       position: fixed;
       top: 20px;
@@ -531,12 +582,12 @@ function showNotification(message, type = 'info') {
       font-weight: 500;
       animation: slideInRight 0.3s ease-out;
     `;
-    
+
     document.body.appendChild(notification);
-    
+
     setTimeout(() => {
       if (notification.parentElement) {
-        notification.style.animation = 'slideOutRight 0.3s ease-in forwards';
+        notification.style.animation = "slideOutRight 0.3s ease-in forwards";
         setTimeout(() => {
           if (notification.parentElement) {
             notification.remove();
@@ -548,9 +599,9 @@ function showNotification(message, type = 'info') {
 }
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, waiting for API config...');
-  
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOM loaded, waiting for API config...");
+
   // If propamitAPI is already available, initialize immediately
   if (window.propamitAPI) {
     initializeLoginPage();
