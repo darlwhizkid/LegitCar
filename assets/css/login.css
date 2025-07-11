@@ -50,7 +50,7 @@ body {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   height: 100vh;
   overflow: hidden;
-  line-height: 1.5;
+  line-height: 1.4; /* Reduced from 1.5 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -61,7 +61,7 @@ body {
   position: relative;
 }
 
-/* Left Side - Branding - Compact */
+/* Left Side - More Compact */
 .login-left {
   flex: 1;
   background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
@@ -69,7 +69,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 25px;
+  padding: 20px; /* Reduced from 30px 25px */
   position: relative;
   overflow: hidden;
 }
@@ -88,13 +88,13 @@ body {
 .login-content {
   position: relative;
   z-index: 1;
-  max-width: 420px;
+  max-width: 380px; /* Reduced from 420px */
   text-align: left;
 }
 
 .login-logo {
   display: inline-block;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* Reduced from 20px */
   transition: transform 0.3s ease;
 }
 
@@ -103,14 +103,14 @@ body {
 }
 
 .login-logo img {
-  height: 28px; /* Reduced from 35px to 28px */
+  height: 24px; /* Reduced from 28px */
   filter: brightness(0) invert(1);
 }
 
 .login-left h1 {
-  font-size: 28px;
+  font-size: 24px; /* Reduced from 28px */
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 8px; /* Reduced from 12px */
   line-height: 1.2;
   background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
   -webkit-background-clip: text;
@@ -119,22 +119,22 @@ body {
 }
 
 .login-left > p {
-  font-size: 14px;
-  margin-bottom: 25px;
+  font-size: 13px; /* Reduced from 14px */
+  margin-bottom: 20px; /* Reduced from 25px */
   opacity: 0.9;
-  line-height: 1.5;
+  line-height: 1.4;
   color: #e0e7ff;
 }
 
 .login-features {
-  margin-bottom: 25px;
+  margin-bottom: 20px; /* Reduced from 25px */
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  margin-bottom: 12px;
-  padding: 6px 0;
+  margin-bottom: 8px; /* Reduced from 12px */
+  padding: 4px 0; /* Reduced from 6px 0 */
   transition: transform 0.2s ease;
 }
 
@@ -143,32 +143,32 @@ body {
 }
 
 .feature-item i {
-  margin-right: 12px;
-  font-size: 14px;
+  margin-right: 10px; /* Reduced from 12px */
+  font-size: 12px; /* Reduced from 14px */
   color: var(--success-color);
   background: rgba(16, 185, 129, 0.1);
-  padding: 6px;
+  padding: 5px; /* Reduced from 6px */
   border-radius: 50%;
-  width: 26px;
-  height: 26px;
+  width: 22px; /* Reduced from 26px */
+  height: 22px; /* Reduced from 26px */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .feature-item span {
-  font-size: 13px;
+  font-size: 12px; /* Reduced from 13px */
   color: #e0e7ff;
 }
 
 .login-help {
-  margin-top: 20px;
-  padding-top: 20px;
+  margin-top: 15px; /* Reduced from 20px */
+  padding-top: 15px; /* Reduced from 20px */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .login-help p {
-  font-size: 12px;
+  font-size: 11px; /* Reduced from 12px */
   margin: 0;
   color: #cbd5e1;
 }
@@ -185,13 +185,13 @@ body {
   text-decoration: underline;
 }
 
-/* Right Side - Compact Forms */
+/* Right Side - Much More Compact */
 .login-right {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 30px 25px;
+  padding: 15px; /* Reduced from 30px 25px */
   background: var(--white);
   position: relative;
   overflow-y: auto;
@@ -199,30 +199,30 @@ body {
 
 .auth-container {
   width: 100%;
-  max-width: 380px;
+  max-width: 340px; /* Reduced from 380px */
   margin: 0 auto;
 }
 
-/* Compact Tab Design */
+/* Much More Compact Tab Design */
 .auth-tabs {
   display: flex;
-  margin-bottom: 20px;
+  margin-bottom: 15px; /* Reduced from 20px */
   background: var(--gray-100);
-  border-radius: 10px;
-  padding: 3px;
+  border-radius: 8px; /* Reduced from 10px */
+  padding: 2px; /* Reduced from 3px */
   position: relative;
 }
 
 .auth-tab {
   flex: 1;
-  padding: 8px 16px;
+  padding: 6px 12px; /* Reduced from 8px 16px */
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px; /* Reduced from 14px */
   font-weight: 500;
   color: var(--gray-600);
-  border-radius: 7px;
+  border-radius: 6px; /* Reduced from 7px */
   transition: all 0.3s ease;
   position: relative;
   z-index: 2;
@@ -239,7 +239,7 @@ body {
   background: rgba(255, 255, 255, 0.5);
 }
 
-/* Form Styling - Compact */
+/* Form Styling - Much More Compact */
 .auth-form {
   display: none;
   animation: fadeIn 0.3s ease-in-out;
@@ -261,9 +261,9 @@ body {
 }
 
 .auth-form h3 {
-  font-size: 22px;
+  font-size: 18px; /* Reduced from 22px */
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 4px; /* Reduced from 6px */
   color: var(--gray-900);
   text-align: center;
 }
@@ -271,30 +271,31 @@ body {
 .auth-form > p {
   text-align: center;
   color: var(--gray-600);
-  margin-bottom: 20px;
-  font-size: 13px;
+  margin-bottom: 15px; /* Reduced from 20px */
+  font-size: 12px; /* Reduced from 13px */
+  line-height: 1.3;
 }
 
-/* Compact Form Groups */
+/* Much More Compact Form Groups */
 .form-group {
-  margin-bottom: 16px;
+  margin-bottom: 12px; /* Reduced from 16px */
 }
 
 .form-group label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 3px; /* Reduced from 5px */
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px; /* Reduced from 13px */
   color: var(--gray-700);
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 8px 10px; /* Reduced from 10px 12px */
   border: 2px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px; /* Reduced from 8px */
+  font-size: 13px; /* Reduced from 14px */
   font-family: inherit;
   background: var(--white);
   transition: all 0.3s ease;
@@ -312,7 +313,7 @@ body {
   color: var(--gray-400);
 }
 
-/* Password Input Group - Fixed */
+/* Password Input Group - More Compact */
 .password-input-group {
   position: relative;
   display: flex;
@@ -320,26 +321,26 @@ body {
 }
 
 .password-input-group input {
-  padding-right: 40px;
+  padding-right: 35px; /* Reduced from 40px */
 }
 
 .password-toggle {
   position: absolute;
-  right: 12px;
+  right: 8px; /* Reduced from 12px */
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
   color: var(--gray-400);
   cursor: pointer;
-  padding: 6px;
+  padding: 4px; /* Reduced from 6px */
   border-radius: 4px;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 24px; /* Reduced from 28px */
+  height: 24px; /* Reduced from 28px */
   z-index: 10;
 }
 
@@ -353,16 +354,16 @@ body {
 }
 
 .password-toggle i {
-  font-size: 14px;
+  font-size: 12px; /* Reduced from 14px */
 }
 
-/* Compact Form Options */
+/* Much More Compact Form Options */
 .form-options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-  font-size: 12px;
+  margin-bottom: 12px; /* Reduced from 16px */
+  font-size: 11px; /* Reduced from 12px */
 }
 
 .form-options label {
@@ -375,7 +376,7 @@ body {
 
 .form-options input[type="checkbox"] {
   width: auto;
-  margin-right: 6px;
+  margin-right: 5px; /* Reduced from 6px */
   accent-color: var(--primary-color);
 }
 
@@ -391,15 +392,15 @@ body {
   text-decoration: underline;
 }
 
-/* Compact Submit Button */
+/* More Compact Submit Button */
 .auth-submit-btn {
   width: 100%;
-  padding: 12px;
+  padding: 10px; /* Reduced from 12px */
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 14px;
+  border-radius: 6px; /* Reduced from 8px */
+  font-size: 13px; /* Reduced from 14px */
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -424,16 +425,16 @@ body {
   box-shadow: var(--shadow);
 }
 
-/* Compact Social Login */
+/* More Compact Social Login */
 .social-login {
-  margin-top: 20px;
+  margin-top: 15px; /* Reduced from 20px */
   text-align: center;
 }
 
 .social-login p {
   color: var(--gray-500);
-  font-size: 12px;
-  margin-bottom: 12px;
+  font-size: 11px; /* Reduced from 12px */
+    margin-bottom: 10px; /* Reduced from 12px */
   position: relative;
 }
 
@@ -457,7 +458,7 @@ body {
 
 .social-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px; /* Reduced from 8px */
 }
 
 .social-button {
@@ -465,13 +466,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
+  gap: 4px; /* Reduced from 6px */
+  padding: 6px 8px; /* Reduced from 8px 12px */
   border: 2px solid var(--border-color);
   background: var(--white);
-  border-radius: 8px;
+  border-radius: 6px; /* Reduced from 8px */
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px; /* Reduced from 12px */
   font-weight: 500;
   color: var(--gray-700);
   transition: all 0.3s ease;
@@ -494,20 +495,20 @@ body {
 }
 
 .social-button i {
-  font-size: 14px;
+  font-size: 12px; /* Reduced from 14px */
 }
 
-/* Compact Terms Checkbox */
+/* More Compact Terms Checkbox */
 .terms-checkbox {
-  margin: 12px 0;
+  margin: 10px 0; /* Reduced from 12px 0 */
 }
 
 .terms-checkbox label {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  font-size: 12px;
-  line-height: 1.4;
+  gap: 6px; /* Reduced from 8px */
+  font-size: 11px; /* Reduced from 12px */
+  line-height: 1.3; /* Reduced from 1.4 */
   color: var(--gray-600);
   cursor: pointer;
 }
@@ -515,8 +516,8 @@ body {
 .terms-checkbox input[type="checkbox"] {
   margin-top: 1px;
   accent-color: var(--primary-color);
-  width: 14px;
-  height: 14px;
+  width: 12px; /* Reduced from 14px */
+  height: 12px; /* Reduced from 14px */
 }
 
 .terms-checkbox a {
@@ -535,10 +536,10 @@ body {
   border: none;
   color: var(--primary-color);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px; /* Reduced from 12px */
   font-weight: 500;
-  margin-top: 12px;
-  padding: 6px 0;
+  margin-top: 10px; /* Reduced from 12px */
+  padding: 4px 0; /* Reduced from 6px 0 */
   transition: color 0.2s ease;
   text-decoration: underline;
 }
@@ -555,8 +556,8 @@ body {
 
 .error-message {
   color: var(--danger-color);
-  font-size: 11px;
-  margin-top: 4px;
+  font-size: 10px; /* Reduced from 11px */
+  margin-top: 3px; /* Reduced from 4px */
   display: none;
   font-weight: 500;
 }
@@ -579,12 +580,12 @@ body {
 .auth-submit-btn.loading::after {
   content: '';
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 14px; /* Reduced from 16px */
+  height: 14px; /* Reduced from 16px */
   top: 50%;
   left: 50%;
-  margin-left: -8px;
-  margin-top: -8px;
+  margin-left: -7px; /* Adjusted for new size */
+  margin-top: -7px; /* Adjusted for new size */
   border: 2px solid transparent;
   border-top-color: #ffffff;
   border-radius: 50%;
@@ -601,14 +602,14 @@ body {
   position: fixed;
   top: 20px;
   right: 20px;
-  padding: 12px 16px;
-  border-radius: 8px;
+  padding: 10px 14px; /* Reduced from 12px 16px */
+  border-radius: 6px; /* Reduced from 8px */
   color: white;
   font-weight: 500;
-  font-size: 13px;
+  font-size: 12px; /* Reduced from 13px */
   box-shadow: var(--shadow-xl);
   z-index: 10000;
-  max-width: 350px;
+  max-width: 300px; /* Reduced from 350px */
   animation: slideInRight 0.3s ease-out;
 }
 
@@ -639,7 +640,7 @@ body {
   background: var(--info-color);
 }
 
-/* Responsive Design - Compact */
+/* Responsive Design - More Compact */
 @media (max-width: 1024px) {
   .login-container {
     flex-direction: column;
@@ -652,13 +653,13 @@ body {
   }
   
   .login-left {
-    padding: 25px 20px;
-    min-height: 40vh;
+    padding: 20px 15px; /* Reduced from 25px 20px */
+    min-height: 35vh; /* Reduced from 40vh */
   }
   
   .login-right {
-    padding: 25px 20px;
-    min-height: 60vh;
+    padding: 20px 15px; /* Reduced from 25px 20px */
+    min-height: 65vh; /* Increased from 60vh */
   }
 }
 
@@ -675,7 +676,7 @@ body {
   }
   
   .login-left {
-    padding: 20px 15px;
+    padding: 15px 10px; /* Reduced from 20px 15px */
     min-height: auto;
     text-align: center;
   }
@@ -685,22 +686,22 @@ body {
   }
   
   .login-left h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
+    font-size: 20px; /* Reduced from 24px */
+    margin-bottom: 6px; /* Reduced from 10px */
   }
   
   .login-left > p {
-    font-size: 13px;
-    margin-bottom: 15px;
+    font-size: 12px; /* Reduced from 13px */
+    margin-bottom: 12px; /* Reduced from 15px */
   }
   
   .login-features {
-    margin-bottom: 15px;
+    margin-bottom: 12px; /* Reduced from 15px */
   }
   
   .feature-item {
     justify-content: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px; /* Reduced from 8px */
   }
   
   .feature-item:hover {
@@ -708,7 +709,7 @@ body {
   }
   
   .login-right {
-    padding: 20px 15px;
+    padding: 15px 10px; /* Reduced from 20px 15px */
     background: var(--white);
     overflow-y: visible;
   }
@@ -718,82 +719,85 @@ body {
   }
   
   .auth-form h3 {
-    font-size: 20px;
+    font-size: 16px; /* Reduced from 20px */
   }
   
   .form-group {
-    margin-bottom: 14px;
+    margin-bottom: 10px; /* Reduced from 14px */
   }
   
   .form-group input,
   .form-group select {
-    padding: 9px 11px;
-    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 7px 9px; /* Reduced from 9px 11px */
+    font-size: 16px; /* Keep 16px to prevent zoom on iOS */
   }
   
   .password-input-group input {
-    padding-right: 38px;
+    padding-right: 32px; /* Reduced from 38px */
   }
   
   .password-toggle {
-    right: 10px;
+    right: 8px; /* Reduced from 10px */
+    width: 20px; /* Reduced from previous size */
+    height: 20px; /* Reduced from previous size */
   }
   
   .form-options {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px; /* Reduced from 8px */
   }
   
   .social-buttons {
     flex-direction: column;
-    gap: 8px;
+    gap: 6px; /* Reduced from 8px */
   }
   
   .social-button {
     width: 100%;
+    padding: 8px; /* Slightly increased for mobile touch */
   }
   
   .login-logo img {
-    height: 25px; /* Reduced from previous mobile size */
-    max-width: 150px; /* Also reduced max-width */
+    height: 20px; /* Reduced from 25px */
+    max-width: 120px; /* Reduced from 150px */
     object-fit: contain;
   }
 }
 
 @media (max-width: 480px) {
   .login-left {
-    padding: 15px 10px;
+    padding: 12px 8px; /* Reduced from 15px 10px */
   }
   
   .login-left h1 {
-    font-size: 22px;
+    font-size: 18px; /* Reduced from 22px */
   }
   
   .login-left > p {
-    font-size: 12px;
+    font-size: 11px; /* Reduced from 12px */
   }
   
   .feature-item span {
-    font-size: 12px;
+    font-size: 11px; /* Reduced from 12px */
   }
   
   .login-right {
-    padding: 15px 10px;
+    padding: 12px 8px; /* Reduced from 15px 10px */
   }
   
   .auth-form h3 {
-    font-size: 18px;
+    font-size: 15px; /* Reduced from 18px */
   }
   
   .form-group input,
   .form-group select {
-    padding: 8px 10px;
+    padding: 6px 8px; /* Reduced from 8px 10px */
   }
   
   .auth-submit-btn {
-    padding: 10px;
-    font-size: 13px;
+    padding: 8px; /* Reduced from 10px */
+    font-size: 12px; /* Reduced from 13px */
   }
 }
 
@@ -839,7 +843,7 @@ body {
 
 /* Custom scrollbar for webkit browsers */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px; /* Reduced from 6px */
 }
 
 ::-webkit-scrollbar-track {
@@ -848,9 +852,50 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background: var(--gray-300);
-  border-radius: 3px;
+  border-radius: 2px; /* Reduced from 3px */
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-400);
 }
+
+/* Remove all sticky positioning and overlapping issues */
+.auth-tabs {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  box-shadow: none !important;
+  border-bottom: none !important;
+}
+
+.auth-form {
+  padding-top: 0 !important;
+}
+
+/* Ensure proper container sizing */
+.login-right {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.auth-container {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Make register form more compact */
+#registerForm {
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* Compact register form specific adjustments */
+#registerForm .form-group {
+  margin-bottom: 10px; /* Even more compact for register form */
+}
+
+#registerForm .auth-form > p {
+  margin-bottom: 12px; /* Reduced spacing for register form */
+}
+
