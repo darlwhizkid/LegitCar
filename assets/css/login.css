@@ -29,6 +29,15 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
+/* Force light mode for login page */
+:root {
+  color-scheme: light only !important;
+}
+
+html, body {
+  color-scheme: light only !important;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -790,14 +799,27 @@ body {
 
 /* Dark mode support (optional) */
 @media (prefers-color-scheme: dark) {
+  /* Force white backgrounds even in dark mode */
+  .login-right,
+  .auth-container,
+  .auth-form,
+  .form-group input,
+  .form-group select,
+  .auth-submit-btn,
+  .social-button {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+  }
+  
+  /* Keep the CSS variables as light theme */
   :root {
-    --text-color: #f1f5f9;
-    --text-light: #94a3b8;
-    --white: #0f172a;
-    --gray-50: #1e293b;
-    --gray-100: #334155;
-    --gray-200: #475569;
-    --border-color: #475569;
+    --white: #ffffff !important;
+    --text-color: #1e293b !important;
+    --text-light: #64748b !important;
+    --gray-50: #f8fafc !important;
+    --gray-100: #f1f5f9 !important;
+    --gray-200: #e2e8f0 !important;
+    --border-color: #e2e8f0 !important;
   }
 }
 
