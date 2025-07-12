@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   async function loadProfileData() {
   try {
-    // Fetch profile data from backend
+    // Fetch profile data from backend using the correct endpoint
     const response = await ApiService.get('/api/user/profile');
     
     if (response.success) {
@@ -277,8 +277,8 @@ function loadProfileDataFromLocalStorage() {
   const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
   
   // Populate basic fields if available
-  if (userData.name) document.getElementById('profileName').value = userData.name;
-  if (userData.email) document.getElementById('profileEmail').value = userData.email;
+  if (userData && userData.name) document.getElementById('profileName').value = userData.name;
+  if (userData && userData.email) document.getElementById('profileEmail').value = userData.email;
   
   // Load any existing localStorage profile picture
   const savedProfilePicture = localStorage.getItem('userProfilePicture');
@@ -286,6 +286,7 @@ function loadProfileDataFromLocalStorage() {
     profilePicturePreview.src = savedProfilePicture;
   }
 }
+
 
 
   async function saveProfile() {
@@ -304,14 +305,14 @@ function loadProfileDataFromLocalStorage() {
     const profilePictureFile = profilePictureInput.files[0];
     
     if (profilePictureFile) {
-      // Upload profile picture to backend
+      // Upload profile picture to backend using the correct endpoint
       const uploadFormData = new FormData();
       uploadFormData.append('profilePicture', profilePictureFile);
       
-      const uploadResponse = await ApiService.uploadFile('/api/user/upload-profile-picture', uploadFormData);
+      const uploadResponse = await ApiService.uploadFile('/api/upload/profile-picture', uploadFormData);
       
       if (uploadResponse.success) {
-        profilePictureUrl = uploadResponse.data.profilePictureUrl;
+        profilePictureUrl = uploadResponse.data.url || uploadResponse.data.profilePictureUrl;
         // Save to localStorage for immediate use
         localStorage.setItem('userProfilePicture', profilePictureUrl);
       } else {
@@ -332,7 +333,7 @@ function loadProfileDataFromLocalStorage() {
       profileData.profilePicture = profilePictureUrl;
     }
 
-    // Save profile data to backend
+    // Save profile data to backend using the correct endpoint
     const response = await ApiService.put('/api/user/profile', profileData);
     
     if (response.success) {
@@ -344,20 +345,21 @@ function loadProfileDataFromLocalStorage() {
       if (userNameElement) userNameElement.textContent = profileData.profileName || profileData.name;
       if (userEmailElement) userEmailElement.textContent = profileData.profileEmail || profileData.email;
       
-      showNotification('Profile saved successfully!', 'success');
+      Utils.showNotification('Profile saved successfully!', 'success');
     } else {
       throw new Error(response.message || 'Failed to save profile');
     }
     
   } catch (error) {
     console.error('Error saving profile:', error);
-    showNotification(error.message || 'Error saving profile. Please try again.', 'error');
+    Utils.showNotification(error.message || 'Error saving profile. Please try again.', 'error');
   } finally {
     // Reset button state
     submitBtn.innerHTML = originalText;
     submitBtn.disabled = false;
   }
 }
+
 
 
   function showFieldError(field, message) {
